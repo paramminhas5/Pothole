@@ -4,14 +4,16 @@ import { useState, useCallback } from 'react';
 import { Locale, Category, PostType, Urgency } from '@/types';
 import { CITIES_AREAS, CATEGORIES, MAX_DESCRIPTION_LENGTH } from '@/lib/constants';
 import { t } from '@/i18n';
-import EmailVerification from '@/components/EmailVerification';
+import ProofOfWork from '@/components/ProofOfWork';
 
 interface CreatePostClientProps {
   locale: Locale;
 }
 
 export default function CreatePostClient({ locale }: CreatePostClientProps) {
-  const [verified, setVerified] = useState(false);
+  const [powSolved, setPowSolved] = useState(false);
+  const [powChallenge, setPowChallenge] = useState('');
+  const [powNonce, setPowNonce] = useState(0);
   const [postType, setPostType] = useState<PostType>('need');
   const [category, setCategory] = useState<Category | ''>('');
   const [city, setCity] = useState('');
@@ -24,8 +26,10 @@ export default function CreatePostClient({ locale }: CreatePostClientProps) {
   const isHindi = locale === 'hi';
   const availableAreas = CITIES_AREAS.find((c) => c.city === city)?.areas || [];
 
-  const handleVerified = useCallback(() => {
-    setVerified(true);
+  const handlePowSolved = useCallback((challenge: string, nonce: number) => {
+    setPowChallenge(challenge);
+    setPowNonce(nonce);
+    setPowSolved(true);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,7 +42,12 @@ export default function CreatePostClient({ locale }: CreatePostClientProps) {
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: postType, category, city, area, urgency, description: description.trim() }),
+        body: JSON.stringify({
+          type: postType, category, city, area, urgency,
+          description: description.trim(),
+          pow_challenge: powChallenge,
+          pow_nonce: powNonce,
+        }),
       });
       if (res.status === 429) { setStatus('rate-limited'); return; }
       if (res.status === 422) {
@@ -64,28 +73,18 @@ export default function CreatePostClient({ locale }: CreatePostClientProps) {
   }
 
   return (
-    <EmailVerification locale={locale} onVerified={handleVerified}>
-      {verified && (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Post Type — big toggle */}
+    <ProofOfWork locale={locale} onSolved={handlePowSolved}>
+      {powSolved && (
+        <form onSubmit={handleSubmit} className="space-y-6 animate-slide-in">
+          {/* Post Type */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-3">{t(locale, 'createPost.typeLabel') as string}</label>
             <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setPostType('need')}
-                className={`brutal-btn brutal-btn-lg text-left ${postType === 'need' ? 'brutal-btn-danger' : ''}`}
-              >
-                <span className="text-xl mr-2">🆘</span>
-                {t(locale, 'createPost.typeNeed') as string}
+              <button type="button" onClick={() => setPostType('need')} className={`brutal-btn brutal-btn-lg text-left ${postType === 'need' ? 'brutal-btn-danger' : ''}`}>
+                <span className="text-xl mr-2">🆘</span> {t(locale, 'createPost.typeNeed') as string}
               </button>
-              <button
-                type="button"
-                onClick={() => setPostType('offer')}
-                className={`brutal-btn brutal-btn-lg text-left ${postType === 'offer' ? 'brutal-btn-success' : ''}`}
-              >
-                <span className="text-xl mr-2">🤝</span>
-                {t(locale, 'createPost.typeOffer') as string}
+              <button type="button" onClick={() => setPostType('offer')} className={`brutal-btn brutal-btn-lg text-left ${postType === 'offer' ? 'brutal-btn-success' : ''}`}>
+                <span className="text-xl mr-2">🤝</span> {t(locale, 'createPost.typeOffer') as string}
               </button>
             </div>
           </div>
@@ -107,18 +106,14 @@ export default function CreatePostClient({ locale }: CreatePostClientProps) {
               <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'createPost.cityLabel') as string}</label>
               <select value={city} onChange={(e) => { setCity(e.target.value); setArea(''); }} required className="brutal-select">
                 <option value="">{t(locale, 'common.allCities') as string}</option>
-                {CITIES_AREAS.map((c) => (
-                  <option key={c.city} value={c.city}>{c.city}</option>
-                ))}
+                {CITIES_AREAS.map((c) => (<option key={c.city} value={c.city}>{c.city}</option>))}
               </select>
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'createPost.areaLabel') as string}</label>
               <select value={area} onChange={(e) => setArea(e.target.value)} required disabled={!city} className="brutal-select">
                 <option value="">{t(locale, 'common.allAreas') as string}</option>
-                {availableAreas.map((a) => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
+                {availableAreas.map((a) => (<option key={a} value={a}>{a}</option>))}
               </select>
             </div>
           </div>
@@ -145,13 +140,10 @@ export default function CreatePostClient({ locale }: CreatePostClientProps) {
               onChange={(e) => setDescription(e.target.value.slice(0, MAX_DESCRIPTION_LENGTH))}
               placeholder={t(locale, 'createPost.descriptionPlaceholder') as string}
               maxLength={MAX_DESCRIPTION_LENGTH}
-              required
-              rows={4}
+              required rows={4}
               className="brutal-textarea"
             />
-            <p className="text-xs text-[var(--color-text-muted)] text-right mt-1 font-mono">
-              {description.length}/{MAX_DESCRIPTION_LENGTH}
-            </p>
+            <p className="text-xs text-[var(--color-text-muted)] text-right mt-1 font-mono">{description.length}/{MAX_DESCRIPTION_LENGTH}</p>
           </div>
 
           {/* Submit */}
@@ -172,6 +164,6 @@ export default function CreatePostClient({ locale }: CreatePostClientProps) {
           )}
         </form>
       )}
-    </EmailVerification>
+    </ProofOfWork>
   );
 }

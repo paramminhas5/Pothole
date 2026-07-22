@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { checkRateLimit, recordRateLimit } from '@/lib/rate-limit';
 import { POST_EXPIRY_HOURS, MAX_DESCRIPTION_LENGTH } from '@/lib/constants';
 import { hasBlockingPII } from '@/lib/moderation';
+import { verifyProofOfWork, POW_DIFFICULTY } from '@/lib/proof-of-work';
 
 // GET /api/posts — public, returns approved non-expired posts
 export async function GET(request: NextRequest) {
@@ -45,7 +46,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, category, city, area, urgency, description } = body;
+    const { type, category, city, area, urgency, description, pow_challenge, pow_nonce } = body;
+
+    // Verify proof-of-work (anti-spam, zero cost, no third party)
+    if (pow_challenge && pow_nonce !== undefined) {
+      const validPow = await verifyProofOfWork(pow_challenge, pow_nonce, POW_DIFFICULTY);
+      if (!validPow) {
+        return NextResponse.json({ error: 'Invalid proof-of-work' }, { status: 403 });
+      }
+    }
 
     // Validate
     if (!type || !category || !city || !area || !description?.trim()) {

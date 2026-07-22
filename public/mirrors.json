@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "updated": "2026-07-22",
+  "primary": "https://sahayata.vercel.app",
+  "mirrors": [
+    {
+      "url": "https://sahayata.vercel.app",
+      "type": "full",
+      "status": "active",
+      "region": "global"
+    },
+    {
+      "url": "https://sahayata.pages.dev",
+      "type": "full",
+      "status": "active",
+      "region": "global",
+      "note": "Cloudflare Pages mirror"
+    },
+    {
+      "url": "https://sahayata.netlify.app",
+      "type": "full",
+      "status": "active",
+      "region": "global",
+      "note": "Netlify mirror"
+    }
+  ],
+  "static_exports": [
+    {
+      "url": "/api/export?format=html",
+      "description": "Self-contained HTML file of entire directory + active posts. Host anywhere."
+    },
+    {
+      "url": "/api/export?format=json",
+      "description": "JSON export of all public data. Use to build your own interface."
+    }
+  ],
+  "instructions": {
+    "create_mirror": "1. Fork the repo. 2. Deploy to Vercel/Cloudflare/Netlify. 3. Point to same Supabase or use /api/export for static data. 4. Add your URL to this file via PR.",
+    "static_mirror": "Fetch /api/export?format=html — it gives you a single self-contained HTML file with the full directory and all active posts. Upload that HTML file anywhere (GitHub Pages, IPFS, your own server).",
+    "ipfs": "Pin the HTML export to IPFS. Share the CID. It's immutable and uncensorable.",
+    "telegram": "Share the static HTML file in Telegram channels. It works as a local file too."
+  }
+}
