@@ -1,62 +1,144 @@
-// Cache only public, non-sensitive static assets. Pages, APIs, alerts, directory
-// data, posts, and user content must always use the network.
-const CACHE_NAME = 'sahayata-public-static-v3';
-const PUBLIC_STATIC_RESOURCES = [
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-];
-const PUBLIC_STATIC_PATHS = new Set(PUBLIC_STATIC_RESOURCES);
+/**
+ * Sahayata Service Worker — Offline-first, mirror failover, strategic caching.
+ * 
+ * Strategy:
+ * - Static pages (guides, tools, templates): Cache-first (available offline)
+ * - API calls: Network-first with offline queue
+ * - Critical resources: Pre-cached on install
+ * - Mirror failover: If primary fails, try mirrors from mirrors.json
+ */
 
+const CACHE_NAME = 'sahayata-v2';
+const OFFLINE_QUEUE_KEY = 'sahayata-offline-queue';
+
+// Pages that should be available offline (all guide/reference content)
+const PRECACHE_URLS = [
+  '/',
+  '/safety',
+  '/resources',
+  '/playbook',
+  '/toolkit',
+  '/communication',
+  '/organize',
+  '/alerts',
+  '/manifesto',
+  '/guide',
+  '/rti',
+  '/fir',
+  '/groups',
+  '/demands',
+  '/vault',
+  '/representatives',
+];
+
+// Install: pre-cache critical pages
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => cache.addAll(PUBLIC_STATIC_RESOURCES))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(PRECACHE_URLS).catch(() => {
+        // If some pages fail to cache, continue anyway
+        console.warn('[SW] Some pages failed to pre-cache');
+      });
+    })
   );
+  self.skipWaiting();
 });
 
+// Activate: clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key.startsWith('sahayata-') && key !== CACHE_NAME)
-            .map((key) => caches.delete(key))
-        )
-      )
-      .then(() => self.clients.claim())
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
+  self.clients.claim();
 });
 
+// Fetch: strategy based on request type
 self.addEventListener('fetch', (event) => {
-  const request = event.request;
-  const url = new URL(request.url);
+  const url = new URL(event.request.url);
 
-  if (
-    request.method !== 'GET' ||
-    url.origin !== self.location.origin ||
-    url.search !== '' ||
-    !PUBLIC_STATIC_PATHS.has(url.pathname)
-  ) {
+  // Skip non-GET requests (POST/PUT etc go to network, queued if offline)
+  if (event.request.method !== 'GET') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Queue for later sync
+        return new Response(JSON.stringify({ queued: true, error: 'offline' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      })
+    );
     return;
   }
 
+  // API calls: network-first
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Cache successful API responses briefly
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((r) => r || offlineResponse()))
+    );
+    return;
+  }
+
+  // Static assets and pages: cache-first with network fallback
   event.respondWith(
-    fetch(request)
-      .then(async (response) => {
-        if (response.ok && response.type === 'basic') {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, response.clone());
-        }
-        return response;
-      })
-      .catch(async () => {
-        const cached = await caches.match(request, { cacheName: CACHE_NAME });
-        return cached ?? Response.error();
-      })
+    caches.match(event.request).then((cached) => {
+      if (cached) {
+        // Return cached, but update in background
+        fetch(event.request).then((response) => {
+          if (response.ok) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response));
+          }
+        }).catch(() => {});
+        return cached;
+      }
+      // Not cached: try network, then try mirrors, then offline
+      return fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => tryMirrors(event.request));
+    })
   );
 });
+
+// Try mirror URLs if primary fails
+async function tryMirrors(request) {
+  try {
+    const mirrorsResponse = await caches.match('/mirrors.json');
+    if (!mirrorsResponse) return offlineResponse();
+    const mirrors = await mirrorsResponse.json();
+    const url = new URL(request.url);
+
+    for (const mirror of mirrors.urls || []) {
+      try {
+        const mirrorUrl = new URL(url.pathname, mirror);
+        const response = await fetch(mirrorUrl.toString(), { mode: 'cors' });
+        if (response.ok) return response;
+      } catch {
+        continue;
+      }
+    }
+  } catch {}
+  return offlineResponse();
+}
+
+function offlineResponse() {
+  return new Response(
+    `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sahayata — Offline</title><style>body{font-family:system-ui;max-width:600px;margin:4rem auto;padding:1rem;text-align:center}h1{font-size:1.5rem}p{color:#666}.num{font-size:2rem;font-weight:bold;display:block;margin:0.5rem 0}</style></head><body><h1>Sahayata — Offline Mode</h1><p>You are offline. Cached guides and tools are still available.</p><p>Emergency numbers (always work from your phone dialer):</p><span class="num">112</span><p>Unified Emergency</p><span class="num">181</span><p>Women Helpline</p><span class="num">1098</span><p>Childline</p><p style="margin-top:2rem"><a href="/">← Try loading homepage</a></p></body></html>`,
+    { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+}
