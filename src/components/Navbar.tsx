@@ -13,8 +13,8 @@ export default function Navbar({ locale }: NavbarProps) {
 
   const isHindi = locale === 'hi';
   const labels = isHindi
-    ? { home: 'होम', directory: 'निर्देशिका', board: 'ज़रूरतें और प्रस्ताव', register: 'समूह जोड़ें', post: 'पोस्ट करें', myPosts: 'मेरी पोस्ट', safety: 'अपने अधिकार जानें', lang: 'EN' }
-    : { home: 'Home', directory: 'Directory', board: 'Needs & Offers', register: 'Add Group', post: 'Post', myPosts: 'My Posts', safety: 'Know Your Rights', lang: 'हि' };
+    ? { home: 'होम', directory: 'निर्देशिका', board: 'ज़रूरतें और प्रस्ताव', register: 'समूह जोड़ें', post: 'पोस्ट करें', myPosts: 'मेरी पोस्ट', safety: 'अधिकार', toolkit: 'टूलकिट', lang: 'EN' }
+    : { home: 'Home', directory: 'Directory', board: 'Needs & Offers', register: 'Add Group', post: 'Post', myPosts: 'My Posts', safety: 'Rights', toolkit: 'Toolkit', lang: 'हि' };
 
   const toggleLocale = () => {
     const newLocale = isHindi ? 'en' : 'hi';
@@ -46,6 +46,9 @@ export default function Navbar({ locale }: NavbarProps) {
             </Link>
             <Link href="/safety" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
               {labels.safety}
+            </Link>
+            <Link href="/toolkit" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
+              {labels.toolkit}
             </Link>
             <Link href="/my-posts" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
               {labels.myPosts}
@@ -95,6 +98,9 @@ export default function Navbar({ locale }: NavbarProps) {
               </Link>
               <Link href="/safety" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
                 {labels.safety}
+              </Link>
+              <Link href="/toolkit" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
+                {labels.toolkit}
               </Link>
               <Link href="/my-posts" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
                 {labels.myPosts}
