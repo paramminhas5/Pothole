@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { generateChallenge, POW_DIFFICULTY } from '@/lib/proof-of-work';
+import { issueProofOfWorkChallenge, POW_DIFFICULTY } from '@/lib/proof-of-work';
 
-// GET /api/pow — get a fresh challenge for proof-of-work
 export async function GET() {
-  const { challenge, timestamp } = generateChallenge();
-
-  return NextResponse.json({
-    challenge,
-    difficulty: POW_DIFFICULTY,
-    timestamp,
-    expiresIn: 300, // 5 minutes in seconds
-  });
+  try {
+    const { challenge, timestamp } = await issueProofOfWorkChallenge();
+    return NextResponse.json(
+      { challenge, difficulty: POW_DIFFICULTY, timestamp, expiresIn: 300 },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
+  } catch {
+    return NextResponse.json({ error: 'Verification service unavailable' }, { status: 503 });
+  }
 }

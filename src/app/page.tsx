@@ -1,199 +1,33 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Locale } from '@/types';
-import { t } from '@/i18n';
 
 export default async function HomePage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  const isHindi = locale === 'hi';
-
+  const hi = locale === 'hi';
   return (
     <div>
-      {/* Hero — massive, bold, unmistakable */}
-      <section className="border-b-[3px] border-[var(--color-border)] bg-[var(--color-card)]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
-          <div className="max-w-4xl">
-            <h1 className="heading-display mb-6">
-              {isHindi ? (
-                <>मैं कहाँ जुड़ूँ?<br /><span className="text-[var(--color-accent)]">क्या चाहिए?</span><br />मैं क्या दे सकता हूँ?</>
-              ) : (
-                <>Where do I plug in?<br /><span className="text-[var(--color-accent)]">What&apos;s needed?</span><br />What can I offer?</>
-              )}
-            </h1>
-            <p className="text-lg md:text-xl text-[var(--color-text-muted)] max-w-2xl mb-10 leading-relaxed">
-              {t(locale, 'home.heroSubtitle') as string}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/directory" className="brutal-btn brutal-btn-dark brutal-btn-lg">
-                {isHindi ? 'निर्देशिका देखें' : 'BROWSE DIRECTORY'} →
-              </Link>
-              <Link href="/board" className="brutal-btn brutal-btn-primary brutal-btn-lg">
-                {isHindi ? 'ज़रूरतें और प्रस्ताव' : 'NEEDS & OFFERS'} →
-              </Link>
-              <Link href="/create-post" className="brutal-btn brutal-btn-lg">
-                {isHindi ? 'पोस्ट करें' : 'POST NOW'} →
-              </Link>
-            </div>
-          </div>
+      <section className="home-hero" aria-labelledby="home-title">
+        <div className="page-shell home-hero-inner">
+          <p className="eyebrow">{hi ? 'स्थानीय मदद, सरल तरीके से' : 'Local help, made simple'}</p>
+          <h1 id="home-title" className="home-title">{hi ? 'आपको आज क्या चाहिए?' : 'What do you need today?'}</h1>
+          <p className="home-intro">{hi ? 'मदद माँगें, मदद दें, या अपने पास का भरोसेमंद सहायता समूह खोजें।' : 'Ask for help, offer help, or find a support group near you.'}</p>
+          <Link href="/create-post" className="brutal-btn brutal-btn-primary brutal-btn-lg home-primary-action">{hi ? 'मदद पाएँ' : 'Get help'}</Link>
+          <p className="action-note">{hi ? 'पोस्ट करने में कुछ मिनट लगते हैं। सार्वजनिक होने से पहले इसकी समीक्षा होगी।' : 'It takes a few minutes. Your post is reviewed before it becomes public.'}</p>
         </div>
       </section>
-
-      {/* Safety Banner — always visible */}
-      <div className="brutal-banner text-center">
-        ⚠️ {t(locale, 'common.safetyNote') as string}
-      </div>
-
-      {/* Live Stats */}
-      <section className="border-b-[3px] border-[var(--color-border)]">
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          <div className="brutal-stat border-r-[2.5px] border-b-[2.5px] md:border-b-0 border-[var(--color-border)]">
-            <div className="brutal-stat-number">12</div>
-            <div className="brutal-stat-label">{isHindi ? 'शहर' : 'Cities'}</div>
-          </div>
-          <div className="brutal-stat border-b-[2.5px] md:border-b-0 md:border-r-[2.5px] border-[var(--color-border)]">
-            <div className="brutal-stat-number">47</div>
-            <div className="brutal-stat-label">{isHindi ? 'सक्रिय समूह' : 'Active Groups'}</div>
-          </div>
-          <div className="brutal-stat border-r-[2.5px] border-[var(--color-border)]">
-            <div className="brutal-stat-number">156</div>
-            <div className="brutal-stat-label">{isHindi ? 'खुली ज़रूरतें' : 'Open Needs'}</div>
-          </div>
-          <div className="brutal-stat">
-            <div className="brutal-stat-number">89</div>
-            <div className="brutal-stat-label">{isHindi ? 'प्रस्ताव' : 'Offers'}</div>
-          </div>
+      <section className="page-shell home-choices" aria-labelledby="choose-title">
+        <h2 id="choose-title" className="section-title">{hi ? 'एक रास्ता चुनें' : 'Choose one path'}</h2>
+        <div className="choice-grid">
+          <article className="choice-card choice-card-primary"><p className="choice-number" aria-hidden="true">1</p><h3>{hi ? 'मदद पाएँ' : 'Get help'}</h3><p>{hi ? 'भोजन, यात्रा, चिकित्सा या दूसरी जरूरत के लिए छोटी पोस्ट बनाएँ।' : 'Make a short post for food, transport, medical, or other help.'}</p><Link href="/create-post" className="choice-link">{hi ? 'मदद माँगें' : 'Ask for help'} <span aria-hidden="true">→</span></Link></article>
+          <article className="choice-card"><p className="choice-number" aria-hidden="true">2</p><h3>{hi ? 'मदद करें' : 'Offer help'}</h3><p>{hi ? 'देखें कि लोगों को क्या चाहिए और सुरक्षित रूप से जवाब दें।' : 'See what people need and respond safely.'}</p><Link href="/board" className="choice-link">{hi ? 'जरूरतें देखें' : 'View needs'} <span aria-hidden="true">→</span></Link></article>
+          <article className="choice-card"><p className="choice-number" aria-hidden="true">3</p><h3>{hi ? 'सहायता खोजें' : 'Find support'}</h3><p>{hi ? 'अपने शहर में जमा की गई सहायता लिस्टिंग खोजें।' : 'Find submitted support listings in your city.'}</p><Link href="/directory" className="choice-link">{hi ? 'समूह खोजें' : 'Find a group'} <span aria-hidden="true">→</span></Link></article>
         </div>
       </section>
-
-      {/* What this is / What this isn't */}
-      <section className="border-b-[3px] border-[var(--color-border)]">
-        <div className="grid md:grid-cols-2">
-          <div className="p-8 md:p-12 border-b-[2.5px] md:border-b-0 md:border-r-[2.5px] border-[var(--color-border)] bg-[var(--color-lime)]/10">
-            <div className="brutal-badge brutal-badge-lime mb-4">✓ {isHindi ? 'यह क्या है' : 'WHAT THIS IS'}</div>
-            <p className="text-[var(--color-text)] leading-relaxed">
-              {t(locale, 'home.whatIsThisText') as string}
-            </p>
-          </div>
-          <div className="p-8 md:p-12 bg-[var(--color-red)]/5">
-            <div className="brutal-badge brutal-badge-red mb-4">✗ {isHindi ? 'यह क्या नहीं है' : 'WHAT THIS IS NOT'}</div>
-            <p className="text-[var(--color-text)] leading-relaxed">
-              {t(locale, 'home.whatIsNotThisText') as string}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Cards — how it works */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
-        <h2 className="heading-1 mb-12">
-          {isHindi ? 'यह कैसे काम करता है' : 'How It Works'}
-        </h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <Link href="/directory" className="brutal-card group">
-            <div className="text-4xl mb-4">📋</div>
-            <h3 className="heading-3 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
-              {isHindi ? '1. समूह खोजें' : '1. Find a Group'}
-            </h3>
-            <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-              {t(locale, 'home.directoryDesc') as string}
-            </p>
-          </Link>
-
-          <Link href="/create-post" className="brutal-card group">
-            <div className="text-4xl mb-4">🔄</div>
-            <h3 className="heading-3 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
-              {isHindi ? '2. ज़रूरत या प्रस्ताव पोस्ट करें' : '2. Post a Need or Offer'}
-            </h3>
-            <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-              {t(locale, 'home.boardDesc') as string}
-            </p>
-          </Link>
-
-          <Link href="/board" className="brutal-card group">
-            <div className="text-4xl mb-4">🤝</div>
-            <h3 className="heading-3 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
-              {isHindi ? '3. जुड़ें और मदद करें' : '3. Connect & Help'}
-            </h3>
-            <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-              {isHindi
-                ? 'किसी ज़रूरत का जवाब दें — आपकी संपर्क जानकारी निजी रूप से केवल पोस्टर को भेजी जाती है।'
-                : 'Respond to a need — your contact info is sent privately to the poster only. No public exposure.'}
-            </p>
-          </Link>
-        </div>
-      </section>
-
-      {/* Trust Pillars */}
-      <section className="border-t-[3px] border-[var(--color-border)] bg-[var(--color-card)]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
-          <h2 className="heading-1 mb-12">
-            {isHindi ? 'विश्वास ही उत्पाद है' : 'Trust Is The Product'}
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="brutal-card-flat">
-              <div className="text-2xl mb-3">🔒</div>
-              <h3 className="font-bold mb-1 text-sm uppercase tracking-wide">{isHindi ? 'कोई असली नाम नहीं' : 'No Real Names'}</h3>
-              <p className="text-xs text-[var(--color-text-muted)]">{isHindi ? 'कहीं भी पूरा नाम या ID नहीं माँगी जाती' : 'Never asks for full name or ID anywhere'}</p>
-            </div>
-            <div className="brutal-card-flat">
-              <div className="text-2xl mb-3">📍</div>
-              <h3 className="font-bold mb-1 text-sm uppercase tracking-wide">{isHindi ? 'शहर/क्षेत्र ही' : 'City/Area Only'}</h3>
-              <p className="text-xs text-[var(--color-text-muted)]">{isHindi ? 'कोई सटीक स्थान नहीं। कोई मैप पिन नहीं।' : 'No precise location. No map pin. Fixed dropdown.'}</p>
-            </div>
-            <div className="brutal-card-flat">
-              <div className="text-2xl mb-3">⏰</div>
-              <h3 className="font-bold mb-1 text-sm uppercase tracking-wide">{isHindi ? '72 घंटे में समाप्त' : '72h Auto-Expiry'}</h3>
-              <p className="text-xs text-[var(--color-text-muted)]">{isHindi ? 'सभी पोस्ट स्वचालित रूप से हटा दी जाती हैं' : 'All posts automatically removed. No data hoarding.'}</p>
-            </div>
-            <div className="brutal-card-flat">
-              <div className="text-2xl mb-3">🛡️</div>
-              <h3 className="font-bold mb-1 text-sm uppercase tracking-wide">{isHindi ? 'संपर्क रिले' : 'Contact Relay'}</h3>
-              <p className="text-xs text-[var(--color-text-muted)]">{isHindi ? 'फ़ोन नंबर कभी सार्वजनिक नहीं होते' : 'Phone numbers never public. Private relay only.'}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Moderation Policy */}
-      <section className="border-t-[3px] border-[var(--color-border)]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-16">
-          <div className="max-w-2xl">
-            <div className="brutal-badge brutal-badge-purple mb-4">{isHindi ? 'सामग्री नीति' : 'CONTENT POLICY'}</div>
-            <h2 className="heading-2 mb-4">{t(locale, 'moderation.policyIntro') as string}</h2>
-            <ul className="space-y-2">
-              {(t(locale, 'moderation.policyItems') as string[]).map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-[var(--color-text-muted)]">
-                  <span className="text-[var(--color-red)] font-bold mt-0.5">×</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="border-t-[3px] border-[var(--color-border)] bg-[var(--color-accent)]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 text-center">
-          <h2 className="heading-1 text-white mb-4">
-            {isHindi ? 'आज ही जुड़ें' : 'Get Involved Today'}
-          </h2>
-          <p className="text-white/80 mb-8 max-w-lg mx-auto">
-            {isHindi
-              ? 'चाहे आप मदद माँग रहे हों या मदद दे रहे हों — कनेक्ट करने में 30 सेकंड लगते हैं।'
-              : 'Whether you need help or can give it — it takes 30 seconds to connect.'}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/create-post" className="brutal-btn brutal-btn-dark brutal-btn-lg">
-              {isHindi ? 'ज़रूरत पोस्ट करें' : 'POST A NEED'}
-            </Link>
-            <Link href="/submit-chapter" className="brutal-btn brutal-btn-lg bg-white">
-              {isHindi ? 'अपना समूह जोड़ें' : 'ADD YOUR GROUP'}
-            </Link>
-          </div>
-        </div>
-      </section>
+      <section className="safety-strip" aria-labelledby="before-title"><div className="page-shell safety-strip-inner"><div><p className="eyebrow">{hi ? 'शुरू करने से पहले' : 'Before you start'}</p><h2 id="before-title" className="section-title">{hi ? 'अपनी निजी जानकारी सुरक्षित रखें' : 'Keep your private details safe'}</h2></div><ul className="plain-list"><li>{hi ? 'सटीक पता, पूरा नाम या पहचान संख्या पोस्ट न करें।' : 'Do not post your exact address, full name, or ID number.'}</li><li>{hi ? 'किसी अजनबी से अकेले न मिलें।' : 'Do not meet a stranger alone.'}</li><li>{hi ? '18 वर्ष से कम हैं तो भरोसेमंद वयस्क से मदद लें।' : 'If you are under 18, ask a trusted adult to help.'}</li></ul><Link href="/safety" className="text-link">{hi ? 'पूरी सुरक्षा गाइड पढ़ें' : 'Read the full safety guide'} <span aria-hidden="true">→</span></Link></div></section>
+      <section className="page-shell how-it-works" aria-labelledby="next-title"><h2 id="next-title" className="section-title">{hi ? 'आगे क्या होगा' : 'What happens next'}</h2><ol className="steps-list"><li><strong>{hi ? 'आप कम जानकारी साझा करते हैं।' : 'You share only what is needed.'}</strong><span>{hi ? 'शहर और क्षेत्र चुनें; सटीक स्थान नहीं।' : 'Choose a city and area, not a precise location.'}</span></li><li><strong>{hi ? 'एक मॉडरेटर जाँचता है।' : 'A moderator checks it.'}</strong><span>{hi ? 'मॉडरेटर हानिकारक सामग्री और साफ़ दिखने वाली निजी जानकारी खोजता है, लेकिन कुछ छूट सकता है।' : 'A moderator checks submissions for harmful content and obvious private details, but some content may be missed.'}</span></li><li><strong>{hi ? 'आप तय करते हैं कि जवाब देना है या नहीं।' : 'You choose whether to reply.'}</strong><span>{hi ? 'पहले सुरक्षा जाँचें। किसी पर भरोसा करना जरूरी नहीं है।' : 'Check safety first. You never have to trust or meet anyone.'}</span></li></ol></section>
+      <aside className="emergency-note" aria-label={hi ? 'आपातकालीन सूचना' : 'Emergency notice'}><div className="page-shell"><strong>{hi ? 'तुरंत खतरा है?' : 'In immediate danger?'}</strong>{' '}{hi ? 'इस साइट का इंतज़ार न करें। अपने स्थानीय आपातकालीन सेवा या भरोसेमंद वयस्क से अभी संपर्क करें।' : 'Do not wait for this site. Contact local emergency services or a trusted adult now.'}</div></aside>
     </div>
   );
 }
