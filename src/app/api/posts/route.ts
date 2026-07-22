@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { checkRateLimit, recordRateLimit } from '@/lib/rate-limit';
 import { POST_EXPIRY_HOURS, MAX_DESCRIPTION_LENGTH } from '@/lib/constants';
+import { hasBlockingPII } from '@/lib/moderation';
 
 // GET /api/posts — public, returns approved non-expired posts
 export async function GET(request: NextRequest) {
@@ -57,6 +58,14 @@ export async function POST(request: NextRequest) {
 
     if (!['routine', 'urgent'].includes(urgency || 'routine')) {
       return NextResponse.json({ error: 'Invalid urgency' }, { status: 400 });
+    }
+
+    // Check for PII leakage (phone numbers, Aadhaar, etc.)
+    if (hasBlockingPII(description)) {
+      return NextResponse.json(
+        { error: 'Your post contains personal information (phone number, ID number). Please remove it for safety.' },
+        { status: 422 }
+      );
     }
 
     // Get or create session

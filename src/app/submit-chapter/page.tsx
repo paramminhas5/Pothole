@@ -8,9 +8,12 @@ export default async function SubmitChapterPage() {
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold mb-2">{t(locale, 'submitChapter.title') as string}</h1>
+    <div className="max-w-2xl mx-auto px-4 md:px-6 py-12">
+      <div className="mb-10">
+        <div className="brutal-badge brutal-badge-purple mb-4">
+          {locale === 'hi' ? 'पंजीकरण' : 'REGISTER'}
+        </div>
+        <h1 className="heading-1 mb-3">{t(locale, 'submitChapter.title') as string}</h1>
         <p className="text-[var(--color-text-muted)]">{t(locale, 'submitChapter.subtitle') as string}</p>
       </div>
       <SubmitChapterClient locale={locale} />

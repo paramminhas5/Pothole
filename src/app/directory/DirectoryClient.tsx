@@ -27,7 +27,6 @@ export default function DirectoryClient({ locale }: DirectoryClientProps) {
       const params = new URLSearchParams();
       if (cityFilter) params.set('city', cityFilter);
       if (categoryFilter) params.set('category', categoryFilter);
-
       const res = await fetch(`/api/chapters?${params.toString()}`);
       const data = await res.json();
       setChapters(data.chapters || []);
@@ -54,21 +53,25 @@ export default function DirectoryClient({ locale }: DirectoryClientProps) {
     return locale === 'hi' ? found.labelHi : found.labelEn;
   };
 
+  const isHindi = locale === 'hi';
+
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col md:flex-row gap-3 mb-8">
         <input
           type="text"
           placeholder={t(locale, 'common.search') as string}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-card)] text-sm"
+          className="brutal-input flex-1"
+          aria-label="Search chapters"
         />
         <select
           value={cityFilter}
           onChange={(e) => setCityFilter(e.target.value)}
-          className="px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-card)] text-sm"
+          className="brutal-select md:w-48"
+          aria-label="Filter by city"
         >
           <option value="">{t(locale, 'common.allCities') as string}</option>
           {CITIES_AREAS.map((c) => (
@@ -78,7 +81,8 @@ export default function DirectoryClient({ locale }: DirectoryClientProps) {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-card)] text-sm"
+          className="brutal-select md:w-48"
+          aria-label="Filter by category"
         >
           <option value="">{t(locale, 'common.allCategories') as string}</option>
           {CATEGORIES.map((c) => (
@@ -90,58 +94,56 @@ export default function DirectoryClient({ locale }: DirectoryClientProps) {
       </div>
 
       {/* Register CTA */}
-      <div className="mb-6">
-        <Link
-          href="/submit-chapter"
-          className="inline-block text-sm bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors"
-        >
+      <div className="mb-8">
+        <Link href="/submit-chapter" className="brutal-btn brutal-btn-primary brutal-btn-sm">
           + {t(locale, 'directory.registerNew') as string}
         </Link>
       </div>
 
       {/* Results */}
       {loading ? (
-        <div className="text-center py-12 text-[var(--color-text-muted)]">{t(locale, 'common.loading') as string}</div>
+        <div className="text-center py-16">
+          <div className="brutal-badge">{t(locale, 'common.loading') as string}</div>
+        </div>
       ) : filteredChapters.length === 0 ? (
-        <div className="text-center py-12 text-[var(--color-text-muted)]">{t(locale, 'directory.noChapters') as string}</div>
+        <div className="text-center py-16">
+          <p className="text-[var(--color-text-muted)] text-lg">{t(locale, 'directory.noChapters') as string}</p>
+          <Link href="/submit-chapter" className="brutal-btn brutal-btn-primary mt-4">
+            {isHindi ? 'पहला समूह जोड़ें' : 'ADD THE FIRST GROUP'} →
+          </Link>
+        </div>
       ) : (
         <div className="grid gap-4">
           {filteredChapters.map((chapter) => (
-            <div
-              key={chapter.id}
-              className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-5 hover:border-[var(--color-primary)] transition-colors"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div key={chapter.id} className="brutal-card">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg mb-1">{chapter.name}</h3>
-                  <p className="text-sm text-[var(--color-text-muted)] mb-2">
+                  <h3 className="heading-3 mb-1">{chapter.name}</h3>
+                  <p className="text-sm text-[var(--color-text-muted)] mb-3 font-medium">
                     📍 {chapter.city} — {chapter.area}
                   </p>
                   {chapter.description && (
-                    <p className="text-sm mb-3">{chapter.description}</p>
+                    <p className="text-sm mb-4 leading-relaxed">{chapter.description}</p>
                   )}
-                  <div className="flex flex-wrap gap-1.5 mb-3">
+                  <div className="flex flex-wrap gap-2">
                     {chapter.categories.map((cat) => (
-                      <span
-                        key={cat}
-                        className="text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-[var(--color-primary)] rounded-full"
-                      >
+                      <span key={cat} className="brutal-badge brutal-badge-sky">
                         {getCategoryLabel(cat as Category)}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 items-end">
+                <div className="flex flex-col gap-2 items-end shrink-0">
                   <a
                     href={chapter.contact_method}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm bg-[var(--color-primary)] text-white px-3 py-1.5 rounded hover:bg-[var(--color-primary-dark)] transition-colors"
+                    className="brutal-btn brutal-btn-primary brutal-btn-sm"
                   >
                     {t(locale, 'directory.contact') as string} →
                   </a>
-                  <span className="text-xs text-[var(--color-text-muted)]">
-                    {t(locale, 'directory.lastActive') as string}: {new Date(chapter.updated_at).toLocaleDateString()}
+                  <span className="text-xs text-[var(--color-text-muted)] font-medium">
+                    {t(locale, 'directory.lastActive') as string}: {new Date(chapter.updated_at).toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-IN')}
                   </span>
                 </div>
               </div>
