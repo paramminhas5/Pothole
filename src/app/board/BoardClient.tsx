@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Post, Locale, Category, PostType } from '@/types';
 import { CITIES_AREAS, CATEGORIES } from '@/lib/constants';
@@ -21,18 +21,15 @@ export default function BoardClient({ locale }: BoardClientProps) {
   const [responseMessage, setResponseMessage] = useState('');
   const [responseSent, setResponseSent] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [typeFilter, cityFilter, categoryFilter]);
+  const isHindi = locale === 'hi';
 
-  async function fetchPosts() {
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (typeFilter) params.set('type', typeFilter);
       if (cityFilter) params.set('city', cityFilter);
       if (categoryFilter) params.set('category', categoryFilter);
-
       const res = await fetch(`/api/posts?${params.toString()}`);
       const data = await res.json();
       setPosts(data.posts || []);
@@ -41,11 +38,14 @@ export default function BoardClient({ locale }: BoardClientProps) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [typeFilter, cityFilter, categoryFilter]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   async function handleRespond(postId: string) {
     if (!responseContact.trim()) return;
-
     try {
       const res = await fetch('/api/posts/respond', {
         method: 'POST',
@@ -63,15 +63,12 @@ export default function BoardClient({ locale }: BoardClientProps) {
         setResponseMessage('');
         setTimeout(() => setResponseSent(null), 5000);
       }
-    } catch {
-      // Silent fail
-    }
+    } catch { /* silent */ }
   }
 
   async function handleReport(postId: string) {
-    const reason = prompt(locale === 'hi' ? 'रिपोर्ट का कारण:' : 'Reason for report:');
+    const reason = prompt(isHindi ? 'रिपोर्ट का कारण:' : 'Reason for report:');
     if (!reason) return;
-
     await fetch('/api/reports', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -93,31 +90,27 @@ export default function BoardClient({ locale }: BoardClientProps) {
   return (
     <div>
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setTypeFilter('')}
-            className={`px-3 py-1.5 rounded text-sm font-medium ${typeFilter === '' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-card)] border border-[var(--color-border)]'}`}
-          >
-            {t(locale, 'board.all') as string}
-          </button>
-          <button
-            onClick={() => setTypeFilter('need')}
-            className={`px-3 py-1.5 rounded text-sm font-medium ${typeFilter === 'need' ? 'bg-[var(--color-urgent)] text-white' : 'bg-[var(--color-card)] border border-[var(--color-border)]'}`}
-          >
-            {t(locale, 'board.needs') as string}
-          </button>
-          <button
-            onClick={() => setTypeFilter('offer')}
-            className={`px-3 py-1.5 rounded text-sm font-medium ${typeFilter === 'offer' ? 'bg-[var(--color-success)] text-white' : 'bg-[var(--color-card)] border border-[var(--color-border)]'}`}
-          >
-            {t(locale, 'board.offers') as string}
-          </button>
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
+        <div className="flex gap-2 flex-wrap">
+          {(['', 'need', 'offer'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setTypeFilter(type)}
+              className={`brutal-btn brutal-btn-sm ${
+                typeFilter === type
+                  ? type === 'need' ? 'brutal-btn-danger' : type === 'offer' ? 'brutal-btn-success' : 'brutal-btn-dark'
+                  : ''
+              }`}
+            >
+              {type === '' ? (t(locale, 'board.all') as string) : type === 'need' ? (t(locale, 'board.needs') as string) : (t(locale, 'board.offers') as string)}
+            </button>
+          ))}
         </div>
         <select
           value={cityFilter}
           onChange={(e) => setCityFilter(e.target.value)}
-          className="px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-card)] text-sm"
+          className="brutal-select md:w-48"
+          aria-label="Filter by city"
         >
           <option value="">{t(locale, 'common.allCities') as string}</option>
           {CITIES_AREAS.map((c) => (
@@ -127,7 +120,8 @@ export default function BoardClient({ locale }: BoardClientProps) {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-3 py-2 border border-[var(--color-border)] rounded-lg bg-[var(--color-card)] text-sm"
+          className="brutal-select md:w-48"
+          aria-label="Filter by category"
         >
           <option value="">{t(locale, 'common.allCategories') as string}</option>
           {CATEGORIES.map((c) => (
@@ -139,104 +133,98 @@ export default function BoardClient({ locale }: BoardClientProps) {
       </div>
 
       {/* Create Post CTA */}
-      <div className="mb-6">
-        <Link
-          href="/create-post"
-          className="inline-block text-sm bg-[var(--color-primary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors"
-        >
+      <div className="mb-8">
+        <Link href="/create-post" className="brutal-btn brutal-btn-primary brutal-btn-sm">
           + {t(locale, 'board.createPost') as string}
         </Link>
       </div>
 
-      {/* Posts List */}
+      {/* Posts */}
       {loading ? (
-        <div className="text-center py-12 text-[var(--color-text-muted)]">{t(locale, 'common.loading') as string}</div>
+        <div className="text-center py-16">
+          <div className="brutal-badge">{t(locale, 'common.loading') as string}</div>
+        </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-12 text-[var(--color-text-muted)]">{t(locale, 'board.noPosts') as string}</div>
+        <div className="text-center py-16">
+          <p className="text-[var(--color-text-muted)] text-lg mb-4">{t(locale, 'board.noPosts') as string}</p>
+          <Link href="/create-post" className="brutal-btn brutal-btn-primary">
+            {isHindi ? 'पहली पोस्ट बनाएं' : 'CREATE THE FIRST POST'} →
+          </Link>
+        </div>
       ) : (
         <div className="grid gap-4">
           {posts.map((post) => (
-            <div
+            <article
               key={post.id}
-              className={`bg-[var(--color-card)] border rounded-lg p-5 ${
-                post.urgency === 'urgent'
-                  ? 'border-[var(--color-urgent)]'
-                  : 'border-[var(--color-border)]'
-              }`}
+              className={`brutal-card ${post.urgency === 'urgent' ? '!border-[var(--color-red)] !shadow-[5px_5px_0px_var(--color-red)]' : ''}`}
+              aria-label={`${post.type} post: ${post.description.slice(0, 50)}`}
             >
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded ${
-                        post.type === 'need'
-                          ? 'bg-red-100 dark:bg-red-900/30 text-[var(--color-urgent)]'
-                          : 'bg-green-100 dark:bg-green-900/30 text-[var(--color-success)]'
-                      }`}
-                    >
-                      {post.type === 'need' ? (locale === 'hi' ? 'ज़रूरत' : 'NEED') : (locale === 'hi' ? 'प्रस्ताव' : 'OFFER')}
+                    <span className={`brutal-badge ${post.type === 'need' ? 'brutal-badge-red' : 'brutal-badge-lime'}`}>
+                      {post.type === 'need' ? (isHindi ? 'ज़रूरत' : 'NEED') : (isHindi ? 'प्रस्ताव' : 'OFFER')}
                     </span>
                     {post.urgency === 'urgent' && (
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-red-600 text-white animate-pulse">
-                        {t(locale, 'board.urgentTag') as string}
+                      <span className="brutal-badge brutal-badge-red animate-urgent">
+                        ⚡ {t(locale, 'board.urgentTag') as string}
                       </span>
                     )}
-                    <span className="text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-[var(--color-primary)] rounded-full">
+                    <span className="brutal-badge brutal-badge-sky">
                       {getCategoryLabel(post.category as Category)}
                     </span>
                   </div>
                   <button
                     onClick={() => handleReport(post.id)}
-                    className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-urgent)]"
+                    className="text-xs font-bold text-[var(--color-text-muted)] hover:text-[var(--color-red)] transition-colors px-2 py-1 border-[2px] border-transparent hover:border-[var(--color-red)]"
                     title={t(locale, 'common.report') as string}
+                    aria-label="Report this post"
                   >
                     🚩
                   </button>
                 </div>
 
                 {/* Content */}
-                <p className="text-sm">{post.description}</p>
+                <p className="text-sm leading-relaxed">{post.description}</p>
 
                 {/* Meta */}
-                <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
+                <div className="flex items-center justify-between text-xs font-medium text-[var(--color-text-muted)]">
                   <span>📍 {post.city} — {post.area}</span>
-                  <span>{t(locale, 'board.expiresIn') as string}: {getHoursRemaining(post.expires_at)} {t(locale, 'board.hours') as string}</span>
+                  <span>⏰ {getHoursRemaining(post.expires_at)}h {isHindi ? 'शेष' : 'left'}</span>
                 </div>
 
-                {/* Respond button */}
+                {/* Respond */}
                 {responseSent === post.id ? (
-                  <div className="text-sm text-[var(--color-success)] font-medium">
+                  <div className="brutal-badge brutal-badge-lime animate-slide-in">
                     ✓ {t(locale, 'board.responseSent') as string}
                   </div>
                 ) : respondingTo === post.id ? (
-                  <div className="border-t border-[var(--color-border)] pt-3 mt-2 space-y-2">
-                    <p className="text-xs text-[var(--color-text-muted)]">{t(locale, 'board.respondDesc') as string}</p>
+                  <div className="border-t-[2.5px] border-[var(--color-border)] pt-4 mt-2 space-y-3 animate-slide-in">
+                    <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wide">
+                      {t(locale, 'board.respondDesc') as string}
+                    </p>
                     <input
                       type="text"
                       placeholder={t(locale, 'board.contactPlaceholder') as string}
                       value={responseContact}
                       onChange={(e) => setResponseContact(e.target.value)}
-                      className="w-full px-3 py-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-sm"
+                      className="brutal-input"
+                      aria-label="Your contact info"
                     />
                     <input
                       type="text"
                       placeholder={t(locale, 'board.messagePlaceholder') as string}
                       value={responseMessage}
                       onChange={(e) => setResponseMessage(e.target.value)}
-                      className="w-full px-3 py-2 border border-[var(--color-border)] rounded bg-[var(--color-bg)] text-sm"
+                      className="brutal-input"
+                      aria-label="Optional message"
                     />
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleRespond(post.id)}
-                        className="text-sm bg-[var(--color-primary)] text-white px-3 py-1.5 rounded hover:bg-[var(--color-primary-dark)]"
-                      >
+                      <button onClick={() => handleRespond(post.id)} className="brutal-btn brutal-btn-primary brutal-btn-sm">
                         {t(locale, 'board.sendResponse') as string}
                       </button>
-                      <button
-                        onClick={() => setRespondingTo(null)}
-                        className="text-sm px-3 py-1.5 border border-[var(--color-border)] rounded"
-                      >
+                      <button onClick={() => setRespondingTo(null)} className="brutal-btn brutal-btn-sm">
                         {t(locale, 'common.cancel') as string}
                       </button>
                     </div>
@@ -244,13 +232,13 @@ export default function BoardClient({ locale }: BoardClientProps) {
                 ) : (
                   <button
                     onClick={() => setRespondingTo(post.id)}
-                    className="self-start text-sm bg-[var(--color-primary)] text-white px-3 py-1.5 rounded hover:bg-[var(--color-primary-dark)] transition-colors"
+                    className="brutal-btn brutal-btn-primary brutal-btn-sm self-start"
                   >
                     {t(locale, 'board.respond') as string} →
                   </button>
                 )}
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}

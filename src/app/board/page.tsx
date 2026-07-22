@@ -8,16 +8,19 @@ export default async function BoardPage() {
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold mb-2">{t(locale, 'board.title') as string}</h1>
-        <p className="text-[var(--color-text-muted)]">{t(locale, 'board.subtitle') as string}</p>
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+      <div className="mb-10">
+        <div className="brutal-badge brutal-badge-accent mb-4">
+          {locale === 'hi' ? 'बोर्ड' : 'BOARD'}
+        </div>
+        <h1 className="heading-1 mb-3">{t(locale, 'board.title') as string}</h1>
+        <p className="text-[var(--color-text-muted)] text-lg max-w-2xl">
+          {t(locale, 'board.subtitle') as string}
+        </p>
       </div>
       {/* Safety note */}
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-6">
-        <p className="text-xs text-yellow-800 dark:text-yellow-200">
-          ⚠️ {t(locale, 'common.safetyNote') as string}
-        </p>
+      <div className="brutal-banner mb-8">
+        ⚠️ {t(locale, 'common.safetyNote') as string}
       </div>
       <BoardClient locale={locale} />
     </div>

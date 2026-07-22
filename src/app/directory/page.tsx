@@ -8,10 +8,15 @@ export default async function DirectoryPage() {
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold mb-2">{t(locale, 'directory.title') as string}</h1>
-        <p className="text-[var(--color-text-muted)]">{t(locale, 'directory.subtitle') as string}</p>
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+      <div className="mb-10">
+        <div className="brutal-badge brutal-badge-sky mb-4">
+          {locale === 'hi' ? 'निर्देशिका' : 'DIRECTORY'}
+        </div>
+        <h1 className="heading-1 mb-3">{t(locale, 'directory.title') as string}</h1>
+        <p className="text-[var(--color-text-muted)] text-lg max-w-2xl">
+          {t(locale, 'directory.subtitle') as string}
+        </p>
       </div>
       <DirectoryClient locale={locale} />
     </div>
