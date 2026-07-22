@@ -1,7 +1,7 @@
 {
-  "name": "Sahayata — Civic Mutual-Aid & Coordination",
+  "name": "Sahayata — Civic Coordination Prototype",
   "short_name": "Sahayata",
-  "description": "A civic mutual-aid platform connecting people who need help with people who can give it.",
+  "description": "A private-review prototype for exploring civic coordination workflows. It is not an emergency or verified support service.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",

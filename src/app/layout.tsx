@@ -7,8 +7,8 @@ import { Locale } from '@/types';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Sahayata — Civic Mutual-Aid & Coordination',
-  description: 'A civic mutual-aid platform connecting people who need help with people who can give it. Find local chapters, post needs and offers, get connected.',
+  title: 'Sahayata — Local help, simply',
+  description: 'Ask for help, offer help, or find a local support group without sharing more than you need to.',
   manifest: '/manifest.json',
   other: {
     'apple-mobile-web-app-capable': 'yes',
@@ -17,20 +17,11 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = {
-  themeColor: '#1d4ed8',
-  width: 'device-width',
-  initialScale: 1,
-};
+export const viewport: Viewport = { themeColor: '#1d4ed8', width: 'device-width', initialScale: 1 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-
   return (
     <html lang={locale} dir="ltr">
       <head>
@@ -38,11 +29,18 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className="min-h-screen flex flex-col">
+        <a className="skip-link" href="#main-content">{locale === 'hi' ? 'मुख्य सामग्री पर जाएँ' : 'Skip to main content'}</a>
         <ServiceWorkerRegister />
         <Navbar locale={locale} />
-        <main className="flex-1">
-          {children}
-        </main>
+        <aside className="prototype-banner" role="note">
+          <div className="page-shell">
+            <strong>{locale === 'hi' ? 'निजी प्रोटोटाइप:' : 'Private prototype:'}</strong>{' '}
+            {locale === 'hi'
+              ? 'आपातकाल, संवेदनशील आयोजन या सत्यापित सहायता के लिए इसका उपयोग न करें।'
+              : 'Do not use for emergencies, sensitive organizing, or verified support.'}
+          </div>
+        </aside>
+        <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
         <Footer locale={locale} />
       </body>
     </html>
