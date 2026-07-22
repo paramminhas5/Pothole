@@ -392,3 +392,65 @@ body {
   background: var(--color-accent);
   color: #FFFFFF;
 }
+
+
+
+/* ============================================
+   PRINT STYLES — Clean, ink-efficient output
+   ============================================ */
+
+@media print {
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+
+  nav, footer, .brutal-banner, .print\\:hidden {
+    display: none !important;
+  }
+
+  .brutal-card, .brutal-card-flat {
+    border-width: 1px !important;
+    padding: 12px !important;
+    page-break-inside: avoid;
+    margin-bottom: 8px !important;
+  }
+
+  .brutal-badge {
+    border-width: 1px !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .heading-display { font-size: 24px !important; }
+  .heading-1 { font-size: 20px !important; }
+  .heading-2 { font-size: 16px !important; }
+  .heading-3 { font-size: 14px !important; }
+
+  a { color: black !important; text-decoration: underline !important; }
+  a::after { content: " (" attr(href) ")" !important; font-size: 9px !important; }
+
+  .max-w-4xl, .max-w-6xl, .max-w-7xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* QR code for live version */
+  .print-qr { display: block !important; }
+}
+
+.print-qr { display: none; }
+
+/* ============================================
+   WARNING COLOR (used by freshness badge)
+   ============================================ */
+:root {
+  --color-warning: #d97706;
+}

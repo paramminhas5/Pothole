@@ -13,8 +13,8 @@ export default function Navbar({ locale }: NavbarProps) {
 
   const isHindi = locale === 'hi';
   const labels = isHindi
-    ? { home: 'होम', directory: 'निर्देशिका', board: 'ज़रूरतें और प्रस्ताव', register: 'समूह जोड़ें', post: 'पोस्ट करें', myPosts: 'मेरी पोस्ट', safety: 'अधिकार', toolkit: 'टूलकिट', lang: 'EN' }
-    : { home: 'Home', directory: 'Directory', board: 'Needs & Offers', register: 'Add Group', post: 'Post', myPosts: 'My Posts', safety: 'Rights', toolkit: 'Toolkit', lang: 'हि' };
+    ? { home: 'होम', directory: 'निर्देशिका', board: 'ज़रूरतें और प्रस्ताव', register: 'समूह जोड़ें', post: 'पोस्ट करें', myPosts: 'मेरी पोस्ट', safety: 'अधिकार', toolkit: 'टूलकिट', guide: 'गाइड', lang: 'EN' }
+    : { home: 'Home', directory: 'Directory', board: 'Needs & Offers', register: 'Add Group', post: 'Post', myPosts: 'My Posts', safety: 'Rights', toolkit: 'Toolkit', guide: 'Guide', lang: 'हि' };
 
   const toggleLocale = () => {
     const newLocale = isHindi ? 'en' : 'hi';
@@ -43,6 +43,9 @@ export default function Navbar({ locale }: NavbarProps) {
             </Link>
             <Link href="/board" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
               {labels.board}
+            </Link>
+            <Link href="/guide" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
+              {labels.guide}
             </Link>
             <Link href="/safety" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
               {labels.safety}
