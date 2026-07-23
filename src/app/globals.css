@@ -611,3 +611,432 @@ button:disabled, .is-disabled { cursor: not-allowed; opacity: .55; }
   font-size: 0.9rem;
   text-align: center;
 }
+
+
+
+/* ============================================
+   SITUATION BRIEF MODULE — Live protest status
+   ============================================ */
+
+.situation-module {
+  padding-block: clamp(40px, 7vw, 72px);
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-block: 3px solid var(--color-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  .situation-module {
+    background: #1a1a1a;
+    color: #fafafa;
+  }
+}
+
+.situation-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.situation-live-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-red);
+  animation: pulse-urgent 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.situation-live-label {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-red);
+}
+
+.situation-timestamp {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.situation-title {
+  margin: 0 0 8px;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.situation-subtitle {
+  margin: 0 0 28px;
+  font-size: 1rem;
+  opacity: 0.7;
+  max-width: 700px;
+}
+
+.situation-demands {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+  max-width: 500px;
+}
+
+@media (max-width: 480px) {
+  .situation-demands {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.demand-score {
+  text-align: center;
+  padding: 14px 8px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+}
+
+.demand-score-red {
+  border-color: var(--color-red);
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.demand-score-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.demand-score-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+.situation-safety {
+  margin-bottom: 24px;
+}
+
+.safety-indicator {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.safety-warning {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.situation-demands-detail {
+  margin-bottom: 28px;
+}
+
+.situation-demands-summary {
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 10px 0;
+  opacity: 0.8;
+}
+
+.situation-demands-summary:hover {
+  opacity: 1;
+}
+
+.demands-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.demand-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.demand-status-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  margin-top: 5px;
+  border-radius: 50%;
+  border: 2px solid var(--color-red);
+}
+
+.demand-unmet .demand-status-dot {
+  background: transparent;
+}
+
+.demand-met .demand-status-dot {
+  background: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.situation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.situation-actions .brutal-btn {
+  border-color: rgba(255,255,255,0.4);
+  color: var(--color-bg);
+}
+
+.situation-actions .brutal-btn:hover {
+  border-color: var(--color-bg);
+}
+
+.situation-actions .brutal-btn-primary {
+  background: var(--color-accent);
+  color: #0f0f0f;
+  border-color: var(--color-accent);
+}
+
+
+/* ============================================
+   ACTION CHAIN — Protest → Power story
+   ============================================ */
+
+.action-chain-section {
+  padding-block: clamp(56px, 9vw, 96px);
+  background: var(--color-bg);
+}
+
+.chain-header {
+  max-width: 680px;
+  margin-bottom: 40px;
+}
+
+.chain-subtitle {
+  margin: 12px 0 0;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+}
+
+.chain-steps {
+  display: grid;
+  gap: 0;
+  max-width: 760px;
+}
+
+.chain-step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0 16px;
+  position: relative;
+  padding-bottom: 32px;
+}
+
+.chain-step:last-child {
+  padding-bottom: 0;
+}
+
+.chain-step-number {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 900;
+  border: 3px solid var(--color-border);
+  background: var(--color-card);
+  position: relative;
+  z-index: 2;
+}
+
+.chain-step-red .chain-step-number { border-color: var(--color-red); color: var(--color-red); }
+.chain-step-yellow .chain-step-number { border-color: var(--color-yellow); color: #92400e; }
+.chain-step-accent .chain-step-number { border-color: var(--color-accent); color: var(--color-accent); }
+.chain-step-purple .chain-step-number { border-color: var(--color-accent-2); color: var(--color-accent-2); }
+.chain-step-lime .chain-step-number { border-color: var(--color-lime); color: #3f6212; }
+.chain-step-dark .chain-step-number { border-color: var(--color-text); background: var(--color-text); color: var(--color-bg); }
+
+.chain-connector {
+  position: absolute;
+  left: 23px;
+  top: 52px;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-border-light);
+  z-index: 1;
+}
+
+.chain-step-content {
+  padding-top: 6px;
+}
+
+.chain-step-title {
+  margin: 0 0 6px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.chain-step-desc {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.chain-step-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.chain-step-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+
+/* ============================================
+   QUICK ACTION — 5-minute onboarding
+   ============================================ */
+
+.quick-action-section {
+  padding-block: clamp(56px, 9vw, 96px);
+  background: var(--color-card);
+  border-block: 2px solid var(--color-border);
+}
+
+.quick-header {
+  margin-bottom: 32px;
+}
+
+.quick-subtitle {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.quick-actions-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.quick-action-card {
+  display: grid;
+  gap: 4px;
+  padding: 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.quick-action-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-border);
+}
+
+.quick-action-time {
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+}
+
+.quick-action-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.quick-action-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.quick-action-cta {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-accent);
+}
+
+
+/* ============================================
+   NAV MENU SECTION HEADINGS
+   ============================================ */
+
+.nav-menu-section {
+  margin-bottom: 16px;
+  display: grid;
+  gap: 0;
+}
+
+.nav-menu-heading {
+  margin: 0;
+  padding: 8px 14px 4px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.nav-menu-section a,
+.nav-menu-section button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-bottom: 1px solid var(--color-border-light);
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-menu-section a:hover,
+.nav-menu-section button:hover {
+  background: var(--color-bg);
+}
+
+.nav-menu-emergency {
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--color-yellow);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #0f0f0f;
+  text-align: center;
+}

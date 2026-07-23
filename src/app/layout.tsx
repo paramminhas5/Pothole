@@ -7,8 +7,8 @@ import { Locale } from '@/types';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Sahayata — Local help, simply',
-  description: 'Ask for help, offer help, or find a local support group without sharing more than you need to.',
+  title: 'Sahayata — Turn anger into organized power',
+  description: 'Know your rights. File RTIs. Track demands. Hold institutions accountable. Civic action infrastructure for India.',
   manifest: '/manifest.json',
   other: {
     'apple-mobile-web-app-capable': 'yes',
@@ -34,10 +34,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <Navbar locale={locale} />
         <aside className="prototype-banner" role="note">
           <div className="page-shell">
-            <strong>{locale === 'hi' ? 'निजी प्रोटोटाइप:' : 'Private prototype:'}</strong>{' '}
+            <strong>{locale === 'hi' ? 'स्थिति:' : 'Status:'}</strong>{' '}
             {locale === 'hi'
-              ? 'आपातकाल, संवेदनशील आयोजन या सत्यापित सहायता के लिए इसका उपयोग न करें।'
-              : 'Do not use for emergencies, sensitive organizing, or verified support.'}
+              ? 'गाइड, RTI, FIR, अधिकार कार्ड — सब काम करते हैं। ग्रुप + अलर्ट सुरक्षा ऑडिट के बाद चालू होंगे।'
+              : 'Guides, RTI, FIR, Rights Card — all functional. Groups + Alerts activate after security audit.'}
           </div>
         </aside>
         <main id="main-content" className="flex-1" tabIndex={-1}>{children}</main>
