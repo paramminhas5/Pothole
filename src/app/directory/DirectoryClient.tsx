@@ -1,59 +1,216 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { PublicChapter, Locale, Category } from '@/types';
-import { CITIES_AREAS, CATEGORIES } from '@/lib/constants';
+import { useState, useEffect } from 'react';
 
-interface DirectoryClientProps { locale: Locale }
+type DirectoryEntry = {
+  id: string;
+  name: string;
+  name_hi: string;
+  type: string;
+  city: string;
+  area: string;
+  contact_primary: string;
+  website: string;
+  description: string;
+  description_hi: string;
+  specializations: string[];
+  languages: string[];
+  reliability_score: number;
+  upvotes: number;
+  downvotes: number;
+  feedback_count: number;
+  verification_status: string;
+  verified_what: string;
+  last_confirmed_active: string;
+};
 
-export default function DirectoryClient({ locale }: DirectoryClientProps) {
-  const [chapters, setChapters] = useState<PublicChapter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [city, setCity] = useState('');
-  const [category, setCategory] = useState('');
-  const [search, setSearch] = useState('');
-  const [contacting, setContacting] = useState<string | null>(null);
-  const [confirmed, setConfirmed] = useState(false);
+const TYPE_LABELS: Record<string, { en: string; hi: string }> = {
+  'ngo': { en: 'NGO', hi: 'NGO' },
+  'legal-aid': { en: 'Legal Aid', hi: 'कानूनी सहायता' },
+  'lawyer': { en: 'Lawyer', hi: 'वकील' },
+  'helpline': { en: 'Helpline', hi: 'हेल्पलाइन' },
+  'shelter': { en: 'Shelter', hi: 'आश्रय' },
+  'hospital': { en: 'Hospital', hi: 'अस्पताल' },
+  'mental-health': { en: 'Mental Health', hi: 'मानसिक स्वास्थ्य' },
+  'student-union': { en: 'Student Union', hi: 'छात्र संघ' },
+  'movement': { en: 'Movement', hi: 'आंदोलन' },
+  'media': { en: 'Media', hi: 'मीडिया' },
+  'journalist': { en: 'Journalist', hi: 'पत्रकार' },
+  'government-office': { en: 'Govt Office', hi: 'सरकारी कार्यालय' },
+  'volunteer-org': { en: 'Volunteer Org', hi: 'स्वयंसेवी संगठन' },
+  'other': { en: 'Other', hi: 'अन्य' },
+};
+
+export function DirectoryClient({ locale = 'en' }: { locale?: string }) {
   const hi = locale === 'hi';
+  const [entries, setEntries] = useState<DirectoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [city, setCity] = useState('');
+  const [type, setType] = useState('');
+  const [search, setSearch] = useState('');
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function load() {
-      try {
-        const params = new URLSearchParams();
-        if (city) params.set('city', city);
-        if (category) params.set('category', category);
-        const response = await fetch(`/api/chapters?${params}`, { signal: controller.signal });
-        if (!response.ok) throw new Error('load failed');
-        const data = await response.json();
-        setChapters(data.chapters || []); setLoadError(false);
-      } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) { setChapters([]); setLoadError(true); }
-      } finally { if (!controller.signal.aborted) setLoading(false); }
-    }
-    load();
-    return () => controller.abort();
-  }, [city, category]);
+  useEffect(() => { loadDirectory(); }, [city, type]);
 
-  const query = search.trim().toLocaleLowerCase(hi ? 'hi-IN' : 'en-IN');
-  const shown = chapters.filter((chapter) => !query || [chapter.name, chapter.description, chapter.area].some((value) => value?.toLocaleLowerCase(hi ? 'hi-IN' : 'en-IN').includes(query)));
-  function categoryLabel(value: Category) { const item = CATEGORIES.find((entry) => entry.value === value); return item ? (hi ? item.labelHi : item.labelEn) : value; }
+  async function loadDirectory() {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (city) params.set('city', city);
+    if (type) params.set('type', type);
+    if (search) params.set('search', search);
+    const res = await fetch(`/api/directory?${params}`);
+    if (res.ok) { const d = await res.json(); setEntries(d.entries || []); }
+    setLoading(false);
+  }
 
-  return <section aria-labelledby="directory-search-title">
-    <div className="filter-panel"><h2 id="directory-search-title" className="heading-3">{hi ? 'समूह खोजें' : 'Search groups'}</h2><div className="filter-grid filter-grid-three">
-      <label><span>{hi ? 'नाम या क्षेत्र' : 'Name or area'}</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} className="brutal-input" placeholder={hi ? 'खोजें' : 'Search'} /></label>
-      <label><span>{hi ? 'शहर' : 'City'}</span><select value={city} onChange={(event) => { setLoading(true); setCity(event.target.value); }} className="brutal-select"><option value="">{hi ? 'सभी शहर' : 'All cities'}</option>{CITIES_AREAS.map((item) => <option key={item.city}>{item.city}</option>)}</select></label>
-      <label><span>{hi ? 'सहायता का प्रकार' : 'Type of help'}</span><select value={category} onChange={(event) => { setLoading(true); setCategory(event.target.value); }} className="brutal-select"><option value="">{hi ? 'सभी प्रकार' : 'All types'}</option>{CATEGORIES.map((item) => <option key={item.value} value={item.value}>{hi ? item.labelHi : item.labelEn}</option>)}</select></label>
-    </div></div>
-    {loading ? <div className="loading-state" role="status"><span className="loading-dot" aria-hidden="true" />{hi ? 'समूह लोड हो रहे हैं…' : 'Loading groups…'}</div>
-      : loadError ? <div className="error-state" role="alert"><h2>{hi ? 'समूह लोड नहीं हुए' : 'Groups did not load'}</h2><p>{hi ? 'अपना कनेक्शन देखें और पेज फिर से लोड करें।' : 'Check your connection and reload the page.'}</p><button type="button" onClick={() => window.location.reload()} className="brutal-btn brutal-btn-primary">{hi ? 'फिर लोड करें' : 'Reload'}</button></div>
-      : shown.length === 0 ? <div className="empty-state"><h2>{hi ? 'कोई समूह नहीं मिला' : 'No groups found'}</h2><p>{hi ? 'खोज या फ़िल्टर बदलें। अगर कोई समूह गायब है, तो अधिकृत वयस्क उसे जमा कर सकता है।' : 'Change your search or filters. If a group is missing, an authorized adult can submit it.'}</p><Link href="/submit-chapter" className="brutal-btn">{hi ? 'समूह जोड़ें' : 'Add a group'}</Link></div>
-      : <div className="result-list" aria-live="polite"><p className="results-count">{hi ? `${shown.length} समूह मिले` : `${shown.length} group${shown.length === 1 ? '' : 's'} found`}</p>{shown.map((chapter) => <article key={chapter.id} className="result-card">
-        <h2 className="result-title">{chapter.name}</h2><p className="result-location">{chapter.city} · {chapter.area}</p>{chapter.description && <p className="result-description">{chapter.description}</p>}<div className="badge-row" aria-label={hi ? 'सेवाएँ' : 'Services'}>{chapter.categories.map((item) => <span key={item} className="brutal-badge brutal-badge-sky">{categoryLabel(item as Category)}</span>)}</div><p className="updated-text">{hi ? 'लिस्टिंग अपडेट:' : 'Listing updated:'} {new Intl.DateTimeFormat(hi ? 'hi-IN' : 'en-IN', { dateStyle: 'medium' }).format(new Date(chapter.updated_at))}</p>
-        {chapter.contact_method ? (contacting === chapter.id ? <div className="inline-form"><div className="warning-panel"><strong>{hi ? 'साइट छोड़ने से पहले' : 'Before you leave this site'}</strong><p>{hi ? 'यह बाहरी संपर्क है। सहायता या सुरक्षा की गारंटी नहीं है। निजी जानकारी कम दें, अकेले न मिलें, और 18 वर्ष से कम हैं तो भरोसेमंद वयस्क के साथ आगे बढ़ें।' : 'This is an external contact. Help and safety are not guaranteed. Share little private information, never meet alone, and continue with a trusted adult if you are under 18.'}</p></div><label className="check-row"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} /><span>{hi ? 'मैंने सुरक्षा संदेश पढ़ा है और मैं 18+ हूँ या भरोसेमंद वयस्क के साथ हूँ।' : 'I read the safety message, and I am 18+ or with a trusted adult.'}</span></label><div className="button-row"><a href={chapter.contact_method} target="_blank" rel="noopener noreferrer" aria-disabled={!confirmed} onClick={(event) => { if (!confirmed) event.preventDefault(); }} className={`brutal-btn brutal-btn-primary ${!confirmed ? 'is-disabled' : ''}`}>{hi ? 'बाहरी संपर्क खोलें' : 'Open external contact'} <span aria-hidden="true">↗</span></a><button type="button" onClick={() => setContacting(null)} className="brutal-btn">{hi ? 'रद्द करें' : 'Cancel'}</button></div></div>
-          : <button type="button" onClick={() => { setContacting(chapter.id); setConfirmed(false); }} className="brutal-btn brutal-btn-primary result-primary-action">{hi ? 'सुरक्षित संपर्क करें' : 'Contact safely'}</button>) : <p className="field-help">{hi ? 'इस लिस्टिंग का सुरक्षित सार्वजनिक संपर्क उपलब्ध नहीं है।' : 'This listing has no safe public contact available.'}</p>}
-      </article>)}</div>}
-  </section>;
+  async function submitFeedback(entryId: string, feedbackType: 'upvote' | 'confirm_active' | 'report_inactive') {
+    await fetch('/api/directory/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entryId, type: feedbackType }),
+    });
+    loadDirectory();
+  }
+
+  const verificationBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      proven_active: 'brutal-badge brutal-badge-lime',
+      staff_verified: 'brutal-badge brutal-badge-purple',
+      community_vetted: 'brutal-badge brutal-badge-accent',
+      unverified: 'brutal-badge',
+    };
+    const labels: Record<string, { en: string; hi: string }> = {
+      proven_active: { en: 'PROVEN ACTIVE', hi: 'सक्रिय प्रमाणित' },
+      staff_verified: { en: 'STAFF VERIFIED', hi: 'स्टाफ सत्यापित' },
+      community_vetted: { en: 'COMMUNITY VETTED', hi: 'समुदाय सत्यापित' },
+      unverified: { en: 'UNVERIFIED', hi: 'असत्यापित' },
+    };
+    return <span className={styles[status] || 'brutal-badge'}>{hi ? labels[status]?.hi : labels[status]?.en}</span>;
+  };
+
+  const freshnessLabel = (lastActive: string) => {
+    const days = Math.floor((Date.now() - new Date(lastActive).getTime()) / 86_400_000);
+    if (days < 7) return { text: hi ? 'इस हफ्ते सक्रिय' : 'Active this week', color: 'var(--color-lime)' };
+    if (days < 30) return { text: hi ? 'इस महीने सक्रिय' : 'Active this month', color: 'var(--color-accent)' };
+    if (days < 90) return { text: hi ? `${days} दिन पहले` : `${days} days ago`, color: 'var(--color-yellow)' };
+    return { text: hi ? 'पुरानी प्रविष्टि' : 'Stale entry', color: 'var(--color-red)' };
+  };
+
+  return (
+    <div className="content-page page-shell">
+      {/* Header */}
+      <div className="page-heading">
+        <h1>{hi ? 'निर्देशिका' : 'Directory'}</h1>
+        <p>{hi ? 'भारत की सबसे विश्वसनीय नागरिक निर्देशिका। कोई भी जोड़ सकता है। समुदाय सत्यापित करता है। सिर्फ सक्रिय और प्रमाणित।' : "India's most trusted civic directory. Anyone can add. Community vets. Only active and proven."}</p>
+      </div>
+
+      {/* Add entry button */}
+      <div className="button-row" style={{ marginBottom: '24px' }}>
+        <button className="brutal-btn brutal-btn-primary" onClick={() => setShowSubmitForm(!showSubmitForm)}>
+          {hi ? '+ प्रविष्टि जोड़ें' : '+ Add Entry'}
+        </button>
+        <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', alignSelf: 'center' }}>
+          {hi ? `${entries.length} प्रविष्टियाँ` : `${entries.length} entries`}
+        </span>
+      </div>
+
+      {/* Filters */}
+      <div className="filter-panel" style={{ marginBottom: '24px' }}>
+        <div className="filter-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+          <label>
+            <span className="field-label">{hi ? 'खोजें' : 'Search'}</span>
+            <input className="brutal-input" type="text" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && loadDirectory()} placeholder={hi ? 'नाम या विवरण...' : 'Name or description...'} />
+          </label>
+          <label>
+            <span className="field-label">{hi ? 'शहर' : 'City'}</span>
+            <select className="brutal-select" value={city} onChange={e => setCity(e.target.value)}>
+              <option value="">{hi ? 'सभी शहर' : 'All Cities'}</option>
+              {['Delhi','Mumbai','Bengaluru','Pune','Chennai','Hyderabad','Kolkata','Jaipur','Lucknow','National'].map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+          <label>
+            <span className="field-label">{hi ? 'प्रकार' : 'Type'}</span>
+            <select className="brutal-select" value={type} onChange={e => setType(e.target.value)}>
+              <option value="">{hi ? 'सभी प्रकार' : 'All Types'}</option>
+              {Object.entries(TYPE_LABELS).map(([val, label]) => <option key={val} value={val}>{hi ? label.hi : label.en}</option>)}
+            </select>
+          </label>
+        </div>
+      </div>
+
+      {/* Results */}
+      {loading ? (
+        <div className="loading-state"><div className="loading-dot" /><span>{hi ? 'लोड हो रहा है...' : 'Loading...'}</span></div>
+      ) : entries.length === 0 ? (
+        <div className="empty-state">
+          <h2>{hi ? 'कोई प्रविष्टि नहीं मिली' : 'No entries found'}</h2>
+          <p>{hi ? 'फ़िल्टर बदलें या नई प्रविष्टि जोड़ें।' : 'Try different filters or add a new entry.'}</p>
+        </div>
+      ) : (
+        <div className="result-list">
+          {entries.map(entry => {
+            const freshness = freshnessLabel(entry.last_confirmed_active);
+            return (
+              <article key={entry.id} className="brutal-card" style={{ padding: '20px' }}>
+                {/* Header row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px', fontSize: '1.1rem', fontWeight: 800 }}>
+                      {hi && entry.name_hi ? entry.name_hi : entry.name}
+                    </h3>
+                    <div className="badge-row">
+                      <span className="brutal-badge">{hi ? TYPE_LABELS[entry.type]?.hi : TYPE_LABELS[entry.type]?.en || entry.type}</span>
+                      <span className="brutal-badge">{entry.city}</span>
+                      {entry.specializations.slice(0, 2).map(s => <span key={s} className="brutal-badge brutal-badge-purple">{s}</span>)}
+                    </div>
+                  </div>
+                  {verificationBadge(entry.verification_status)}
+                </div>
+
+                {/* Description */}
+                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '12px', lineClamp: 3 }}>
+                  {hi && entry.description_hi ? entry.description_hi : entry.description}
+                </p>
+
+                {/* Reliability & freshness */}
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', fontSize: '0.78rem', marginBottom: '12px' }}>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                    👍 {entry.upvotes} · 👎 {entry.downvotes}
+                  </span>
+                  <span style={{ fontWeight: 700 }}>
+                    Score: <span style={{ color: entry.reliability_score > 5 ? 'var(--color-lime)' : entry.reliability_score < 0 ? 'var(--color-red)' : 'var(--color-text-muted)' }}>{entry.reliability_score}</span>
+                  </span>
+                  <span style={{ color: freshness.color, fontWeight: 700 }}>{freshness.text}</span>
+                </div>
+
+                {/* Verified what */}
+                {entry.verified_what && (
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-accent-2)', fontWeight: 700, marginBottom: '12px' }}>
+                    ✓ {entry.verified_what}
+                  </p>
+                )}
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', borderTop: '1px dashed var(--color-border-light)', paddingTop: '12px' }}>
+                  {entry.contact_primary && (
+                    <a href={entry.contact_primary} className="brutal-btn brutal-btn-sm brutal-btn-primary" target="_blank" rel="noopener">
+                      {hi ? 'संपर्क →' : 'Contact →'}
+                    </a>
+                  )}
+                  {entry.website && (
+                    <a href={entry.website} className="brutal-btn brutal-btn-sm" target="_blank" rel="noopener">
+                      {hi ? 'वेबसाइट' : 'Website'}
+                    </a>
+                  )}
+                  <button className="brutal-btn brutal-btn-sm" onClick={() => submitFeedback(entry.id, 'upvote')}>👍</button>
+                  <button className="brutal-btn brutal-btn-sm" onClick={() => submitFeedback(entry.id, 'confirm_active')}>✓ {hi ? 'सक्रिय' : 'Active'}</button>
+                  <button className="brutal-btn brutal-btn-sm" onClick={() => submitFeedback(entry.id, 'report_inactive')}>⚠️ {hi ? 'निष्क्रिय' : 'Inactive'}</button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
