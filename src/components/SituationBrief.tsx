@@ -94,6 +94,44 @@ export default function SituationBrief({ locale }: SituationProps) {
           </ol>
         </details>
 
+        {/* MOVEMENT TIMELINE */}
+        <details className="situation-demands-detail" style={{ marginBottom: '20px' }}>
+          <summary className="situation-demands-summary">
+            {hi ? 'टाइमलाइन देखें' : 'View Timeline'}
+          </summary>
+          <ol className="demands-list" style={{ fontSize: '0.85rem' }}>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>May 16</span> — {hi ? 'अभिजीत दीपके ने CJP की स्थापना की (CJI टिप्पणी के बाद)' : 'Abhijeet Dipke founds CJP (after CJI "cockroach" remark)'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>May 24</span> — {hi ? 'Instagram पर 1M+ फॉलोअर्स — BJP को पार' : 'Crosses 1M+ Instagram followers — surpasses BJP'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jun 6</span> — {hi ? 'नागपुर: 2,000+ छात्र संविधान चौक पर, 700+ पुलिस' : 'Nagpur: 2,000+ students at Samvidhan Chowk, 700+ police'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jun 16</span> — {hi ? 'जयपुर रैली — संस्थापक पर हमला, फिर भी जारी' : 'Jaipur rally — founder assaulted mid-rally, continued'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jun 19</span> — {hi ? 'जंतर मंतर धरना शुरू' : 'Jantar Mantar sit-in begins'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jun 25</span> — {hi ? 'सोनम वांगचुक अनशन शुरू (लद्दाख अधिकार)' : 'Sonam Wangchuk begins hunger strike (Ladakh rights)'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jul 5</span> — {hi ? 'दिल्ली HC ने X अकाउंट @CJP_2029 बहाल कराया' : 'Delhi HC orders restoration of @CJP_2029 X account'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jul 20</span> — {hi ? 'चलो संसद मार्च — आँसू गैस, लाठी, 180+ घायल' : 'Chalo Sansad march — tear gas, lathi, 180+ injured'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jul 21</span> — {hi ? '"पीछे नहीं हटेंगे" — जंतर मंतर पर डटे' : '"Won\'t back down" — hold position at Jantar Mantar'}</li>
+            <li className="demand-item"><span style={{ opacity: 0.6 }}>Jul 22</span> — {hi ? 'विपक्ष ने संसद ठप कराई — राहुल गांधी डिटेन' : 'Opposition disrupts Parliament — Rahul Gandhi detained'}</li>
+          </ol>
+        </details>
+
+        {/* FOLLOW THE MOVEMENT — Social Links */}
+        <div style={{ marginBottom: '24px' }}>
+          <p style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: '10px', opacity: 0.8 }}>
+            {hi ? 'आंदोलन से जुड़ें:' : 'Follow the Movement:'}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <a href="https://www.instagram.com/cockroachjanata.india/" target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: '0.75rem', padding: '8px 12px', minHeight: 'auto' }}>Instagram ↗</a>
+            <a href="https://x.com/CJP_2029" target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: '0.75rem', padding: '8px 12px', minHeight: 'auto' }}>X @CJP_2029 ↗</a>
+            <a href="https://x.com/Cockroachisback" target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: '0.75rem', padding: '8px 12px', minHeight: 'auto' }}>X Backup ↗</a>
+            <a href="https://www.reddit.com/r/CockroachJantaParty/" target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: '0.75rem', padding: '8px 12px', minHeight: 'auto' }}>Reddit ↗</a>
+            <a href="https://x.com/abhijeet_dipke" target="_blank" rel="noopener noreferrer" className="brutal-btn" style={{ fontSize: '0.75rem', padding: '8px 12px', minHeight: 'auto' }}>{hi ? 'संस्थापक' : 'Founder'} ↗</a>
+          </div>
+          <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '8px' }}>
+            {hi
+              ? '⚠️ कई डोमेन "आधिकारिक" होने का दावा करते हैं। Instagram @cockroachjanata.india और X @CJP_2029 मुख्यधारा मीडिया (Reuters, AP, Al Jazeera) में उद्धृत हैं।'
+              : '⚠️ Multiple domains claim to be "official." Instagram @cockroachjanata.india and X @CJP_2029 are cited in mainstream media (Reuters, AP, Al Jazeera).'}
+          </p>
+        </div>
+
         {/* ACTION BUTTONS */}
         <div className="situation-actions">
           <Link href="/expect" className="brutal-btn brutal-btn-primary">
