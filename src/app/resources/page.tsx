@@ -2,6 +2,9 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Locale } from '@/types';
 import PrintButton from '@/components/PrintButton';
+import ShareButton from '@/components/ShareButton';
+import CommunityResources from '@/components/CommunityResources';
+import ReportError from '@/components/ReportError';
 
 export default async function ResourcesPage() {
   const cookieStore = await cookies();
@@ -15,7 +18,11 @@ export default async function ResourcesPage() {
           <h1 className="heading-display mb-3">{hi ? 'संसाधन निर्देशिका' : 'Resource Directory'}</h1>
           <p className="text-[var(--color-text-muted)] text-lg">{hi ? 'कानूनी सहायता, आश्रय, मानसिक स्वास्थ्य, सरकारी पोर्टल, नागरिक संगठन — सत्यापित स्रोतों के साथ।' : 'Legal aid, shelters, mental health, government portals, civic organizations — with verified sources.'}</p>
         </div>
-        <PrintButton locale={locale} />
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <ShareButton locale={locale} title={hi ? 'संसाधन निर्देशिका — Sahayata' : 'Resource Directory — Sahayata'} />
+          <PrintButton locale={locale} />
+          <ReportError locale={locale} context="resources page" />
+        </div>
       </div>
 
       {/* TABLE OF CONTENTS */}
