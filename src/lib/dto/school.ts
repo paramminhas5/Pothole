@@ -28,7 +28,13 @@ export function toSchoolLesson(row: SchoolLessonRow): SchoolLessonDTO {
     contentMd: row.content_md,
     contentMdHi: row.content_md_hi,
     estimatedMinutes: row.estimated_minutes,
-    fieldAssignment: row.field_assignment,
+    fieldAssignment: row.field_assignment
+      ? {
+          description: row.field_assignment.description,
+          verificationMethod: row.field_assignment.verification_method,
+          proofType: row.field_assignment.proof_type,
+        }
+      : null,
     resources: (row.resources as Array<{ title: string; url: string; type: string }>) || [],
   };
 }
