@@ -115,24 +115,9 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Try mirror URLs if primary fails
-async function tryMirrors(request) {
-  try {
-    const mirrorsResponse = await caches.match('/mirrors.json');
-    if (!mirrorsResponse) return offlineResponse();
-    const mirrors = await mirrorsResponse.json();
-    const url = new URL(request.url);
-
-    for (const mirror of mirrors.urls || []) {
-      try {
-        const mirrorUrl = new URL(url.pathname, mirror);
-        const response = await fetch(mirrorUrl.toString(), { mode: 'cors' });
-        if (response.ok) return response;
-      } catch {
-        continue;
-      }
-    }
-  } catch {}
+// Mirror failover disabled until signed-data verification is implemented.
+// See: docs/WORLD_CLASS_CIVIC_PLATFORM_IMPLEMENTATION_PLAN.md P0-15
+async function tryMirrors(/* request */) {
   return offlineResponse();
 }
 
