@@ -44,9 +44,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     .eq('identity_id', profileRow.identity_id)
     .eq('assignment_verified', true);
 
-  const trackProgress = (enrollments || []).map((e: { track_id: string; status: string; progress_pct: number; school_tracks?: { title: string } }) => ({
+  const trackProgress = (enrollments || []).map((e: { track_id: string; status: string; progress_pct: number; school_tracks: { title: string }[] }) => ({
     track_id: e.track_id,
-    track_title: e.school_tracks?.title || '',
+    track_title: e.school_tracks?.[0]?.title || '',
     status: e.status,
     progress_pct: e.progress_pct,
     lessons_completed: 0, // would need a count query
