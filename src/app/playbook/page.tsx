@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Locale } from '@/types';
+import PrintButton from '@/components/PrintButton';
 
 export default async function PlaybookPage() {
   const cookieStore = await cookies();
@@ -9,200 +10,199 @@ export default async function PlaybookPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-6 py-12">
-      <div className="mb-10">
-        <h1 className="heading-display mb-3">
-          {hi ? 'विरोध → शक्ति → बदलाव' : 'Protest → Power → Change'}
-        </h1>
-        <p className="text-[var(--color-text-muted)] text-lg">
-          {hi ? 'सड़क की ऊर्जा को संस्थागत जवाबदेही में बदलने का पूरा रास्ता।' : 'The complete path from street energy to institutional accountability.'}
-        </p>
+      <div className="mb-8 flex justify-between items-start gap-4">
+        <div>
+          <h1 className="heading-display mb-2">{hi ? 'विरोध → शक्ति → बदलाव' : 'Protest → Power → Change'}</h1>
+          <p className="text-[var(--color-text-muted)]">{hi ? '10 कदम: सड़क की ऊर्जा को संस्थागत जवाबदेही में बदलें।' : '10 steps: Convert street energy into institutional accountability.'}</p>
+        </div>
+        <PrintButton locale={locale} />
       </div>
 
+      {/* TL;DR */}
+      <section className="brutal-card mb-8 !border-[var(--color-primary)]">
+        <h2 className="heading-3 mb-3">{hi ? 'एक वाक्य में:' : 'In one sentence:'}</h2>
+        <p className="text-sm font-bold">{hi ? 'एक स्पष्ट माँग लिखें → सबूत जमा करें → RTI/FIR/PIL दाखिल करें → जनप्रतिनिधि को लिखें → ट्रैक करें → एस्केलेट करें → तब तक जारी रखें जब तक जवाब न मिले।' : 'Write one clear demand → collect evidence → file RTI/FIR/PIL → write to representative → track → escalate → keep going until you get a response.'}</p>
+      </section>
 
-      {/* CHAPTER 1: DEFINE DEMANDS */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-lime mb-4">1</div>
-        <h2 className="heading-2 mb-4">{hi ? 'माँग को स्पष्ट करें' : 'Define Your Demand'}</h2>
-        <p className="text-sm mb-3">{hi ? '"जवाबदेही" एक भावना है। "शिक्षा मंत्री का इस्तीफा 15 अगस्त तक" एक माँग है।' : '"Accountability" is a feeling. "Education Minister resign by August 15" is a demand.'}</p>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-sm mb-4">
-          <strong>{hi ? 'माँग टेम्पलेट:' : 'Demand template:'}</strong>
-          <ul className="mt-2 space-y-1">
-            <li>→ <strong>{hi ? 'क्या:' : 'What:'}</strong> {hi ? '[एक स्पष्ट, मापने योग्य कार्रवाई]' : '[One clear, measurable action]'}</li>
-            <li>→ <strong>{hi ? 'कौन:' : 'Who:'}</strong> {hi ? '[जिम्मेदार व्यक्ति/संस्था का नाम]' : '[Name of accountable person/institution]'}</li>
-            <li>→ <strong>{hi ? 'कब तक:' : 'By when:'}</strong> {hi ? '[तारीख]' : '[Date]'}</li>
-            <li>→ <strong>{hi ? 'सबूत:' : 'Evidence:'}</strong> {hi ? '[समस्या का प्रमाण]' : '[Proof of the problem]'}</li>
-            <li>→ <strong>{hi ? 'अगर नहीं:' : 'If not:'}</strong> {hi ? '[एस्केलेशन — RTI/PIL/चुनावी जवाबदेही]' : '[Escalation — RTI/PIL/electoral accountability]'}</li>
-          </ul>
+
+      {/* CHAPTER 1 */}
+      <details className="brutal-card mb-4" open>
+        <summary className="heading-3 cursor-pointer">1. {hi ? 'माँग स्पष्ट करें' : 'Define Your Demand'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? '"जवाबदेही" माँग नहीं है। "शिक्षा मंत्री 15 अगस्त तक इस्तीफा दें" माँग है।' : '"Accountability" is not a demand. "Education Minister resign by August 15" is a demand.'}</p>
+          <div className="p-3 bg-[var(--color-surface-alt)] rounded">
+            <strong>{hi ? 'माँग का फॉर्मूला:' : 'Demand formula:'}</strong>
+            <p className="mt-1 font-mono text-xs">[{hi ? 'कौन' : 'WHO'}] + [{hi ? 'क्या करे' : 'does WHAT'}] + [{hi ? 'कब तक' : 'by WHEN'}]</p>
+            <p className="mt-2">{hi ? 'उदाहरण: "NTA प्रमुख 30 जुलाई तक सभी लीक परीक्षाओं की स्वतंत्र जाँच की रिपोर्ट सार्वजनिक करें।"' : 'Example: "NTA chief publicly release independent investigation report of all leaked exams by July 30."'}</p>
+          </div>
+          <p>{hi ? '→ Sahayata डिमांड बोर्ड पर अपनी माँग दर्ज करें और ट्रैक करें।' : '→ Register and track your demand on the Sahayata Demand Board.'}</p>
+          <Link href="/create-post" className="text-link">{hi ? 'माँग पोस्ट करें →' : 'Post a demand →'}</Link>
         </div>
-        <p className="text-sm">{hi ? '→ Sahayata Demand Tracker में माँग बनाएँ और ट्रैक करें।' : '→ Create and track demands in the Sahayata Demand Tracker.'}</p>
-        <Link href="/demands" className="text-link mt-2 inline-block">{hi ? 'डिमांड ट्रैकर →' : 'Demand Tracker →'}</Link>
-      </section>
+      </details>
 
-      {/* CHAPTER 2: DOCUMENT */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-sky mb-4">2</div>
-        <h2 className="heading-2 mb-4">{hi ? 'सब कुछ दस्तावेज़ करें' : 'Document Everything'}</h2>
-        <ul className="space-y-2 text-sm">
-          <li>→ {hi ? 'फोटो/वीडियो: मेटाडेटा (समय, जगह) दिखाएँ। ओरिजिनल कभी एडिट न करें।' : 'Photos/videos: show metadata (time, place). Never edit originals.'}</li>
-          <li>→ {hi ? 'चेन ऑफ कस्टडी: कब लिया → कहाँ स्टोर → किसे दिया।' : 'Chain of custody: when taken → where stored → who received.'}</li>
-          <li>→ {hi ? 'टाइमलाइन: घटनाओं का क्रम, तारीख-समय के साथ।' : 'Timeline: sequence of events with date-time.'}</li>
-          <li>→ {hi ? 'गवाह: नाम (सहमति से), संपर्क, क्या देखा।' : 'Witnesses: names (with consent), contact, what they saw.'}</li>
-          <li>→ {hi ? 'मीडिया कवरेज: लिंक, स्क्रीनशॉट, आर्काइव।' : 'Media coverage: links, screenshots, archives.'}</li>
-          <li>→ {hi ? 'वित्तीय: अगर सार्वजनिक धन शामिल — बजट दस्तावेज़, व्यय विवरण।' : 'Financial: if public money involved — budget documents, expenditure details.'}</li>
-        </ul>
-        <Link href="/vault" className="text-link mt-3 inline-block">{hi ? 'एविडेंस वॉल्ट में सुरक्षित करें →' : 'Secure in Evidence Vault →'}</Link>
-      </section>
+      {/* CHAPTER 2 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">2. {hi ? 'सब कुछ दस्तावेज़ करें' : 'Document Everything'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'बिना सबूत के माँग सिर्फ शोर है। सबूत के साथ यह कानूनी दबाव है।' : 'Without evidence a demand is just noise. With evidence it is legal pressure.'}</p>
+          <ul className="space-y-1">
+            <li>→ {hi ? 'फोटो/वीडियो: समय + जगह दिखे। ओरिजिनल कभी एडिट न करें।' : 'Photos/videos: show time + place. Never edit originals.'}</li>
+            <li>→ {hi ? 'टाइमलाइन: क्या हुआ, कब, किसने किया — लिखें (जल्दी)।' : 'Timeline: what happened, when, who did it — write it down (quickly).'}</li>
+            <li>→ {hi ? 'गवाह: नाम + संपर्क (सहमति से)।' : 'Witnesses: name + contact (with consent).'}</li>
+            <li>→ {hi ? 'मीडिया कवरेज: लिंक सेव करें, स्क्रीनशॉट लें।' : 'Media coverage: save links, take screenshots.'}</li>
+            <li>→ {hi ? 'तुरंत क्लाउड बैकअप: Google Drive, ProtonDrive।' : 'Immediate cloud backup: Google Drive, ProtonDrive.'}</li>
+          </ul>
+          <Link href="/toolkit" className="text-link">{hi ? 'एविडेंस लॉग टेम्पलेट →' : 'Evidence Log Template →'}</Link>
+        </div>
+      </details>
 
-      {/* CHAPTER 3: RTI */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-accent mb-4">3</div>
-        <h2 className="heading-2 mb-4">{hi ? 'RTI — सबसे शक्तिशाली नागरिक हथियार' : 'RTI — The Most Powerful Citizen Weapon'}</h2>
-        <div className="space-y-3 text-sm">
-          <p><strong>{hi ? 'क्या है:' : 'What it is:'}</strong> {hi ? 'सूचना का अधिकार — किसी भी सरकारी विभाग से जानकारी माँगने का कानूनी अधिकार।' : 'Right to Information — legal right to demand information from any government department.'}</p>
-          <p><strong>{hi ? 'शुल्क:' : 'Fee:'}</strong> ₹10 ({hi ? 'BPL के लिए मुफ्त' : 'Free for BPL'}).</p>
-          <p><strong>{hi ? 'समय-सीमा:' : 'Timeline:'}</strong> {hi ? '30 दिन में जवाब अनिवार्य।' : '30-day response mandatory.'}</p>
-          <p><strong>{hi ? 'कैसे:' : 'How:'}</strong> rtionline.gov.in ({hi ? 'केंद्रीय' : 'central'}) | {hi ? 'राज्य RTI पोर्टल (राज्यों के लिए)' : 'State RTI portals (for state level)'}</p>
-          <div className="p-3 bg-[var(--color-surface-alt)] rounded mt-3">
+      {/* CHAPTER 3 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">3. {hi ? 'RTI दाखिल करें' : 'File RTI'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'RTI = सरकार को जवाब देने पर मजबूर करने का कानूनी हथियार। ₹10। 30 दिन। नहीं दिया → जुर्माना।' : 'RTI = legal weapon to force government to answer. ₹10. 30 days. No response → penalty.'}</p>
+          <div className="p-3 bg-[var(--color-surface-alt)] rounded">
+            <strong>{hi ? 'कैसे:' : 'How:'}</strong>
+            <ol className="mt-1 list-decimal list-inside space-y-1">
+              <li>{hi ? 'Sahayata RTI जनरेटर में फॉर्म भरें' : 'Fill form in Sahayata RTI Generator'}</li>
+              <li>{hi ? 'rtionline.gov.in पर जमा करें (₹10 ऑनलाइन)' : 'Submit on rtionline.gov.in (₹10 online)'}</li>
+              <li>{hi ? '30 दिन टाइमर शुरू' : 'Start 30-day timer'}</li>
+              <li>{hi ? 'जवाब नहीं → प्रथम अपील (Sahayata अपील जनरेटर)' : 'No response → First Appeal (Sahayata Appeal Generator)'}</li>
+              <li>{hi ? 'फिर भी नहीं → सूचना आयोग (CIC/SIC)' : 'Still nothing → Information Commission (CIC/SIC)'}</li>
+            </ol>
+          </div>
+          <p className="text-xs">{hi ? 'CIC जुर्माना: ₹250/दिन, अधिकतम ₹25,000 — अधिकारी की जेब से।' : 'CIC penalty: ₹250/day, max ₹25,000 — from the officer`s pocket.'}</p>
+          <Link href="/rti" className="brutal-btn brutal-btn-primary mt-2 inline-block">{hi ? 'RTI जनरेटर खोलें →' : 'Open RTI Generator →'}</Link>
+        </div>
+      </details>
+
+
+      {/* CHAPTER 4 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">4. {hi ? 'FIR दर्ज करें' : 'File FIR'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'अपराध हुआ है? पुलिस FIR दर्ज करने से मना नहीं कर सकती। मना करे तो 3 रास्ते हैं।' : 'Crime committed? Police cannot refuse to file FIR. If they refuse, there are 3 paths.'}</p>
+          <div className="p-3 bg-[var(--color-surface-alt)] rounded">
             <strong>{hi ? 'एस्केलेशन:' : 'Escalation:'}</strong>
             <ol className="mt-1 list-decimal list-inside space-y-1">
-              <li>{hi ? '30 दिन कोई जवाब नहीं → प्रथम अपील (उसी विभाग में वरिष्ठ अधिकारी को)' : '30 days no response → First Appeal (to senior officer in same department)'}</li>
-              <li>{hi ? 'प्रथम अपील विफल → द्वितीय अपील (CIC/SIC — सूचना आयोग)' : 'First appeal fails → Second Appeal (CIC/SIC — Information Commission)'}</li>
-              <li>{hi ? 'CIC जुर्माना लगा सकता है: ₹250/दिन तक अधिकतम ₹25,000' : 'CIC can impose penalty: ₹250/day up to ₹25,000'}</li>
+              <li>{hi ? 'पुलिस स्टेशन → लिखित शिकायत दें → रसीद लें' : 'Police station → give written complaint → get receipt'}</li>
+              <li>{hi ? 'मना करें → SP (पुलिस अधीक्षक) को पत्र' : 'Refuse → letter to SP (Superintendent of Police)'}</li>
+              <li>{hi ? 'SP भी मना → मजिस्ट्रेट शिकायत (BNSS 175(3))' : 'SP also refuses → Magistrate complaint (BNSS 175(3))'}</li>
             </ol>
+            <p className="mt-2">{hi ? 'Zero FIR: कहीं भी दर्ज करवा सकते हैं — सही थाने में ट्रांसफर होगी।' : 'Zero FIR: can file anywhere — will be transferred to correct station.'}</p>
           </div>
-          <p className="font-bold mt-3">{hi ? '→ Sahayata RTI जनरेटर में फॉर्म भरें → PDF डाउनलोड → जमा करें।' : '→ Fill form in Sahayata RTI Generator → download PDF → submit.'}</p>
+          <Link href="/fir" className="brutal-btn brutal-btn-primary mt-2 inline-block">{hi ? 'FIR असिस्टेंट खोलें →' : 'Open FIR Assistant →'}</Link>
         </div>
-        <Link href="/rti" className="text-link mt-3 inline-block">{hi ? 'RTI जनरेटर →' : 'RTI Generator →'}</Link>
-      </section>
+      </details>
 
-
-      {/* CHAPTER 4: FIR */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-red mb-4">4</div>
-        <h2 className="heading-2 mb-4">{hi ? 'FIR — पुलिस को कार्रवाई के लिए मजबूर करें' : 'FIR — Make Police Act'}</h2>
-        <div className="space-y-3 text-sm">
-          <p><strong>{hi ? 'कब:' : 'When:'}</strong> {hi ? 'जब संज्ञेय अपराध (cognizable offence) हुआ हो — हमला, चोरी, धमकी, भ्रष्टाचार।' : 'When a cognizable offence occurred — assault, theft, threats, corruption.'}</p>
-          <p><strong>{hi ? 'आपका अधिकार:' : 'Your right:'}</strong> {hi ? 'पुलिस FIR दर्ज करने से मना नहीं कर सकती (BNSS धारा 173)।' : 'Police cannot refuse to register FIR (BNSS Section 173).'}</p>
-          <div className="p-3 bg-[var(--color-surface-alt)] rounded">
-            <strong>{hi ? 'अगर पुलिस मना करे:' : 'If police refuse:'}</strong>
-            <ol className="mt-1 list-decimal list-inside space-y-1">
-              <li>{hi ? 'लिखित शिकायत SP (पुलिस अधीक्षक) को भेजें' : 'Send written complaint to SP (Superintendent of Police)'}</li>
-              <li>{hi ? 'SP भी मना करे → मजिस्ट्रेट शिकायत (धारा 156(3) CrPC / BNSS धारा 175(3))' : 'SP also refuses → Magistrate complaint (Section 156(3) CrPC / BNSS Section 175(3))'}</li>
-              <li>{hi ? 'Zero FIR: कहीं भी दर्ज करवा सकते हैं, सही थाने में ट्रांसफर होगी' : 'Zero FIR: can file anywhere, will be transferred to correct station'}</li>
-            </ol>
-          </div>
-          <p className="font-bold mt-3">{hi ? '→ Sahayata FIR असिस्टेंट: विज़ार्ड भरें → शिकायत/पत्र तैयार।' : '→ Sahayata FIR Assistant: fill wizard → complaint/letter ready.'}</p>
+      {/* CHAPTER 5 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">5. {hi ? 'PIL दायर करें' : 'File PIL'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'व्यवस्थागत समस्या? सरकारी अकर्मण्यता? कोई भी व्यक्ति हाई कोर्ट / सुप्रीम कोर्ट में PIL दायर कर सकता है।' : 'Systemic problem? Government inaction? Anyone can file PIL in High Court / Supreme Court.'}</p>
+          <ul className="space-y-1">
+            <li>→ {hi ? 'सादे कागज पर भी सुप्रीम कोर्ट को पत्र लिख सकते हैं।' : 'Can even write a letter on plain paper to Supreme Court.'}</li>
+            <li>→ {hi ? 'लागत: ₹50-500 कोर्ट फीस। वकील ज़रूरी नहीं (पर अनुशंसित)।' : 'Cost: ₹50-500 court fee. Lawyer not required (but recommended).'}</li>
+            <li>→ {hi ? 'मुफ्त वकील: HRLN (hrln.org) या NALSA से माँगें।' : 'Free lawyer: ask HRLN (hrln.org) or NALSA.'}</li>
+          </ul>
+          <p className="text-xs text-[var(--color-text-muted)]">{hi ? 'सफल PILs: विशाखा दिशानिर्देश, NREGA, मिड-डे मील, पर्यावरण संरक्षण।' : 'Successful PILs: Vishaka guidelines, NREGA, mid-day meal, environmental protection.'}</p>
         </div>
-        <Link href="/fir" className="text-link mt-3 inline-block">{hi ? 'FIR असिस्टेंट →' : 'FIR Assistant →'}</Link>
-      </section>
+      </details>
 
-      {/* CHAPTER 5: PIL */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-yellow mb-4">5</div>
-        <h2 className="heading-2 mb-4">{hi ? 'PIL — जनहित याचिका' : 'PIL — Public Interest Litigation'}</h2>
-        <div className="space-y-2 text-sm">
-          <p><strong>{hi ? 'क्या है:' : 'What it is:'}</strong> {hi ? 'कोई भी व्यक्ति सार्वजनिक हित में हाई कोर्ट या सुप्रीम कोर्ट में याचिका दायर कर सकता है।' : 'Any person can file a petition in High Court or Supreme Court for public interest.'}</p>
-          <p><strong>{hi ? 'कब:' : 'When:'}</strong> {hi ? 'सरकारी अकर्मण्यता, व्यवस्थागत समस्या, मौलिक अधिकार उल्लंघन।' : 'Government inaction, systemic problems, fundamental rights violations.'}</p>
-          <p><strong>{hi ? 'कैसे:' : 'How:'}</strong> {hi ? 'सादे कागज पर भी दायर की जा सकती है (सुप्रीम कोर्ट को पत्र)।' : 'Can be filed even on plain paper (letter to Supreme Court).'}</p>
-          <p><strong>{hi ? 'लागत:' : 'Cost:'}</strong> {hi ? 'न्यूनतम — कोर्ट फीस ₹50-500। वकील ज़रूरी नहीं (पर अनुशंसित)।' : 'Minimal — court fee ₹50-500. Lawyer not required (but recommended).'}</p>
-          <p><strong>{hi ? 'सफल PILs:' : 'Successful PILs:'}</strong> {hi ? 'विशाखा दिशानिर्देश, पर्यावरण संरक्षण, NREGA, मिड-डे मील।' : 'Vishaka guidelines, environmental protection, NREGA, mid-day meal.'}</p>
-          <p className="mt-2">{hi ? '→ PIL के लिए कानूनी सहायता: NALSA से मुफ्त वकील माँगें या human rights law firms से संपर्क करें।' : '→ For PIL legal help: request free lawyer from NALSA or contact human rights law firms.'}</p>
-        </div>
-      </section>
-
-      {/* CHAPTER 6: REPRESENTATIVES */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-sky mb-4">6</div>
-        <h2 className="heading-2 mb-4">{hi ? 'जनप्रतिनिधियों को लिखें' : 'Write to Representatives'}</h2>
-        <div className="space-y-3 text-sm">
+      {/* CHAPTER 6 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">6. {hi ? 'जनप्रतिनिधि को लिखें' : 'Write to Representative'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'आपके MLA/MP आपके कर्मचारी हैं। उन्हें बताएँ कि आप क्या चाहते हैं।' : 'Your MLA/MP are your employees. Tell them what you want.'}</p>
           <div className="p-3 bg-[var(--color-surface-alt)] rounded">
             <strong>{hi ? 'कौन क्या नियंत्रित करता है:' : 'Who controls what:'}</strong>
-            <ul className="mt-2 space-y-1">
-              <li>→ <strong>{hi ? 'नगर पार्षद:' : 'Municipal Councillor:'}</strong> {hi ? 'सड़क, पानी, सफाई, स्ट्रीटलाइट, स्थानीय' : 'Roads, water, sanitation, streetlights, local'}</li>
-              <li>→ <strong>MLA:</strong> {hi ? 'राज्य विषय — पुलिस, शिक्षा, स्वास्थ्य, बिजली' : 'State subjects — police, education, health, electricity'}</li>
-              <li>→ <strong>MP:</strong> {hi ? 'केंद्रीय विषय — रेलवे, रक्षा, दूरसंचार, परीक्षाएँ (NTA)' : 'Central subjects — railways, defence, telecom, exams (NTA)'}</li>
+            <ul className="mt-1 space-y-1">
+              <li>• <strong>{hi ? 'नगर पार्षद:' : 'Councillor:'}</strong> {hi ? 'सड़क, पानी, सफाई, स्ट्रीटलाइट' : 'Roads, water, sanitation, streetlights'}</li>
+              <li>• <strong>MLA:</strong> {hi ? 'पुलिस, शिक्षा (राज्य), स्वास्थ्य, बिजली' : 'Police, education (state), health, electricity'}</li>
+              <li>• <strong>MP:</strong> {hi ? 'रेलवे, दूरसंचार, परीक्षाएँ (NTA), केंद्रीय कानून' : 'Railways, telecom, exams (NTA), central laws'}</li>
             </ul>
           </div>
-          <p>{hi ? 'पत्र टेम्पलेट, पता, और अनुवर्ती RTI — सब Sahayata Representatives फीचर में।' : 'Letter templates, addresses, and follow-up RTI — all in Sahayata Representatives feature.'}</p>
+          <p>{hi ? '→ MP खोजें: sansad.in/ls/members (राज्य/निर्वाचन क्षेत्र से)' : '→ Find MP: sansad.in/ls/members (by state/constituency)'}</p>
+          <Link href="/representatives" className="text-link">{hi ? 'पत्र टेम्पलेट + प्रतिनिधि खोजें →' : 'Letter template + find representative →'}</Link>
         </div>
-        <Link href="/representatives" className="text-link mt-3 inline-block">{hi ? 'जनप्रतिनिधि खोजें →' : 'Find Representatives →'}</Link>
-      </section>
-
-      {/* CHAPTER 7: MEDIA */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-accent mb-4">7</div>
-        <h2 className="heading-2 mb-4">{hi ? 'मीडिया रणनीति' : 'Media Strategy'}</h2>
-        <ul className="space-y-2 text-sm">
-          <li>→ <strong>{hi ? 'प्रेस रिलीज:' : 'Press release:'}</strong> {hi ? 'कौन, क्या, कब, कहाँ, क्यों — एक पेज में। संपर्क व्यक्ति का नाम + फोन।' : 'Who, what, when, where, why — one page. Contact person name + phone.'}</li>
-          <li>→ <strong>{hi ? 'पत्रकारों से संपर्क:' : 'Contact journalists:'}</strong> {hi ? 'बीट-विशिष्ट (शिक्षा/कानून/राजनीति)। Signal/encrypted email से। WhatsApp ग्रुप में न जोड़ें।' : 'Beat-specific (education/law/politics). Via Signal/encrypted email. Do not add to WhatsApp groups.'}</li>
-          <li>→ <strong>{hi ? 'सोशल मीडिया:' : 'Social media:'}</strong> {hi ? 'एक हैशटैग, एक संदेश, एक माँग। विजुअल शेयर करें। अपनी पहचान सुरक्षित रखें।' : 'One hashtag, one message, one demand. Share visuals. Protect your identity.'}</li>
-          <li>→ <strong>{hi ? 'प्रेस कॉन्फ्रेंस:' : 'Press conference:'}</strong> {hi ? 'एक स्पीकर, लिखित माँग दस्तावेज़ बाँटें, Q&A तैयार।' : 'One speaker, distribute written demand document, prepare Q&A.'}</li>
-          <li>→ <strong>{hi ? 'कब मीडिया मदद करता है:' : 'When media helps:'}</strong> {hi ? 'स्पष्ट माँग + सबूत + मानवीय कहानी + संस्थागत दबाव के साथ।' : 'Clear demand + evidence + human story + alongside institutional pressure.'}</li>
-        </ul>
-        <Link href="/toolkit" className="text-link mt-3 inline-block">{hi ? 'प्रेस रिलीज टेम्पलेट →' : 'Press Release Template →'}</Link>
-      </section>
+      </details>
 
 
-      {/* CHAPTER 8: ESCALATION LADDER */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-red mb-4">8</div>
-        <h2 className="heading-2 mb-4">{hi ? 'एस्केलेशन सीढ़ी' : 'Escalation Ladder'}</h2>
-        <div className="text-sm space-y-2">
-          <p>{hi ? 'हर स्तर पर: जवाब नहीं → अगले स्तर पर जाएँ + RTI दाखिल करें कि पिछले स्तर ने कार्रवाई क्यों नहीं की।' : 'At every level: no response → move to next level + file RTI asking why previous level did not act.'}</p>
-          <div className="p-4 bg-[var(--color-surface-alt)] rounded font-mono text-xs leading-relaxed">
-            <p>{hi ? 'वार्ड पार्षद / नगर निगम कार्यालय' : 'Ward Councillor / Municipal Office'}</p>
-            <p className="pl-4">↓ {hi ? 'जवाब नहीं (15 दिन)' : 'No response (15 days)'}</p>
-            <p className="pl-4">{hi ? 'MLA कार्यालय' : 'MLA Office'}</p>
-            <p className="pl-8">↓ {hi ? 'जवाब नहीं (15 दिन)' : 'No response (15 days)'}</p>
-            <p className="pl-8">{hi ? 'MP कार्यालय' : 'MP Office'}</p>
-            <p className="pl-12">↓ {hi ? 'जवाब नहीं (15 दिन)' : 'No response (15 days)'}</p>
-            <p className="pl-12">{hi ? 'विभाग सचिव' : 'Department Secretary'}</p>
-            <p className="pl-16">↓ {hi ? 'जवाब नहीं' : 'No response'}</p>
-            <p className="pl-16">{hi ? 'मंत्री कार्यालय + CPGRAMS' : "Minister's Office + CPGRAMS"}</p>
-            <p className="pl-20">↓ {hi ? 'जवाब नहीं' : 'No response'}</p>
-            <p className="pl-20">{hi ? 'NHRC / SHRC / लोकपाल' : 'NHRC / SHRC / Lokpal'}</p>
-            <p className="pl-24">↓ {hi ? 'जवाब नहीं' : 'No response'}</p>
-            <p className="pl-24">{hi ? 'हाई कोर्ट (PIL)' : 'High Court (PIL)'}</p>
-            <p className="pl-28">↓</p>
-            <p className="pl-28">{hi ? 'सुप्रीम कोर्ट' : 'Supreme Court'}</p>
+      {/* CHAPTER 7 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">7. {hi ? 'मीडिया रणनीति' : 'Media Strategy'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'मीडिया तभी मदद करता है जब: स्पष्ट माँग + सबूत + मानवीय कहानी + संस्थागत दबाव के साथ हो।' : 'Media only helps when: clear demand + evidence + human story + alongside institutional pressure.'}</p>
+          <ul className="space-y-1">
+            <li>→ {hi ? 'प्रेस रिलीज: कौन, क्या, कब, कहाँ, क्यों — एक पेज। संपर्क दें।' : 'Press release: who, what, when, where, why — one page. Give contact.'}</li>
+            <li>→ {hi ? 'पत्रकार संपर्क: बीट-विशिष्ट। Signal/encrypted email से।' : 'Journalist contact: beat-specific. Via Signal/encrypted email.'}</li>
+            <li>→ {hi ? 'सोशल मीडिया: एक हैशटैग, एक संदेश, एक माँग। पहचान सुरक्षित रखें।' : 'Social media: one hashtag, one message, one demand. Protect identity.'}</li>
+          </ul>
+          <Link href="/toolkit" className="text-link">{hi ? 'प्रेस रिलीज टेम्पलेट →' : 'Press Release Template →'}</Link>
+        </div>
+      </details>
+
+      {/* CHAPTER 8 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">8. {hi ? 'एस्केलेशन सीढ़ी' : 'Escalation Ladder'}</summary>
+        <div className="mt-4 text-sm space-y-3">
+          <p className="font-bold">{hi ? 'हर स्तर पर: जवाब नहीं → अगला स्तर + RTI कि "पिछली शिकायत पर क्या हुआ?"' : 'At every level: no response → next level + RTI asking "what happened to my last complaint?"'}</p>
+          <div className="p-4 bg-[var(--color-surface-alt)] rounded font-mono text-xs leading-loose">
+            <p>{hi ? 'नगर पार्षद / नगर निगम' : 'Ward Councillor / Municipal Corp'}</p>
+            <p className="pl-4">↓ {hi ? '15 दिन — जवाब नहीं' : '15 days — no response'}</p>
+            <p className="pl-4 font-bold">MLA</p>
+            <p className="pl-8">↓ {hi ? '15 दिन — जवाब नहीं' : '15 days — no response'}</p>
+            <p className="pl-8 font-bold">MP</p>
+            <p className="pl-12">↓ {hi ? '15 दिन — जवाब नहीं' : '15 days — no response'}</p>
+            <p className="pl-12 font-bold">{hi ? 'विभाग सचिव + CPGRAMS' : 'Dept Secretary + CPGRAMS'}</p>
+            <p className="pl-16">↓</p>
+            <p className="pl-16 font-bold">NHRC / {hi ? 'लोकपाल' : 'Lokpal'}</p>
+            <p className="pl-20">↓</p>
+            <p className="pl-20 font-bold">{hi ? 'हाई कोर्ट (PIL)' : 'High Court (PIL)'}</p>
+            <p className="pl-24">↓</p>
+            <p className="pl-24 font-bold">{hi ? 'सुप्रीम कोर्ट' : 'Supreme Court'}</p>
           </div>
-          <p className="mt-3 font-bold">{hi ? 'हर स्तर पर: लिखित शिकायत + रसीद + RTI कि शिकायत पर क्या कार्रवाई हुई।' : 'At every level: written complaint + receipt + RTI asking what action was taken on complaint.'}</p>
         </div>
-      </section>
+      </details>
 
-      {/* CHAPTER 9: COALITION */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-lime mb-4">9</div>
-        <h2 className="heading-2 mb-4">{hi ? 'गठबंधन निर्माण' : 'Coalition Building'}</h2>
-        <ul className="space-y-2 text-sm">
-          <li>→ {hi ? 'समान माँग वाले अन्य समूहों को खोजें (Sahayata Directory)।' : 'Find other groups with similar demands (Sahayata Directory).'}</li>
-          <li>→ {hi ? 'संयुक्त माँग दस्तावेज़ बनाएँ — सबकी सहमति से।' : 'Create joint demand document — with everyone`s consent.'}</li>
-          <li>→ {hi ? 'समन्वित कार्रवाई: एक दिन सब एक साथ RTI दाखिल करें।' : 'Coordinated action: everyone files RTI on the same day.'}</li>
-          <li>→ {hi ? 'स्वायत्तता बनाए रखें — गठबंधन ≠ विलय। हर समूह अपने फैसले खुद करे।' : 'Maintain autonomy — coalition ≠ merger. Each group makes its own decisions.'}</li>
-          <li>→ {hi ? 'राजनीतिक दलों द्वारा कब्जा रोकें — माँग-केंद्रित रहें, व्यक्ति-केंद्रित नहीं।' : 'Prevent co-optation by parties — stay demand-focused, not personality-focused.'}</li>
-        </ul>
-        <Link href="/organize" className="text-link mt-3 inline-block">{hi ? 'संगठन गाइड →' : 'Organizing Guide →'}</Link>
-      </section>
+      {/* CHAPTER 9 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">9. {hi ? 'गठबंधन बनाएँ' : 'Build Coalitions'}</summary>
+        <div className="mt-4 text-sm space-y-2">
+          <p className="font-bold">{hi ? 'अकेला समूह कमज़ोर है। 10 समूह मिलकर → अनदेखा करना असंभव।' : 'One group is weak. 10 groups together → impossible to ignore.'}</p>
+          <ul className="space-y-1">
+            <li>→ {hi ? 'Sahayata डायरेक्टरी में समान माँग वाले ग्रुप खोजें।' : 'Find groups with similar demands on Sahayata Directory.'}</li>
+            <li>→ {hi ? 'संयुक्त माँग दस्तावेज़ बनाएँ — सबकी सहमति।' : 'Create joint demand document — everyone agrees.'}</li>
+            <li>→ {hi ? 'समन्वित कार्रवाई: एक दिन सब एक साथ RTI दाखिल।' : 'Coordinated action: everyone files RTI on same day.'}</li>
+            <li>→ {hi ? 'स्वायत्तता रखें — गठबंधन ≠ विलय।' : 'Keep autonomy — coalition ≠ merger.'}</li>
+            <li>→ {hi ? 'दल-कब्जा रोकें: माँग-केंद्रित रहें, व्यक्ति-केंद्रित नहीं।' : 'Prevent co-optation: stay demand-focused, not personality-focused.'}</li>
+          </ul>
+          <Link href="/directory" className="text-link">{hi ? 'डायरेक्टरी में ग्रुप खोजें →' : 'Find groups in Directory →'}</Link>
+        </div>
+      </details>
 
-      {/* CHAPTER 10: SUSTAIN */}
-      <section className="brutal-card mb-8">
-        <div className="brutal-badge brutal-badge-sky mb-4">10</div>
-        <h2 className="heading-2 mb-4">{hi ? 'दीर्घकालिक दबाव बनाएँ' : 'Sustain Long-Term Pressure'}</h2>
-        <ul className="space-y-2 text-sm">
-          <li>→ {hi ? 'भूमिकाएँ बदलें — बर्नआउट रोकें। नेतृत्व एक व्यक्ति में केंद्रित न हो।' : 'Rotate roles — prevent burnout. Leadership should not be concentrated in one person.'}</li>
-          <li>→ {hi ? 'नियमित RTI — हर 30 दिन एक और। पुराने जवाब पर अनुवर्ती RTI।' : 'Regular RTIs — one more every 30 days. Follow-up RTI on old responses.'}</li>
-          <li>→ {hi ? 'सार्वजनिक स्कोरकार्ड — संस्था ने क्या किया, क्या नहीं। साझा करें।' : 'Public scorecard — what institution did, what it did not. Share widely.'}</li>
-          <li>→ {hi ? 'चुनावी जवाबदेही — माँगें चुनाव एजेंडे से जोड़ें। उम्मीदवारों से पूछें।' : 'Electoral accountability — link demands to election agenda. Ask candidates.'}</li>
-          <li>→ {hi ? 'संस्थागत स्मृति — सब कुछ दस्तावेज़ करें ताकि नए सदस्य वहीं से शुरू कर सकें।' : 'Institutional memory — document everything so new members can pick up where you left off.'}</li>
-          <li>→ {hi ? 'जश्न मनाएँ — छोटी जीतें सार्वजनिक करें। ऊर्जा बनाए रखें।' : 'Celebrate — make small wins public. Maintain energy.'}</li>
-        </ul>
-      </section>
+      {/* CHAPTER 10 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">10. {hi ? 'दीर्घकालिक दबाव' : 'Sustain Long-Term Pressure'}</summary>
+        <div className="mt-4 text-sm space-y-2">
+          <p className="font-bold">{hi ? 'ज़्यादातर आंदोलन हारते नहीं — वे थक जाते हैं। थकान मारती है।' : 'Most movements don`t lose — they get tired. Fatigue kills.'}</p>
+          <ul className="space-y-1">
+            <li>→ {hi ? 'भूमिकाएँ बदलें — कोई एक व्यक्ति अपरिहार्य न हो।' : 'Rotate roles — no one person indispensable.'}</li>
+            <li>→ {hi ? 'हर 30 दिन एक RTI और। पुराने जवाब पर अनुवर्ती।' : 'One more RTI every 30 days. Follow-up on old responses.'}</li>
+            <li>→ {hi ? 'सार्वजनिक स्कोरकार्ड: संस्था ने क्या किया, क्या नहीं।' : 'Public scorecard: what institution did, what it didn`t.'}</li>
+            <li>→ {hi ? 'छोटी जीतें सार्वजनिक करें — ऊर्जा बनी रहती है।' : 'Publicize small wins — keeps energy up.'}</li>
+            <li>→ {hi ? 'चुनावी जवाबदेही: माँगें चुनाव एजेंडे से जोड़ें।' : 'Electoral accountability: link demands to election agenda.'}</li>
+            <li>→ {hi ? 'बर्नआउट प्रोटोकॉल: पीछे हटना ठीक है। कोई दोषी नहीं।' : 'Burnout protocol: stepping back is OK. No guilt.'}</li>
+          </ul>
+          <Link href="/organize" className="text-link">{hi ? 'संगठन गाइड →' : 'Organizing Guide →'}</Link>
+        </div>
+      </details>
 
       {/* CTAs */}
       <div className="grid md:grid-cols-3 gap-4 mt-8">
         <Link href="/rti" className="brutal-btn brutal-btn-primary brutal-btn-lg text-center">{hi ? 'RTI जनरेटर →' : 'RTI GENERATOR →'}</Link>
         <Link href="/fir" className="brutal-btn brutal-btn-lg text-center">{hi ? 'FIR असिस्टेंट →' : 'FIR ASSISTANT →'}</Link>
-        <Link href="/demands" className="brutal-btn brutal-btn-lg text-center">{hi ? 'डिमांड ट्रैकर →' : 'DEMAND TRACKER →'}</Link>
+        <Link href="/toolkit" className="brutal-btn brutal-btn-lg text-center">{hi ? 'सभी टेम्पलेट →' : 'ALL TEMPLATES →'}</Link>
       </div>
     </div>
   );

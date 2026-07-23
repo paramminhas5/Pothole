@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Locale } from '@/types';
 import PrintButton from '@/components/PrintButton';
+import CopyBlock from './CopyBlock';
 
 export default async function ToolkitPage() {
   const cookieStore = await cookies();
@@ -10,24 +11,34 @@ export default async function ToolkitPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-6 py-12">
-      <div className="mb-10 flex justify-between items-start gap-4">
+      <div className="mb-8 flex justify-between items-start gap-4">
         <div>
-          <h1 className="heading-display mb-3">
-            {hi ? 'टेम्पलेट और उपकरण' : 'Templates & Tools'}
-          </h1>
-          <p className="text-[var(--color-text-muted)] text-lg">
-            {hi ? 'कॉपी करें, भरें, जमा करें। हर संस्थागत कार्रवाई के लिए तैयार टेम्पलेट।' : 'Copy, fill, submit. Ready templates for every institutional action.'}
-          </p>
+          <h1 className="heading-display mb-2">{hi ? 'टेम्पलेट और उपकरण' : 'Templates & Tools'}</h1>
+          <p className="text-[var(--color-text-muted)]">{hi ? 'कॉपी करें। भरें। जमा करें। हर संस्थागत कार्रवाई के लिए तैयार।' : 'Copy. Fill. Submit. Ready for every institutional action.'}</p>
         </div>
         <PrintButton locale={locale} />
       </div>
 
+      <p className="text-sm mb-8 text-[var(--color-text-muted)]">{hi ? '💡 "कॉपी" बटन दबाएँ → अपनी जानकारी भरें → जमा करें। RTI और FIR के लिए ऑटो-जनरेटर भी उपलब्ध है।' : '💡 Press "Copy" → fill your details → submit. Auto-generators also available for RTI and FIR.'}</p>
 
-      {/* RTI TEMPLATE */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'RTI आवेदन टेम्पलेट' : 'RTI Application Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`To,
+
+      {/* AUTO GENERATORS PROMO */}
+      <div className="grid md:grid-cols-2 gap-4 mb-8">
+        <Link href="/rti" className="brutal-card !p-4 hover:border-[var(--color-primary)] block">
+          <strong>{hi ? '⚡ RTI ऑटो-जनरेटर' : '⚡ RTI Auto-Generator'}</strong>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">{hi ? 'फॉर्म भरें → पूरा RTI आवेदन तैयार' : 'Fill form → complete RTI application ready'}</p>
+        </Link>
+        <Link href="/fir" className="brutal-card !p-4 hover:border-[var(--color-primary)] block">
+          <strong>{hi ? '⚡ FIR ऑटो-जनरेटर' : '⚡ FIR Auto-Generator'}</strong>
+          <p className="text-sm text-[var(--color-text-muted)] mt-1">{hi ? '3 स्टेप → शिकायत + SP पत्र + मजिस्ट्रेट शिकायत' : '3 steps → complaint + SP letter + magistrate complaint'}</p>
+        </Link>
+      </div>
+
+      {/* TEMPLATES */}
+      <CopyBlock
+        title={hi ? '📄 RTI आवेदन' : '📄 RTI Application'}
+        hint={hi ? '[...] में अपनी जानकारी भरें। ₹10 शुल्क के साथ rtionline.gov.in पर जमा करें या डाक से भेजें।' : 'Fill [...] with your details. Submit on rtionline.gov.in with ₹10 fee or send by post.'}
+        content={`To,
 The Public Information Officer,
 [DEPARTMENT NAME],
 [ADDRESS]
@@ -38,9 +49,9 @@ Sir/Madam,
 
 I, [YOUR NAME], a citizen of India, hereby seek the following information under the Right to Information Act, 2005:
 
-1. [YOUR SPECIFIC QUESTION - be precise]
-2. [SECOND QUESTION if any]
-3. [THIRD QUESTION if any]
+1. [YOUR SPECIFIC QUESTION]
+2. [SECOND QUESTION — optional]
+3. [THIRD QUESTION — optional]
 
 Period: [FROM DATE] to [TO DATE]
 
@@ -51,22 +62,20 @@ If the information sought is held by another public authority, kindly transfer t
 Yours faithfully,
 [YOUR NAME]
 [YOUR ADDRESS]
-[PHONE/EMAIL - optional]
-Date: [DATE]`}
-        </div>
-        <div className="mt-3 text-sm space-y-1">
-          <p><strong>{hi ? 'कहाँ जमा करें:' : 'Where to submit:'}</strong> rtionline.gov.in ({hi ? 'केंद्र' : 'central'}) | {hi ? 'राज्य RTI पोर्टल' : 'State RTI portal'} | {hi ? 'डाक/व्यक्तिगत रूप से' : 'Post/in-person'}</p>
-          <p><strong>{hi ? 'शुल्क:' : 'Fee:'}</strong> ₹10 | {hi ? 'BPL को छूट' : 'BPL exempted'}</p>
-          <p><strong>{hi ? 'जवाब:' : 'Response:'}</strong> {hi ? '30 दिन (जीवन/स्वतंत्रता मामले: 48 घंटे)' : '30 days (life/liberty matters: 48 hours)'}</p>
-        </div>
-        <Link href="/rti" className="text-link mt-3 inline-block">{hi ? '→ RTI जनरेटर (ऑटो-भरा PDF) →' : '→ RTI Generator (auto-filled PDF) →'}</Link>
-      </section>
+[PHONE/EMAIL — optional]
+Date: [DATE]
 
-      {/* RTI FIRST APPEAL */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'RTI प्रथम अपील टेम्पलेट' : 'RTI First Appeal Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`To,
+---
+SUBMIT: rtionline.gov.in (central) | State RTI portal (state level) | Post/in-person
+FEE: ₹10 | BPL exempted
+RESPONSE: 30 days (life/liberty: 48 hours)
+NO RESPONSE → File First Appeal (template below)`}
+      />
+
+      <CopyBlock
+        title={hi ? '📄 RTI प्रथम अपील (30 दिन बाद)' : '📄 RTI First Appeal (after 30 days)'}
+        hint={hi ? '30 दिन में जवाब नहीं आया? यह अपील उसी विभाग के वरिष्ठ अधिकारी को भेजें।' : 'No response in 30 days? Send this appeal to a senior officer in the same department.'}
+        content={`To,
 The First Appellate Authority,
 [DEPARTMENT NAME],
 [ADDRESS]
@@ -83,7 +92,7 @@ I filed an RTI application on [DATE] (copy enclosed). The PIO has:
 [ ] Refused without valid reason
 
 I request you to:
-1. Direct the PIO to provide complete information
+1. Direct the PIO to provide complete information within 15 days
 2. Take disciplinary action for non-compliance
 
 Yours faithfully,
@@ -91,16 +100,17 @@ Yours faithfully,
 [ADDRESS]
 Date: [DATE]
 
-Encl: Copy of original RTI application and receipt`}
-        </div>
-        <p className="text-sm mt-3">{hi ? '30 दिन बाद कोई जवाब नहीं? → यह अपील जमा करें।' : 'No response after 30 days? → Submit this appeal.'}</p>
-      </section>
+Encl: Copy of original RTI application and receipt
 
-      {/* FIR COMPLAINT TEMPLATE */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'FIR शिकायत टेम्पलेट' : 'FIR Complaint Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`To,
+---
+IF THIS ALSO FAILS → Second Appeal to CIC (cic.gov.in) or SIC
+CIC can impose penalty: ₹250/day, max ₹25,000 on the officer`}
+      />
+
+      <CopyBlock
+        title={hi ? '🚨 FIR शिकायत' : '🚨 FIR Complaint'}
+        hint={hi ? 'पुलिस स्टेशन में जमा करें। रसीद लें। वे FIR दर्ज करने से मना नहीं कर सकते (BNSS 173)।' : 'Submit at police station. Get receipt. They cannot refuse to register (BNSS 173).'}
+        content={`To,
 The Station House Officer,
 [POLICE STATION NAME],
 [ADDRESS]
@@ -113,53 +123,55 @@ I wish to report the following cognizable offence:
 
 Date of incident: [DATE]
 Time: [APPROXIMATE TIME]
-Place: [LOCATION]
+Place: [LOCATION — area, landmarks]
 
-Details of incident:
-[DESCRIBE WHAT HAPPENED - factual, chronological]
+Details:
+[WHAT HAPPENED — factual, chronological, 3-5 sentences]
 
 Accused (if known):
-[NAME / DESCRIPTION / BADGE NUMBER if police]
+[NAME / DESCRIPTION / BADGE NUMBER]
 
-Witnesses:
-[NAME AND CONTACT - with their consent]
+Witnesses (with consent):
+[NAME — CONTACT]
 
-Evidence:
-[PHOTOS/VIDEOS/DOCUMENTS available]
+Evidence available:
+[PHOTOS / VIDEOS / DOCUMENTS]
 
-I request you to register an FIR under appropriate sections and investigate.
+I request you to register an FIR under appropriate sections and investigate. Please provide me with a copy of the FIR as per my legal right.
 
 Yours faithfully,
 [YOUR NAME]
 [ADDRESS]
-Date: [DATE]`}
-        </div>
-        <p className="text-sm mt-3">{hi ? '→ पुलिस मना करे? SP को पत्र (नीचे), फिर मजिस्ट्रेट शिकायत।' : '→ Police refuse? Letter to SP (below), then magistrate complaint.'}</p>
-        <Link href="/fir" className="text-link mt-2 inline-block">{hi ? 'FIR असिस्टेंट (गाइडेड विज़ार्ड) →' : 'FIR Assistant (guided wizard) →'}</Link>
-      </section>
+[PHONE — optional]
+Date: [DATE]
+
+---
+IF REFUSED → Letter to SP (next template)
+IF SP ALSO REFUSES → Magistrate complaint under BNSS 175(3)
+ZERO FIR: Can file at ANY police station — transferred to correct one`}
+      />
 
 
-      {/* LETTER TO SP */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'SP को पत्र (FIR दर्ज न होने पर)' : 'Letter to SP (When FIR Not Registered)'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`To,
+      <CopyBlock
+        title={hi ? '🚨 SP को पत्र (FIR मना करने पर)' : '🚨 Letter to SP (When FIR Refused)'}
+        hint={hi ? 'पुलिस ने FIR लिखने से मना किया? यह पत्र SP (पुलिस अधीक्षक) को भेजें।' : 'Police refused FIR? Send this letter to SP (Superintendent of Police).'}
+        content={`To,
 The Superintendent of Police,
 [DISTRICT], [STATE]
 
-Subject: Failure to register FIR at [POLICE STATION]
+Subject: Failure to register FIR at [POLICE STATION NAME]
 
 Sir/Madam,
 
-I visited [POLICE STATION] on [DATE] to file an FIR regarding [BRIEF DESCRIPTION]. The SHO/duty officer refused to register my complaint.
+I visited [POLICE STATION] on [DATE] to file an FIR regarding [BRIEF — one line].
 
-This is a violation of BNSS Section 173 (mandatory registration of cognizable offences).
+The SHO/duty officer refused to register my complaint. This violates BNSS Section 173 (mandatory registration of cognizable offences).
 
 I request you to:
 1. Direct the SHO to register my FIR immediately
-2. Take departmental action against the officer who refused
+2. Take departmental action against the refusing officer
 
-If no action is taken within 7 days, I will approach the Magistrate under Section 175(3) BNSS.
+If no action within 7 days, I will approach the Judicial Magistrate under Section 175(3) BNSS.
 
 Yours faithfully,
 [YOUR NAME]
@@ -167,144 +179,159 @@ Yours faithfully,
 [PHONE]
 Date: [DATE]
 
-Encl: Copy of original written complaint to police station`}
-        </div>
-      </section>
+Encl: Copy of written complaint submitted to police station`}
+      />
 
-      {/* DEMAND DOCUMENT */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'माँग दस्तावेज़ टेम्पलेट' : 'Demand Document Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`DEMAND DOCUMENT
+      <CopyBlock
+        title={hi ? '✉️ MLA/MP को पत्र' : '✉️ Letter to MLA/MP'}
+        hint={hi ? 'अपने जनप्रतिनिधि को। sansad.in/ls/members पर MP खोजें।' : 'To your representative. Find MP on sansad.in/ls/members.'}
+        content={`To,
+[Shri/Smt] [NAME],
+Hon'ble [MLA / Member of Parliament],
+[CONSTITUENCY],
+[ADDRESS]
+
+Subject: [SPECIFIC ISSUE — one line]
+
+Respected Sir/Madam,
+
+I am a resident of [YOUR AREA] in your constituency. I am writing regarding [ISSUE].
+
+The problem:
+[2-3 sentences — facts, dates, scale of problem]
+
+What has been tried:
+- RTI filed on [DATE] — [response/no response]
+- Complaint to [DEPT] on [DATE] — [response/no response]
+- [Any other action taken]
+
+What I request:
+[ONE SPECIFIC ACTION you want them to take — measurable, time-bound]
+
+I will file an RTI in 30 days to check what action was taken on this letter.
+
+Yours sincerely,
+[YOUR NAME]
+[ADDRESS]
+[PHONE / EMAIL — optional]
+Date: [DATE]
+
+---
+FIND YOUR MP: sansad.in/ls/members
+FIND YOUR MLA: [Your state] legislative assembly website
+ALSO SUBMIT ON: pgportal.gov.in (CPGRAMS — tracked)`}
+      />
+
+      <CopyBlock
+        title={hi ? '📊 माँग दस्तावेज़' : '📊 Demand Document'}
+        hint={hi ? 'अपनी माँग को औपचारिक करें। ग्रुप/गठबंधन में साझा करें। सार्वजनिक करें।' : 'Formalize your demand. Share with group/coalition. Make it public.'}
+        content={`DEMAND DOCUMENT
 ===============
 
-DEMAND: [One sentence - specific, measurable]
+DEMAND: [One sentence — specific, measurable, time-bound]
 
 TARGET: [Institution/Person with authority to act]
 
 DEADLINE: [Date]
 
 EVIDENCE:
-1. [What proves this is a problem]
-2. [Data, documents, incidents]
-3. [Affected people/scale]
+1. [What proves this is a problem — data, documents]
+2. [Incidents — dates, details]
+3. [Scale — how many people affected]
 
-ACTIONS TAKEN SO FAR:
-- [RTI filed on DATE - status]
-- [Complaint filed on DATE - status]
-- [Media coverage on DATE]
+ACTIONS ALREADY TAKEN:
+- RTI filed [DATE] — status: [...]
+- Complaint filed [DATE] — status: [...]
+- Media coverage: [links]
 
 IF NO ACTION BY DEADLINE:
-1. [Next escalation step]
-2. [Legal action planned]
-3. [Public accountability action]
+1. [Next RTI — what question]
+2. [PIL if systemic]
+3. [Electoral accountability plan]
 
 SUPPORTED BY:
-- [Group/Coalition names]
-- [Number of signatories]
+- [Group 1 — city]
+- [Group 2 — city]
+- [Total signatories: X]
 
-CONTACT: [Spokesperson - dedicated email only]
-DATE: [Date]`}
-        </div>
-        <Link href="/demands" className="text-link mt-3 inline-block">{hi ? 'डिमांड ट्रैकर में बनाएँ →' : 'Create in Demand Tracker →'}</Link>
-      </section>
+CONTACT: [Spokesperson — dedicated email, not personal]
+DATE: [Date]
+VERSION: [1.0]`}
+      />
 
-      {/* EVIDENCE LOG */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'सबूत रिकॉर्ड टेम्पलेट' : 'Evidence Log Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`EVIDENCE LOG
+      <CopyBlock
+        title={hi ? '📸 सबूत रिकॉर्ड' : '📸 Evidence Log'}
+        hint={hi ? 'हर सबूत के लिए यह भरें। कोर्ट में काम आता है।' : 'Fill this for every piece of evidence. Useful in court.'}
+        content={`EVIDENCE LOG
 ============
 
 Item #: [Sequential number]
-Type: [ ] Photo [ ] Video [ ] Document [ ] Audio [ ] Testimony
+Type: [ ] Photo  [ ] Video  [ ] Document  [ ] Audio  [ ] Testimony
+
 Date captured: [DATE + TIME]
-Location: [Where]
-Captured by: [Who - code name OK]
-Device: [Phone model / Camera]
-File name: [Original filename]
-SHA-256 hash: [If using Evidence Vault]
+Location: [WHERE — area, landmarks]
+Captured by: [WHO — code name OK]
+Device: [Phone model]
 
 Description:
-[What does this show? Why is it relevant?]
+[What does this show? Why is it relevant? 2-3 sentences]
 
 Chain of custody:
 - Captured: [DATE] by [WHO]
-- Stored: [WHERE - cloud service / Evidence Vault]
+- Backed up to: [Google Drive / ProtonDrive / iCloud] on [DATE]
+- Original edited: [ ] NO (must be no)
 - Shared with: [WHO, WHEN, WHY]
 
-Notes:
-[Any additional context]`}
-        </div>
-        <Link href="/vault" className="text-link mt-3 inline-block">{hi ? 'एविडेंस वॉल्ट में स्टोर करें →' : 'Store in Evidence Vault →'}</Link>
-      </section>
+Hash (optional — for tamper proof):
+SHA-256: [Use sha256.online to generate]
 
-      {/* PRESS RELEASE */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'प्रेस रिलीज टेम्पलेट' : 'Press Release Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`FOR IMMEDIATE RELEASE
+---
+RULES:
+• Never edit/crop original
+• Backup to cloud IMMEDIATELY
+• Note time + place in every shot
+• Keep this log with the evidence`}
+      />
+
+
+      <CopyBlock
+        title={hi ? '📰 प्रेस रिलीज' : '📰 Press Release'}
+        hint={hi ? 'मीडिया को भेजें। एक पेज में सब कुछ। बीट पत्रकार को Signal/email से।' : 'Send to media. Everything on one page. To beat journalist via Signal/email.'}
+        content={`FOR IMMEDIATE RELEASE
 [DATE]
 
-[HEADLINE - action-oriented, specific]
+[HEADLINE — action-oriented, specific, under 15 words]
 
-[CITY] — [First paragraph: WHO is doing WHAT, WHERE, WHEN, and WHY in 2-3 sentences]
+[CITY] — [First paragraph: WHO is doing WHAT, WHERE, WHEN, WHY — 2-3 sentences maximum]
 
-[Second paragraph: CONTEXT - why this matters, scale of problem, evidence]
+[Second paragraph: CONTEXT — why this matters, scale, evidence, how many affected]
 
-[Third paragraph: SPECIFIC DEMAND - what action is being demanded from whom by when]
+[Third paragraph: SPECIFIC DEMAND — what action, from whom, by when]
 
-[Quote from spokesperson: "One clear statement expressing the demand"]
+[Quote from spokesperson]: "[One clear statement — the sound bite]"
 
-[Background paragraph: Brief history, previous actions taken, institutional failures]
+[Background: 2-3 sentences of history — previous attempts, institutional failures]
 
 CONTACT:
-[Spokesperson name]
-[Dedicated email - not personal]
-[Phone - dedicated number if possible]
+[Spokesperson name — can be code name]
+[Dedicated email — NOT personal]
+[Phone — dedicated number if possible]
 
-###`}
-        </div>
-      </section>
+###
 
-      {/* MEETING AGENDA */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'बैठक एजेंडा टेम्पलेट' : 'Meeting Agenda Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`MEETING AGENDA
-==============
-Date: [DATE] | Time: [TIME] | Duration: [30-60 min max]
-Facilitator: [Name] | Note-taker: [Name]
+---
+TIPS:
+• One page maximum
+• Send to beat journalists (education/law/politics)
+• Use Signal or encrypted email
+• Attach 1-2 strong photos if available
+• Follow up once, not more`}
+      />
 
-1. CHECK-IN (5 min)
-   - Is everyone safe? Any concerns?
-
-2. UPDATES (10 min)
-   - [RTI status]
-   - [Media coverage]
-   - [Institutional responses]
-
-3. DECISIONS NEEDED (15 min)
-   - [Decision 1: options, pros/cons]
-   - [Decision 2: options, pros/cons]
-
-4. NEXT ACTIONS (10 min)
-   - WHO does WHAT by WHEN
-   - WHO does WHAT by WHEN
-
-5. NEXT MEETING (2 min)
-   - Date, time, facilitator rotation
-
-NOTES:
-[Record decisions and action items here]`}
-        </div>
-      </section>
-
-      {/* NHRC COMPLAINT */}
-      <section className="brutal-card mb-8">
-        <h2 className="heading-2 mb-4">{hi ? 'NHRC शिकायत टेम्पलेट' : 'NHRC Complaint Template'}</h2>
-        <div className="p-4 bg-[var(--color-surface-alt)] rounded text-xs font-mono whitespace-pre-line leading-relaxed">
-{`To,
+      <CopyBlock
+        title={hi ? '🏛️ NHRC शिकायत' : '🏛️ NHRC Complaint'}
+        hint={hi ? 'पुलिस अत्याचार, हिरासत में हिंसा, मानवाधिकार उल्लंघन। ऑनलाइन: nhrc.nic.in' : 'Police brutality, custodial violence, human rights violation. Online: nhrc.nic.in'}
+        content={`To,
 The Chairperson,
 National Human Rights Commission,
 Manav Adhikar Bhawan, Block-C,
@@ -312,31 +339,79 @@ GPO Complex, INA, New Delhi - 110023
 
 Subject: Complaint of human rights violation
 
-1. Name of complainant: [NAME]
-2. Address: [ADDRESS]
-3. Details of violation:
-   - Date: [DATE]
-   - Place: [LOCATION]
-   - Authority responsible: [POLICE/GOVT BODY]
-   - Nature: [Excessive force / Custodial torture / False arrest / Other]
-4. Victims: [Names if consent given, or "identity protected"]
-5. Brief facts: [CHRONOLOGICAL DESCRIPTION]
-6. Evidence: [List of enclosed documents/photos]
-7. Relief sought: [What action you want NHRC to take]
+1. Complainant: [YOUR NAME]
+2. Address: [YOUR ADDRESS]
+3. Date of violation: [DATE]
+4. Place: [LOCATION]
+5. Authority responsible: [POLICE STATION / UNIT / OFFICER]
+6. Nature: [Excessive force / Custodial torture / False arrest / Illegal detention]
 
-Declaration: The facts stated above are true.
+7. Brief facts (chronological):
+[PARAGRAPH — what happened, in order, with times]
+
+8. Victims:
+[Names if consent given, or "identity protected for safety"]
+
+9. Evidence enclosed:
+- [ ] Photos/videos (describe)
+- [ ] Medical reports / MLC
+- [ ] FIR copy (if filed)
+- [ ] Witness statements
+- [ ] Media reports (links)
+
+10. Relief sought:
+[What action you want NHRC to take — investigation, compensation, action against officers]
+
+Declaration: The facts stated above are true to the best of my knowledge.
 
 Signature: _______________
 Date: [DATE]
 
-Online: nhrc.nic.in → Lodge Complaint`}
-        </div>
-      </section>
+---
+SUBMIT ONLINE: nhrc.nic.in → "Lodge Complaint"
+PHONE: 011-24663333
+TRACK: nhrc.nic.in → "Complaint Status"`}
+      />
 
-      {/* CTA */}
-      <div className="grid md:grid-cols-2 gap-4 mt-8">
-        <Link href="/rti" className="brutal-btn brutal-btn-primary brutal-btn-lg text-center">{hi ? 'RTI जनरेटर (ऑटो PDF) →' : 'RTI GENERATOR (Auto PDF) →'}</Link>
-        <Link href="/fir" className="brutal-btn brutal-btn-lg text-center">{hi ? 'FIR असिस्टेंट (विज़ार्ड) →' : 'FIR ASSISTANT (Wizard) →'}</Link>
+      <CopyBlock
+        title={hi ? '📋 बैठक एजेंडा' : '📋 Meeting Agenda'}
+        hint={hi ? 'हर बैठक से पहले शेयर करें। 30-60 मिनट अधिकतम। निर्णय रिकॉर्ड करें।' : 'Share before every meeting. 30-60 minutes max. Record decisions.'}
+        content={`MEETING AGENDA
+==============
+Date: [DATE] | Time: [TIME] | Duration: [30-60 min]
+Facilitator: [Name] | Note-taker: [Name — rotating]
+
+1. CHECK-IN (5 min)
+   - Everyone safe? Any urgent concerns?
+
+2. UPDATES (10 min)
+   - RTI status: [...]
+   - FIR/complaint status: [...]
+   - Media: [...]
+   - Institutional responses: [...]
+
+3. DECISIONS NEEDED (15 min)
+   - [Decision 1]: Options A / B / C → DECIDED: [...]
+   - [Decision 2]: Options A / B → DECIDED: [...]
+
+4. ACTION ITEMS (10 min)
+   - [WHO] does [WHAT] by [WHEN]
+   - [WHO] does [WHAT] by [WHEN]
+   - [WHO] does [WHAT] by [WHEN]
+
+5. NEXT MEETING (2 min)
+   - Date: [...]
+   - Facilitator: [next person in rotation]
+
+DECISIONS RECORD:
+[List all decisions made with date]`}
+      />
+
+      {/* CTAs */}
+      <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <Link href="/rti" className="brutal-btn brutal-btn-primary brutal-btn-lg text-center">{hi ? 'RTI जनरेटर →' : 'RTI GENERATOR →'}</Link>
+        <Link href="/fir" className="brutal-btn brutal-btn-lg text-center">{hi ? 'FIR असिस्टेंट →' : 'FIR ASSISTANT →'}</Link>
+        <Link href="/playbook" className="brutal-btn brutal-btn-lg text-center">{hi ? 'प्लेबुक →' : 'PLAYBOOK →'}</Link>
       </div>
     </div>
   );
