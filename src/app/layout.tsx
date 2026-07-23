@@ -10,6 +10,18 @@ export const metadata: Metadata = {
   title: 'Sahayata — Turn anger into organized power',
   description: 'Know your rights. File RTIs. Track demands. Hold institutions accountable. Civic action infrastructure for India.',
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'Sahayata — Turn anger into organized power',
+    description: 'Know your rights. File RTIs. Track demands. Hold institutions accountable. Civic action infrastructure for India — works offline, no account needed.',
+    type: 'website',
+    siteName: 'Sahayata',
+    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sahayata — Turn anger into organized power',
+    description: 'Civic action infrastructure for India. Rights card, RTI generator, FIR assistant, demand tracker. Works offline. Open source.',
+  },
   other: {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
