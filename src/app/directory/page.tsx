@@ -1,10 +1,14 @@
+import { cookies } from 'next/headers';
+import { Locale } from '@/types';
 import { DirectoryClient } from './DirectoryClient';
 
 export const metadata = {
-  title: 'Support Directory — Sahayata',
-  description: 'Verified organizations, lawyers, helplines — linked to active campaigns.',
+  title: 'Directory — Sahayata',
+  description: "India's most trusted civic directory. Crowdsourced, vetted, feedback-driven. Only active and proven.",
 };
 
-export default function DirectoryPage() {
-  return <DirectoryClient />;
+export default async function DirectoryPage() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
+  return <DirectoryClient locale={locale} />;
 }
