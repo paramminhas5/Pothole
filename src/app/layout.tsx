@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import FirstVisitBanner from '@/components/FirstVisitBanner';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { Locale } from '@/types';
 import './globals.css';
@@ -43,6 +44,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className="min-h-screen flex flex-col">
         <a className="skip-link" href="#main-content">{locale === 'hi' ? 'मुख्य सामग्री पर जाएँ' : 'Skip to main content'}</a>
         <ServiceWorkerRegister />
+        <FirstVisitBanner locale={locale} />
         <Navbar locale={locale} />
         <aside className="prototype-banner" role="note">
           <div className="page-shell">
