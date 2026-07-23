@@ -1,9 +1,10 @@
-import { cookies } from 'next/headers';
-import { Locale } from '@/types';
-import ProtestModeClient from './ProtestModeClient';
+import { ProtestMode2Client } from './ProtestMode2Client';
 
-export default async function ProtestModePage() {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  return <ProtestModeClient locale={locale} />;
+export const metadata = {
+  title: 'Protest Mode — Sahayata',
+  description: 'Safety checklist, rights cards, buddy system, SOS. Works offline. No account needed.',
+};
+
+export default function ProtestModePage() {
+  return <ProtestMode2Client />;
 }
