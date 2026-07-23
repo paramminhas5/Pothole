@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Locale } from '@/types';
+import PassphraseAuth from './PassphraseAuth';
 
 interface NavbarProps { locale: Locale }
 
 export default function Navbar({ locale }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const hi = locale === 'hi';
 
   function toggleLocale() {
@@ -29,6 +31,7 @@ export default function Navbar({ locale }: NavbarProps) {
           <Link href="/act" className="nav-link">{hi ? 'लड़ो' : 'Fight'}</Link>
           <Link href="/groups" className="nav-link">{hi ? 'संगठन' : 'Organize'}</Link>
           <Link href="/search" className="nav-link" aria-label={hi ? 'खोजें' : 'Search'}>🔍</Link>
+          <button type="button" onClick={() => setShowAuth(true)} className="nav-link" aria-label={hi ? 'पहचान' : 'Identity'}>🔐</button>
           <button type="button" onClick={toggleLocale} className="language-button">{hi ? 'EN' : 'हि'}</button>
           <button type="button" onClick={() => setMenuOpen((o) => !o)} className="menu-button" aria-expanded={menuOpen} aria-label="Menu">☰</button>
         </div>
@@ -89,6 +92,7 @@ export default function Navbar({ locale }: NavbarProps) {
           </div>
         )}
       </nav>
+      {showAuth && <PassphraseAuth locale={locale} onAuthenticated={() => setShowAuth(false)} onClose={() => setShowAuth(false)} />}
     </header>
   );
 }

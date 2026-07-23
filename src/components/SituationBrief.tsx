@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Locale } from '@/types';
 
@@ -9,6 +10,21 @@ interface SituationProps {
 
 export default function SituationBrief({ locale }: SituationProps) {
   const hi = locale === 'hi';
+  const [dbData, setDbData] = useState<{ day_count?: number; demands_total?: number; demands_met?: number; rtis_filed?: number; safety_note?: string; safety_note_hi?: string } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/situation')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.situation) setDbData(data.situation); })
+      .catch(() => {});
+  }, []);
+
+  const dayCount = dbData?.day_count || 34;
+  const demandsTotal = dbData?.demands_total || 5;
+  const demandsMet = dbData?.demands_met || 0;
+  const rtisFiled = dbData?.rtis_filed || 47;
+  const safetyEn = dbData?.safety_note || 'Section 163 BNSS — 5+ persons cannot gather in Central Delhi. Heavy police + CRPF.';
+  const safetyHi = dbData?.safety_note_hi || 'धारा 163 BNSS — मध्य दिल्ली में 5+ व्यक्ति एकत्रित नहीं। भारी पुलिस + CRPF।';
 
   return (
     <section className="situation-module" aria-labelledby="situation-title">
@@ -36,19 +52,19 @@ export default function SituationBrief({ locale }: SituationProps) {
         {/* DEMANDS SCORECARD */}
         <div className="situation-demands">
           <div className="demand-score">
-            <span className="demand-score-number">5</span>
+            <span className="demand-score-number">{demandsTotal}</span>
             <span className="demand-score-label">{hi ? 'माँगें' : 'Demands'}</span>
           </div>
           <div className="demand-score demand-score-red">
-            <span className="demand-score-number">0</span>
+            <span className="demand-score-number">{demandsMet}</span>
             <span className="demand-score-label">{hi ? 'पूरी' : 'Met'}</span>
           </div>
           <div className="demand-score">
-            <span className="demand-score-number">34</span>
+            <span className="demand-score-number">{dayCount}</span>
             <span className="demand-score-label">{hi ? 'दिन' : 'Days'}</span>
           </div>
           <div className="demand-score">
-            <span className="demand-score-number">47</span>
+            <span className="demand-score-number">{rtisFiled}</span>
             <span className="demand-score-label">{hi ? 'RTI दाखिल' : 'RTIs Filed'}</span>
           </div>
         </div>
@@ -57,11 +73,7 @@ export default function SituationBrief({ locale }: SituationProps) {
         <div className="situation-safety">
           <div className="safety-indicator safety-warning">
             <strong>{hi ? '⚠️ सुरक्षा:' : '⚠️ Safety:'}</strong>
-            <span>
-              {hi
-                ? 'धारा 163 BNSS — मध्य दिल्ली में 5+ व्यक्ति एकत्रित नहीं। भारी पुलिस तैनाती। CRPF मौजूद।'
-                : 'Section 163 BNSS — 5+ persons cannot gather in Central Delhi. Heavy police deployment. CRPF present.'}
-            </span>
+            <span>{hi ? safetyHi : safetyEn}</span>
           </div>
         </div>
 

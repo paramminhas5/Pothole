@@ -2,6 +2,8 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Locale } from '@/types';
 import PrintButton from '@/components/PrintButton';
+import ShareButton from '@/components/ShareButton';
+import ReportError from '@/components/ReportError';
 
 export default async function SafetyPage() {
   const cookieStore = await cookies();
@@ -15,7 +17,11 @@ export default async function SafetyPage() {
           <h1 className="heading-display mb-2">{hi ? 'अपने अधिकार जानें' : 'Know Your Rights'}</h1>
           <p className="text-[var(--color-text-muted)]">{hi ? 'प्रिंट करें। फोन में सेव करें। याद करें।' : 'Print it. Save it. Memorize it.'}</p>
         </div>
-        <PrintButton locale={locale} />
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <ShareButton locale={locale} title={hi ? 'अधिकार कार्ड — Sahayata' : 'Rights Card — Sahayata'} />
+          <PrintButton locale={locale} />
+          <ReportError locale={locale} context="safety/rights" />
+        </div>
       </div>
 
 
