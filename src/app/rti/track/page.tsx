@@ -1,9 +1,10 @@
-import { cookies } from 'next/headers';
-import { Locale } from '@/types';
-import RTITrackClient from './RTITrackClient';
+import { RTITrackerClient } from './RTITrackerClient';
 
-export default async function RTITrackPage() {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  return <RTITrackClient locale={locale} />;
+export const metadata = {
+  title: 'RTI Tracker — Sahayata',
+  description: 'Track your RTI filings, escalate on deadline, generate appeals automatically.',
+};
+
+export default function RTITrackerPage() {
+  return <RTITrackerClient />;
 }
