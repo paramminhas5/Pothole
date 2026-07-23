@@ -481,7 +481,7 @@ button:disabled, .is-disabled { cursor: not-allowed; opacity: .55; }
 .nav-link-primary { background: var(--color-accent); color: white; border-color: var(--color-border); }
 .language-button, .mobile-menu-button { min-width: 48px; border-color: var(--color-border); }
 .mobile-menu-button { font-size: 24px; line-height: 1; }
-.nav-menu { position: absolute; top: calc(100% + 2px); right: 0; width: min(100%,390px); padding: 16px; background: var(--color-card); border: 2px solid var(--color-border); border-top: 0; box-shadow: 5px 5px 0 var(--color-border); }
+.nav-menu { position: absolute; top: calc(100% + 2px); right: 0; width: min(100%,390px); padding: 16px; background: var(--color-card); border: 2px solid var(--color-border); border-top: 0; box-shadow: 5px 5px 0 var(--color-border); overflow-y: auto; max-height: calc(100dvh - 72px); -webkit-overflow-scrolling: touch; }
 .mobile-core-link, .nav-menu-secondary a, .nav-menu-secondary button { min-height: 52px; display: flex; align-items: center; padding: 12px 14px; color: var(--color-text); text-decoration: none; font-weight: 750; border-bottom: 1px solid var(--color-border-light); }
 .mobile-core-primary { background: var(--color-accent); color: white; }
 .nav-menu-secondary { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 14px; }
