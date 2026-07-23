@@ -148,6 +148,11 @@ export default async function ResourcesPage() {
       </section>
 
 
+      {/* COMMUNITY LEGAL AID */}
+      <div className="mb-8 p-4 border-2 border-dashed border-[var(--color-border-light)] rounded-lg">
+        <CommunityResources locale={locale} type="legal-aid" title="Community-Submitted Legal Aid" titleHi="सामुदायिक कानूनी सहायता" />
+      </div>
+
       {/* 3. SHELTERS */}
       <section id="shelters" className="brutal-card mb-8">
         <h2 className="heading-2 mb-4">{hi ? '3. आश्रय और सुरक्षित स्थान' : '3. Shelters & Safe Spaces'}</h2>
@@ -194,6 +199,11 @@ export default async function ResourcesPage() {
           </div>
         </div>
       </section>
+
+      {/* COMMUNITY SHELTERS */}
+      <div className="mb-8 p-4 border-2 border-dashed border-[var(--color-border-light)] rounded-lg">
+        <CommunityResources locale={locale} type="shelter" title="Community-Submitted Safe Spaces" titleHi="सामुदायिक सुरक्षित स्थान" />
+      </div>
 
       {/* 4. MENTAL HEALTH */}
       <section id="mental" className="brutal-card mb-8">
