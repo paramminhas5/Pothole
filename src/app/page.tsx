@@ -1,6 +1,9 @@
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { Locale } from '@/types';
+import SituationBrief from '@/components/SituationBrief';
+import ActionChain from '@/components/ActionChain';
+import QuickAction from '@/components/QuickAction';
 
 export default async function HomePage() {
   const cookieStore = await cookies();
@@ -9,100 +12,187 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* 3 BIG BUTTONS */}
-      <section className="page-shell py-16" aria-labelledby="home-title">
-        <h1 id="home-title" className="sr-only">Sahayata</h1>
-        <div className="max-w-lg mx-auto space-y-4">
-          <Link href="/create-post" className="home-action-card home-action-help">
-            <span className="home-action-icon">🆘</span>
-            <span className="home-action-text">
-              <strong>{hi ? 'मुझे मदद चाहिए' : 'I need help'}</strong>
-              <span>{hi ? 'कानूनी, चिकित्सा, भोजन, परिवहन, आश्रय' : 'Legal, medical, food, transport, shelter'}</span>
-            </span>
-          </Link>
-          <Link href="/board" className="home-action-card home-action-offer">
-            <span className="home-action-icon">🤝</span>
-            <span className="home-action-text">
-              <strong>{hi ? 'मैं मदद कर सकता/सकती हूँ' : 'I can help'}</strong>
-              <span>{hi ? 'देखें किसे क्या चाहिए और जवाब दें' : 'See who needs what and respond'}</span>
-            </span>
-          </Link>
-          <Link href="/act" className="home-action-card home-action-change">
-            <span className="home-action-icon">⚡</span>
-            <span className="home-action-text">
-              <strong>{hi ? 'मुझे बदलाव चाहिए' : 'I want change'}</strong>
-              <span>{hi ? 'RTI, FIR, पत्र, माँग ट्रैक, संगठन' : 'RTI, FIR, letters, track demands, organize'}</span>
-            </span>
-          </Link>
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 1: HERO — What this is, in one breath
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="home-hero" aria-labelledby="home-title">
+        <div className="page-shell home-hero-inner">
+          <p className="eyebrow">{hi ? 'नागरिक कार्रवाई का बुनियादी ढाँचा' : 'Civic Action Infrastructure'}</p>
+          <h1 id="home-title" className="home-title">
+            {hi
+              ? 'गुस्से को संगठित ताकत में बदलो।'
+              : 'Turn anger into organized power.'}
+          </h1>
+          <p className="home-intro">
+            {hi
+              ? 'अधिकार जानो। RTI दाखिल करो। माँगें ट्रैक करो। संस्थाओं को जवाबदेह बनाओ। अकेले नहीं — संगठित।'
+              : 'Know your rights. File RTIs. Track demands. Hold institutions accountable. Not alone — organized.'}
+          </p>
+          <div className="button-row">
+            <Link href="/expect" className="brutal-btn brutal-btn-primary home-primary-action">
+              {hi ? 'विरोध की तैयारी करें →' : 'Prepare for Protest →'}
+            </Link>
+            <Link href="/safety" className="brutal-btn">
+              {hi ? 'अधिकार कार्ड →' : 'Rights Card →'}
+            </Link>
+          </div>
+          <p className="action-note">
+            {hi
+              ? 'अकाउंट नहीं चाहिए। फोन नंबर नहीं। ऑफलाइन काम करता है। प्रिंट कर सकते हैं।'
+              : 'No account needed. No phone number. Works offline. Printable.'}
+          </p>
         </div>
       </section>
 
-      {/* EMERGENCY STRIP */}
-      <section className="emergency-strip" aria-label={hi ? 'आपातकालीन' : 'Emergency'}>
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 2: WHAT'S HAPPENING RIGHT NOW
+          ═══════════════════════════════════════════════════════════ */}
+      <SituationBrief locale={locale} />
+
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 3: HOW TO HELP — Three paths
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="home-choices" aria-labelledby="paths-title">
         <div className="page-shell">
-          <div className="emergency-strip-inner">
-            <span><strong>112</strong> {hi ? 'आपातकालीन' : 'Emergency'}</span>
-            <span><strong>1516</strong> {hi ? 'मुफ्त वकील' : 'Free Lawyer'}</span>
-            <span><strong>181</strong> {hi ? 'महिला' : 'Women'}</span>
-            <span><strong>108</strong> {hi ? 'एम्बुलेंस' : 'Ambulance'}</span>
+          <h2 id="paths-title" className="section-title">
+            {hi ? 'आप क्या कर सकते हैं' : 'What you can do'}
+          </h2>
+          <div className="choice-grid">
+            <div className="choice-card choice-card-primary">
+              <div className="choice-number">1</div>
+              <h3>{hi ? 'जा रहे हैं' : "I'm going"}</h3>
+              <p>{hi ? 'तैयारी, सुरक्षा, अधिकार, क्या उम्मीद करें, बडी सिस्टम।' : 'Preparation, safety, rights, what to expect, buddy system.'}</p>
+              <Link href="/expect" className="choice-link">
+                {hi ? 'तैयारी गाइड' : 'Preparation Guide'} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="choice-card">
+              <div className="choice-number">2</div>
+              <h3>{hi ? 'रिमोट से मदद' : 'Help remotely'}</h3>
+              <p>{hi ? 'अनुवाद, शोध, डिज़ाइन, सोशल मीडिया, कानूनी, डेटा।' : 'Translation, research, design, social media, legal, data analysis.'}</p>
+              <Link href="/contribute" className="choice-link">
+                {hi ? 'योगदान बोर्ड' : 'Contribution Board'} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+            <div className="choice-card">
+              <div className="choice-number">3</div>
+              <h3>{hi ? 'कानूनी दबाव बनाएँ' : 'Apply legal pressure'}</h3>
+              <p>{hi ? 'RTI, FIR, PIL, प्रतिनिधि पत्र, CPGRAMS, एस्केलेशन।' : 'RTI, FIR, PIL, representative letter, CPGRAMS, escalation.'}</p>
+              <Link href="/act" className="choice-link">
+                {hi ? 'कानूनी हथियार' : 'Legal Weapons'} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* WHAT IS THIS */}
-      <section className="page-shell py-12" aria-labelledby="about-title">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 id="about-title" className="heading-2 mb-4">{hi ? 'यह क्या है?' : 'What is this?'}</h2>
-          <p className="text-[var(--color-text-muted)] mb-6">{hi ? 'Sahayata नागरिक समन्वय का बुनियादी ढाँचा है। मदद माँगें, मदद दें, संगठित हों, संस्थाओं को जवाबदेह बनाएँ — गोपनीय, ऑफलाइन-सक्षम, सेंसरशिप-प्रतिरोधी।' : 'Sahayata is civic coordination infrastructure. Ask for help, give help, organize, hold institutions accountable — private, offline-capable, censorship-resistant.'}</p>
-        </div>
-
-        {/* FEATURE GRID */}
-        <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          <Link href="/map" className="home-feature-card">
-            <strong>{hi ? '🗺️ लाइव मैप' : '🗺️ Live Map'}</strong>
-            <span>{hi ? 'सक्रिय अभियान' : 'Active campaigns'}</span>
-          </Link>
-          <Link href="/groups" className="home-feature-card">
-            <strong>{hi ? '👥 ग्रुप' : '👥 Groups'}</strong>
-            <span>{hi ? 'बनाएँ, खोजें, जुड़ें' : 'Create, find, join'}</span>
-          </Link>
-          <Link href="/governance" className="home-feature-card">
-            <strong>{hi ? '📊 शासन ट्रैकर' : '📊 Governance'}</strong>
-            <span>{hi ? 'जवाबदेही स्कोरकार्ड' : 'Accountability scorecard'}</span>
-          </Link>
-          <Link href="/rti" className="home-feature-card">
-            <strong>{hi ? '📄 RTI जनरेटर' : '📄 RTI Generator'}</strong>
-            <span>{hi ? 'सरकार को जवाब दिलाएँ' : 'Make govt answer'}</span>
-          </Link>
-          <Link href="/fir" className="home-feature-card">
-            <strong>{hi ? '🚨 FIR असिस्टेंट' : '🚨 FIR Assistant'}</strong>
-            <span>{hi ? 'शिकायत बनाएँ' : 'Generate complaint'}</span>
-          </Link>
-          <Link href="/demands" className="home-feature-card">
-            <strong>{hi ? '📋 माँग ट्रैकर' : '📋 Demand Tracker'}</strong>
-            <span>{hi ? 'माँगें ट्रैक करें' : 'Track demands'}</span>
-          </Link>
-          <Link href="/contribute" className="home-feature-card">
-            <strong>{hi ? '🤝 योगदान' : '🤝 Contribute'}</strong>
-            <span>{hi ? 'कौशल से मदद' : 'Help with skills'}</span>
-          </Link>
-          <Link href="/safety" className="home-feature-card">
-            <strong>{hi ? '⚖️ अधिकार' : '⚖️ Rights'}</strong>
-            <span>{hi ? 'पॉकेट कार्ड' : 'Pocket card'}</span>
-          </Link>
-          <Link href="/playbook" className="home-feature-card">
-            <strong>{hi ? '📖 प्लेबुक' : '📖 Playbook'}</strong>
-            <span>{hi ? 'विरोध → शक्ति' : 'Protest → Power'}</span>
-          </Link>
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 4: YOUR RIGHTS — Always one tap away
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="safety-strip" aria-labelledby="rights-title">
+        <div className="page-shell safety-strip-inner">
+          <div>
+            <h2 id="rights-title" className="section-title" style={{ color: '#0f0f0f' }}>
+              {hi ? 'अगर पुलिस रोके' : 'If police stop you'}
+            </h2>
+            <ul className="plain-list">
+              <li><strong>{hi ? '"कारण बताएँ।"' : '"Tell me the reason."'}</strong></li>
+              <li><strong>{hi ? '"मुझे वकील चाहिए।"' : '"I want a lawyer."'}</strong></li>
+              <li><strong>{hi ? '"परिवार को सूचित करें।"' : '"Inform my family."'}</strong></li>
+              <li><strong>{hi ? '"फोन अनलॉक नहीं करूँगा/करूँगी।"' : '"I will not unlock my phone."'}</strong></li>
+              <li><strong>{hi ? '"बिना वकील कोई बयान नहीं।"' : '"No statement without my lawyer."'}</strong></li>
+            </ul>
+            <Link href="/safety" className="text-link" style={{ color: '#0f0f0f' }}>
+              {hi ? 'पूरा अधिकार कार्ड (प्रिंट करें) →' : 'Full Rights Card (print it) →'}
+            </Link>
+          </div>
+          <div>
+            <p style={{ fontWeight: 800, fontSize: '1.1rem', marginBottom: '12px' }}>
+              {hi ? 'आपातकालीन नंबर' : 'Emergency Numbers'}
+            </p>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <span><strong>112</strong> — {hi ? 'एकीकृत आपातकालीन' : 'Unified Emergency'}</span>
+              <span><strong>1516</strong> — {hi ? 'मुफ्त वकील (दिल्ली)' : 'Free Lawyer (Delhi)'}</span>
+              <span><strong>181</strong> — {hi ? 'महिला हेल्पलाइन' : 'Women Helpline'}</span>
+              <span><strong>108</strong> — {hi ? 'एम्बुलेंस' : 'Ambulance'}</span>
+            </div>
+            <Link href="/resources" className="text-link" style={{ color: '#0f0f0f', marginTop: '16px' }}>
+              {hi ? 'सभी संसाधन + हेल्पलाइन →' : 'All Resources + Helplines →'}
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ABOUT LINK */}
-      <section className="page-shell pb-12 text-center">
-        <Link href="/manifesto" className="text-link">{hi ? 'यह मंच क्यों मायने रखता है →' : 'Why this platform matters →'}</Link>
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 5: HOW POTHOLE WORKS — Feature chain as story
+          ═══════════════════════════════════════════════════════════ */}
+      <ActionChain locale={locale} />
+
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 6: 5-MINUTE ONBOARDING
+          ═══════════════════════════════════════════════════════════ */}
+      <QuickAction locale={locale} />
+
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 7: WHAT'S LIVE vs. WHAT'S COMING
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="how-it-works" aria-labelledby="status-title">
+        <div className="page-shell">
+          <h2 id="status-title" className="section-title">
+            {hi ? 'प्लेटफॉर्म की स्थिति' : 'Platform Status'}
+          </h2>
+          <p style={{ maxWidth: '680px', marginBottom: '28px', color: 'var(--color-text-muted)' }}>
+            {hi
+              ? 'Sahayata अभी निजी प्रोटोटाइप है। कुछ सुविधाएँ पूरी तरह काम करती हैं, कुछ सुरक्षा समीक्षा के बाद चालू होंगी। हम पारदर्शी हैं।'
+              : 'Sahayata is currently a private prototype. Some features are fully functional, others will activate after security review. We are transparent about this.'}
+          </p>
+
+          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+            {/* LIVE NOW */}
+            <div className="brutal-card" style={{ borderTop: '6px solid var(--color-lime)' }}>
+              <h3 style={{ margin: '0 0 12px', fontSize: '1rem', fontWeight: 800 }}>
+                {hi ? '✓ अभी काम करता है' : '✓ Live Now'}
+              </h3>
+              <ul style={{ margin: 0, padding: '0 0 0 1.2rem', fontSize: '0.9rem', lineHeight: 2 }}>
+                <li>{hi ? 'अधिकार कार्ड + सुरक्षा गाइड' : 'Rights Card + Safety Guide'}</li>
+                <li>{hi ? 'RTI जनरेटर (ऑफलाइन)' : 'RTI Generator (offline)'}</li>
+                <li>{hi ? 'FIR असिस्टेंट (ऑफलाइन)' : 'FIR Assistant (offline)'}</li>
+                <li>{hi ? 'संसाधन + हेल्पलाइन' : 'Resources + Helplines'}</li>
+                <li>{hi ? 'प्लेबुक (विरोध → शक्ति)' : 'Playbook (Protest → Power)'}</li>
+                <li>{hi ? 'लाइव अभियान मैप' : 'Live Campaign Map'}</li>
+                <li>{hi ? 'शासन ट्रैकर + स्कोरकार्ड' : 'Governance Tracker + Scorecard'}</li>
+                <li>{hi ? 'माँग ट्रैकर' : 'Demand Tracker'}</li>
+                <li>{hi ? 'योगदान बोर्ड' : 'Contribution Board'}</li>
+                <li>{hi ? 'ग्रुप डायरेक्टरी (ब्राउज़)' : 'Group Directory (browse)'}</li>
+              </ul>
+            </div>
+
+            {/* COMING AFTER SECURITY REVIEW */}
+            <div className="brutal-card" style={{ borderTop: '6px solid var(--color-yellow)' }}>
+              <h3 style={{ margin: '0 0 12px', fontSize: '1rem', fontWeight: 800 }}>
+                {hi ? '⏳ सुरक्षा समीक्षा के बाद' : '⏳ After Security Review'}
+              </h3>
+              <ul style={{ margin: 0, padding: '0 0 0 1.2rem', fontSize: '0.9rem', lineHeight: 2 }}>
+                <li>{hi ? 'ज़रूरत/प्रस्ताव बोर्ड (पोस्ट)' : 'Needs/Offers Board (posts)'}</li>
+                <li>{hi ? 'ग्रुप बनाना + सदस्यता' : 'Group creation + membership'}</li>
+                <li>{hi ? 'रियलटाइम अलर्ट + पुश' : 'Realtime Alerts + Push'}</li>
+                <li>{hi ? 'एन्क्रिप्टेड मैसेजिंग' : 'Encrypted Messaging'}</li>
+                <li>{hi ? 'SMS अलर्ट (2G बैकअप)' : 'SMS Alerts (2G backup)'}</li>
+                <li>{hi ? 'डायरेक्टरी सबमिशन' : 'Directory submissions'}</li>
+              </ul>
+              <p style={{ margin: '12px 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                {hi
+                  ? 'क्यों: सुरक्षा ऑडिट पूरा होने तक ये सुविधाएँ उपयोगकर्ताओं को जोखिम में डाल सकती हैं।'
+                  : 'Why: These features could put users at risk until security audit is complete.'}
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* EMERGENCY FOOTER */}
+      {/* ═══════════════════════════════════════════════════════════
+          EMERGENCY FOOTER
+          ═══════════════════════════════════════════════════════════ */}
       <aside className="emergency-note" aria-label={hi ? 'आपातकालीन' : 'Emergency'}>
         <div className="page-shell">
           <strong>{hi ? 'तुरंत खतरा?' : 'Immediate danger?'}</strong>{' '}
