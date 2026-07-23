@@ -1,59 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { isAdminRequest } from '@/lib/admin-auth';
+import { getServiceSupabaseClient } from '@/lib/supabase-server';
+import { isUuid, parseJsonObject } from '@/lib/validation';
 
-// Simple admin auth check via header
-function isAdmin(request: NextRequest): boolean {
-  const adminSecret = process.env.ADMIN_SECRET || 'admin-dev-secret';
-  const authHeader = request.headers.get('x-admin-secret');
-  return authHeader === adminSecret;
-}
+const ADMIN_CHAPTER_FIELDS = 'id, name, city, area, categories, contact_method, description, status, created_at, updated_at, trust_tier, last_ping';
 
-// GET /api/admin/chapters — get pending chapters
 export async function GET(request: NextRequest) {
-  if (!isAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!isAdminRequest(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const { data, error } = await getServiceSupabaseClient()
+      .from('chapters')
+      .select(ADMIN_CHAPTER_FIELDS)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+      .limit(200);
+    if (error) return NextResponse.json({ error: 'Failed to fetch chapters' }, { status: 500 });
+    return NextResponse.json({ chapters: data || [] }, { headers: { 'Cache-Control': 'no-store' } });
+  } catch {
+    return NextResponse.json({ error: 'Moderation service unavailable' }, { status: 503 });
   }
-
-  const { data, error } = await supabase
-    .from('chapters')
-    .select('*')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: 'Failed to fetch chapters' }, { status: 500 });
-  }
-
-  return NextResponse.json({ chapters: data || [] });
 }
 
-// PATCH /api/admin/chapters — approve or reject a chapter
 export async function PATCH(request: NextRequest) {
-  if (!isAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!isAdminRequest(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const body = await parseJsonObject(request, 2_000);
+  const action = body?.action;
+  if (!body || !isUuid(body.id) || (action !== 'approve' && action !== 'reject')) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
   try {
-    const body = await request.json();
-    const { id, action } = body;
-
-    if (!id || !['approve', 'reject'].includes(action)) {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-    }
-
-    const newStatus = action === 'approve' ? 'approved' : 'rejected';
-
-    const { error } = await supabase
-      .from('chapters')
-      .update({ status: newStatus })
-      .eq('id', id);
-
-    if (error) {
-      return NextResponse.json({ error: 'Failed to update chapter' }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, status: newStatus });
+    const { data, error } = await getServiceSupabaseClient().rpc('moderate_content', {
+      p_target_type: 'chapter',
+      p_target_id: body.id,
+      p_new_status: action === 'approve' ? 'approved' : 'rejected',
+      p_moderator: 'authenticated-admin-session',
+    });
+    if (error) return NextResponse.json({ error: 'Failed to update chapter' }, { status: 500 });
+    if (data !== true) return NextResponse.json({ error: 'Pending chapter not found' }, { status: 404 });
+    return NextResponse.json({ success: true, status: action === 'approve' ? 'approved' : 'rejected' });
   } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    return NextResponse.json({ error: 'Moderation service unavailable' }, { status: 503 });
   }
 }

@@ -1,125 +1,68 @@
-# Sahayata — Civic Mutual-Aid & Coordination Platform
+# Sahayata — Civic Coordination Prototype
 
-A civic mutual-aid platform connecting people who need help with people who can give it. Built for the Indian protest movement coordination.
+> **Launch status: private prototype.** This repository is not production-ready and must not be used for emergencies, legal or medical support, sensitive organizing, or verified referrals.
 
-## What This Is
+Sahayata explores directory and needs/offers workflows for civic coordination in India. The current implementation is for engineering and content review only.
 
-Sahayata is civic mutual-aid infrastructure — like a disaster-relief coordination tool, applied to community organizing. It answers three questions:
-- **Where do I plug in?** → Chapter Directory
-- **What's needed, and what can I offer?** → Needs & Offers Board
-- **What's actually true right now?** → (Stage 2+)
+## Current boundaries
 
-## What This Is NOT
+- Directory and board entries are submissions or synthetic fixtures, not verified services.
+- Groups and alerts are disabled because their authorization and operating workflows are incomplete.
+- Safety, legal, medical, resource, and digital-security material is withheld or marked as pending qualified India-specific review.
+- The service worker caches only the public manifest and app icons. It does not cache pages, APIs, alerts, directory data, posts, or private content.
+- The application does not promise realtime delivery, push notifications, encryption, anonymity, automatic deletion, private contact handling, mirror failover, or emergency response.
+- Existing authentication, authorization, moderation, retention, and privacy controls require P0 remediation before any public pilot.
 
-- Not a political party
-- Not affiliated with any party
-- Not a fundraising vehicle
-- Not designed to evade lawful authority
+## Tech stack
 
-## Features (Stage 1)
+- Next.js 16, React 19, and TypeScript
+- Tailwind CSS 4
+- Supabase/Postgres
+- Web app manifest and a public-static-assets-only service worker
 
-- **Chapter/Support Group Directory** — Public, filterable listing of active local groups
-- **Needs ↔ Offers Board** — Post needs or offers, filter by city/category/urgency
-- **Contact Relay** — Private contact forwarding (no public phone numbers)
-- **Moderation Queue** — All submissions reviewed before going public
-- **Rate Limiting** — Per-session rate limits to prevent spam
-- **Privacy by Design** — No real names, city/area only, auto-expiry (72h)
-- **Multilingual** — English + Hindi from day one
-- **PWA** — Installable, offline-capable for critical content
-- **Report System** — Report inappropriate content
-
-## Tech Stack
-
-- **Framework:** Next.js 15 + React 19 + TypeScript
-- **Styling:** Tailwind CSS 4
-- **Backend:** Supabase (Postgres + REST API + Auth)
-- **Deployment:** Vercel + Supabase Cloud
-- **PWA:** Service Worker + Web App Manifest
-
-## Getting Started
+## Local setup
 
 ### Prerequisites
-- Node.js 18+
-- A Supabase project (free tier works)
 
-### Setup
+- Node.js 18 or later
+- A disposable local or development Supabase project
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy environment variables:
-   ```bash
-   cp .env.local.example .env.local
-   ```
-4. Update `.env.local` with your Supabase credentials
-5. Run the database migration in your Supabase SQL editor (see `supabase/migrations/001_initial_schema.sql`)
-6. Start the dev server:
-   ```bash
-   npm run dev
-   ```
+### Run the app
 
-### Admin / Moderation
-
-- Access moderation queue at `/admin`
-- Set `ADMIN_SECRET` in `.env.local` (used as the login password)
-- Default dev secret: `admin-dev-secret`
-
-## Privacy Design
-
-- No real names required anywhere
-- City/area only (fixed dropdown list, never precise addresses)
-- No public phone numbers (contact relay only)
-- Posts auto-expire in 72 hours
-- Session-based rate limiting (no login required to browse)
-- No third-party trackers or analytics pixels
-- Designed so a database leak hurts no one
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── page.tsx              # Homepage
-│   ├── layout.tsx            # Root layout
-│   ├── directory/            # Chapter directory
-│   ├── board/                # Needs & Offers board
-│   ├── submit-chapter/       # Chapter submission form
-│   ├── create-post/          # Post creation form
-│   ├── admin/                # Moderation queue
-│   └── api/
-│       ├── chapters/         # Chapter CRUD
-│       ├── posts/            # Post CRUD + respond relay
-│       ├── reports/          # Report submission
-│       └── admin/            # Admin moderation endpoints
-├── components/               # Shared UI components
-├── i18n/                     # Translations (en, hi)
-├── lib/                      # Utilities (supabase, rate-limit, constants)
-└── types/                    # TypeScript type definitions
-supabase/
-└── migrations/               # SQL schema migrations
-public/
-├── manifest.json             # PWA manifest
-├── sw.js                     # Service worker
-└── icons/                    # App icons
+```bash
+npm install
+cp .env.local.example .env.local
+npm run dev
 ```
 
-## Deployment
+Set the development Supabase values in `.env.local`, then apply the migrations in `supabase/migrations/` in order.
 
-### Vercel
-1. Connect your GitHub repo to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy
+### Optional synthetic fixtures
 
-### Supabase
-1. Create a Supabase project
-2. Run the SQL migration in the SQL Editor
-3. Copy the project URL and anon key to your environment variables
+`supabase/seed.sql` contains only unmistakably synthetic, low-stakes UI fixtures. It is blocked by default. Never run it in production or against a database containing real data.
 
-## Contributing
+To use it in a disposable local database, set this in the same database session before executing the seed file:
 
-All new chapters and posts go through moderation before going public. This is by design — trust is the product.
+```sql
+SET app.allow_synthetic_seed = 'on';
+```
+
+All fixture names contain `EXAMPLE` or `SYNTHETIC FIXTURE`, and all fixture contacts use reserved invalid domains.
+
+## Review before deployment
+
+Before any pilot, complete the P0 work described in `docs/WORLD_CLASS_CIVIC_PLATFORM_IMPLEMENTATION_PLAN.md`, including authorization boundaries, moderation operations, data retention, content review, accessibility, security testing, and incident response.
+
+## Project structure
+
+```text
+src/app/             Pages and API routes
+src/components/      Shared UI components
+src/lib/             Application utilities
+supabase/migrations/ Database migrations
+supabase/seed.sql    Explicitly enabled synthetic local fixtures
+public/              Manifest, icons, and service worker
+```
 
 ## License
 

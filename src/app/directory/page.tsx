@@ -1,24 +1,10 @@
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { Locale } from '@/types';
-import { t } from '@/i18n';
 import DirectoryClient from './DirectoryClient';
 
 export default async function DirectoryPage() {
-  const cookieStore = await cookies();
-  const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-      <div className="mb-10">
-        <div className="brutal-badge brutal-badge-sky mb-4">
-          {locale === 'hi' ? 'निर्देशिका' : 'DIRECTORY'}
-        </div>
-        <h1 className="heading-1 mb-3">{t(locale, 'directory.title') as string}</h1>
-        <p className="text-[var(--color-text-muted)] text-lg max-w-2xl">
-          {t(locale, 'directory.subtitle') as string}
-        </p>
-      </div>
-      <DirectoryClient locale={locale} />
-    </div>
-  );
+  const locale = ((await cookies()).get('locale')?.value as Locale) || 'en';
+  const hi = locale === 'hi';
+  return <div className="page-shell content-page"><header className="page-heading"><p className="eyebrow">{hi ? 'सहायता खोजें' : 'Find support'}</p><h1>{hi ? 'अपने पास का सहायता समूह खोजें' : 'Find a support group near you'}</h1><p>{hi ? 'शहर, क्षेत्र या सहायता के प्रकार से खोजें।' : 'Search by city, area, or type of help.'}</p></header><div className="info-panel" role="note"><strong>{hi ? 'याद रखें:' : 'Remember:'}</strong>{' '}{hi ? 'लिस्टिंग की समीक्षा होती है, लेकिन इसका मतलब गारंटी नहीं है। कानूनी, आश्रय, विरोध या व्यक्तिगत मुलाकात के लिए भरोसेमंद वयस्क को शामिल करें।' : 'Listings are reviewed, but review is not a guarantee. Involve a trusted adult for legal, shelter, protest, or in-person contact.'}{' '}<Link href="/safety">{hi ? 'सुरक्षा गाइड' : 'Safety guide'}</Link>.</div><DirectoryClient locale={locale} /></div>;
 }

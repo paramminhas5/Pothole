@@ -3,164 +3,21 @@
 import { useState } from 'react';
 import { Locale, Category } from '@/types';
 import { CITIES_AREAS, CATEGORIES } from '@/lib/constants';
-import { t } from '@/i18n';
 
-interface SubmitChapterClientProps {
-  locale: Locale;
-}
-
-export default function SubmitChapterClient({ locale }: SubmitChapterClientProps) {
-  const [name, setName] = useState('');
-  const [city, setCity] = useState('');
-  const [area, setArea] = useState('');
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [contactMethod, setContactMethod] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-
-  const availableAreas = CITIES_AREAS.find((c) => c.city === city)?.areas || [];
-
-  const toggleCategory = (cat: Category) => {
-    setCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
-  };
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name || !city || !area || categories.length === 0 || !contactMethod) return;
-
-    setStatus('loading');
-    try {
-      const res = await fetch('/api/chapters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, city, area, categories, contact_method: contactMethod, description }),
-      });
-      if (res.ok) {
-        setStatus('success');
-      } else {
-        setStatus('error');
-      }
-    } catch {
-      setStatus('error');
-    }
-  }
-
-  if (status === 'success') {
-    return (
-      <div className="brutal-card !border-[var(--color-lime)] !shadow-[5px_5px_0px_var(--color-lime)] text-center animate-slide-in">
-        <div className="text-4xl mb-4">✓</div>
-        <p className="heading-3 mb-2">{t(locale, 'submitChapter.success') as string}</p>
-        <p className="text-sm text-[var(--color-text-muted)]">
-          {locale === 'hi' ? 'मॉडरेटर आपकी लिस्टिंग की जल्द समीक्षा करेंगे।' : 'A moderator will review your listing shortly.'}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Name */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'submitChapter.nameLabel') as string}</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={t(locale, 'submitChapter.namePlaceholder') as string}
-          required
-          className="brutal-input"
-        />
-      </div>
-
-      {/* City + Area */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'submitChapter.cityLabel') as string}</label>
-          <select
-            value={city}
-            onChange={(e) => { setCity(e.target.value); setArea(''); }}
-            required
-            className="brutal-select"
-          >
-            <option value="">{t(locale, 'common.allCities') as string}</option>
-            {CITIES_AREAS.map((c) => (
-              <option key={c.city} value={c.city}>{c.city}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'submitChapter.areaLabel') as string}</label>
-          <select
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            required
-            disabled={!city}
-            className="brutal-select"
-          >
-            <option value="">{t(locale, 'common.allAreas') as string}</option>
-            {availableAreas.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Categories */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-3">{t(locale, 'submitChapter.categoriesLabel') as string}</label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => toggleCategory(cat.value)}
-              className={`brutal-btn brutal-btn-sm text-left ${
-                categories.includes(cat.value) ? 'brutal-btn-primary' : ''
-              }`}
-            >
-              {locale === 'hi' ? cat.labelHi : cat.labelEn}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Contact Method */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'submitChapter.contactLabel') as string}</label>
-        <input
-          type="text"
-          value={contactMethod}
-          onChange={(e) => setContactMethod(e.target.value)}
-          placeholder={t(locale, 'submitChapter.contactPlaceholder') as string}
-          required
-          className="brutal-input"
-        />
-        <p className="text-xs text-[var(--color-text-muted)] mt-2 font-medium">{t(locale, 'submitChapter.contactHelp') as string}</p>
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'submitChapter.descriptionLabel') as string}</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t(locale, 'submitChapter.descriptionPlaceholder') as string}
-          maxLength={500}
-          rows={3}
-          className="brutal-textarea"
-        />
-      </div>
-
-      {/* Submit */}
-      <button type="submit" disabled={status === 'loading'} className="brutal-btn brutal-btn-dark brutal-btn-lg w-full">
-        {status === 'loading' ? (t(locale, 'common.loading') as string) : (t(locale, 'common.submit') as string)}
-      </button>
-
-      {status === 'error' && (
-        <div className="brutal-badge brutal-badge-red">{t(locale, 'submitChapter.error') as string}</div>
-      )}
-    </form>
-  );
+interface Props { locale: Locale }
+export default function SubmitChapterClient({ locale }: Props) {
+  const [name, setName] = useState(''); const [city, setCity] = useState(''); const [area, setArea] = useState(''); const [categories, setCategories] = useState<Category[]>([]); const [contact, setContact] = useState(''); const [description, setDescription] = useState(''); const [confirmed, setConfirmed] = useState(false); const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const hi = locale === 'hi'; const areas = CITIES_AREAS.find((item) => item.city === city)?.areas || [];
+  function toggle(category: Category) { setCategories((items) => items.includes(category) ? items.filter((item) => item !== category) : [...items, category]); }
+  async function submit(event: React.FormEvent) { event.preventDefault(); if (!name.trim() || !city || !area || !categories.length || !contact.trim() || !confirmed || status === 'loading') return; setStatus('loading'); try { const response = await fetch('/api/chapters', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name.trim(), city, area, categories, contact_method: contact.trim(), description: description.trim() }) }); if (!response.ok) throw new Error('failed'); setStatus('success'); } catch { setStatus('error'); } }
+  if (status === 'success') return <section className="success-state" role="status"><p className="success-mark" aria-hidden="true">✓</p><h2>{hi ? 'समूह समीक्षा के लिए भेजा गया' : 'Group sent for review'}</h2><p>{hi ? 'यह अभी सार्वजनिक नहीं है। मॉडरेटर के स्वीकृत करने के बाद यह निर्देशिका में दिखेगा।' : 'It is not public yet. It will appear in the directory if a moderator approves it.'}</p><a href="/directory" className="brutal-btn brutal-btn-primary">{hi ? 'निर्देशिका पर जाएँ' : 'Go to directory'}</a></section>;
+  return <form onSubmit={submit} className="civic-form">
+    <fieldset><legend>{hi ? '1. समूह की पहचान' : '1. Identify the group'}</legend><label htmlFor="group-name" className="field-label">{hi ? 'समूह का सार्वजनिक नाम' : 'Public group name'}</label><input id="group-name" value={name} onChange={(event) => setName(event.target.value)} required maxLength={120} className="brutal-input" /></fieldset>
+    <fieldset><legend>{hi ? '2. सामान्य स्थान' : '2. General location'}</legend><p className="field-help">{hi ? 'निजी पता न दें।' : 'Do not enter a private address.'}</p><div className="filter-grid"><label><span>{hi ? 'शहर' : 'City'}</span><select value={city} onChange={(event) => { setCity(event.target.value); setArea(''); }} required className="brutal-select"><option value="">{hi ? 'शहर चुनें' : 'Choose city'}</option>{CITIES_AREAS.map((item) => <option key={item.city}>{item.city}</option>)}</select></label><label><span>{hi ? 'क्षेत्र' : 'Area'}</span><select value={area} onChange={(event) => setArea(event.target.value)} required disabled={!city} className="brutal-select"><option value="">{hi ? 'क्षेत्र चुनें' : 'Choose area'}</option>{areas.map((item) => <option key={item}>{item}</option>)}</select></label></div></fieldset>
+    <fieldset><legend>{hi ? '3. समूह क्या करता है?' : '3. What does the group do?'}</legend><p className="field-help">{hi ? 'सभी लागू सेवाएँ चुनें।' : 'Choose every service that applies.'}</p><div className="checkbox-card-grid">{CATEGORIES.map((category) => <label key={category.value} className={`check-card ${categories.includes(category.value) ? 'selected' : ''}`}><input type="checkbox" checked={categories.includes(category.value)} onChange={() => toggle(category.value)} /><span>{hi ? category.labelHi : category.labelEn}</span></label>)}</div></fieldset>
+    <fieldset><legend>{hi ? '4. सार्वजनिक संपर्क' : '4. Public contact'}</legend><label htmlFor="group-contact" className="field-label">{hi ? 'वेबसाइट, समूह ईमेल या सार्वजनिक फ़ॉर्म' : 'Website, group email, or public form'}</label><input id="group-contact" value={contact} onChange={(event) => setContact(event.target.value)} required maxLength={300} className="brutal-input" placeholder="https://…" /><p className="field-help">{hi ? 'यह सबको दिखेगा। व्यक्तिगत फोन, निजी ईमेल या किसी बच्चे का संपर्क न दें।' : 'Everyone will see this. Do not use a personal phone, private email, or a child’s contact.'}</p></fieldset>
+    <fieldset><legend>{hi ? '5. समूह का छोटा परिचय' : '5. Short group description'}</legend><label htmlFor="group-description" className="field-label">{hi ? 'यह कैसे मदद करता है?' : 'How does it help?'}</label><textarea id="group-description" value={description} onChange={(event) => setDescription(event.target.value.slice(0, 500))} maxLength={500} rows={4} className="brutal-textarea" /><div className="field-footer"><span>{hi ? 'लोगों के नाम या निजी जानकारी न दें।' : 'Do not include people’s names or private details.'}</span><span>{description.length}/500</span></div></fieldset>
+    <section className="review-panel" aria-labelledby="group-review-title"><h2 id="group-review-title">{hi ? 'भेजने से पहले जाँचें' : 'Check before sending'}</h2><p>{hi ? 'स्वीकृति के बाद ऊपर की सारी जानकारी सार्वजनिक होगी। लिस्टिंग की समीक्षा होती है, लेकिन यह समूह की कानूनी या सुरक्षा जाँच नहीं है।' : 'After approval, everything above becomes public. Listings are reviewed, but this is not a legal or safety certification of the group.'}</p><label className="check-row"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} required /><span>{hi ? 'मुझे यह सार्वजनिक संपर्क साझा करने की अनुमति है। मैं 18+ हूँ और जानकारी सही है।' : 'I have permission to share this public contact. I am 18+ and the information is accurate.'}</span></label></section>
+    {status === 'error' && <p className="error-message" role="alert">{hi ? 'समूह नहीं भेजा गया। अपना कनेक्शन देखें और फिर कोशिश करें।' : 'The group was not sent. Check your connection and try again.'}</p>}<button type="submit" disabled={status === 'loading' || !confirmed} className="brutal-btn brutal-btn-primary brutal-btn-lg form-primary-action">{status === 'loading' ? (hi ? 'समीक्षा के लिए भेज रहे हैं…' : 'Sending for review…') : (hi ? 'समीक्षा के लिए भेजें' : 'Send for review')}</button>
+  </form>;
 }

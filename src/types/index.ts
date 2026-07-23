@@ -1,37 +1,31 @@
 // Core types for the Sahayata Civic Mutual-Aid Platform
 
 export type Category =
-  | 'legal'
-  | 'medical'
-  | 'food-water'
-  | 'transport'
-  | 'shelter'
-  | 'translation'
-  | 'documentation'
-  | 'supplies'
-  | 'general-organizing'
-  | 'media'
-  | 'other';
-
+  | 'legal' | 'medical' | 'food-water' | 'transport' | 'shelter'
+  | 'translation' | 'documentation' | 'supplies' | 'general-organizing'
+  | 'media' | 'other';
 export type PostType = 'need' | 'offer';
 export type Urgency = 'routine' | 'urgent';
 export type ModerationStatus = 'pending' | 'approved' | 'rejected';
 export type Locale = 'en' | 'hi';
 
-export interface Chapter {
+export interface PublicChapter {
   id: string;
   name: string;
   city: string;
   area: string;
   categories: Category[];
-  contact_method: string; // public group link, email, or form URL
+  contact_method: string;
   description: string;
-  status: ModerationStatus;
-  created_at: string;
   updated_at: string;
 }
 
-export interface Post {
+export interface Chapter extends PublicChapter {
+  status: ModerationStatus;
+  created_at: string;
+}
+
+export interface PublicPost {
   id: string;
   type: PostType;
   category: Category;
@@ -39,12 +33,19 @@ export interface Post {
   area: string;
   description: string;
   urgency: Urgency;
-  status: ModerationStatus;
-  session_id: string;
   expires_at: string;
   created_at: string;
+}
+
+// Internal/owner DTO. Public APIs must return PublicPost instead.
+export interface Post extends PublicPost {
+  status: ModerationStatus;
   reported_count: number;
   resolved: boolean;
+}
+
+export interface OwnedPost extends Post {
+  responses: ContactResponse[];
 }
 
 export interface Report {
@@ -63,7 +64,6 @@ export interface ContactResponse {
   created_at: string;
 }
 
-// City/Area data — fixed list, no free-text addresses
 export interface CityArea {
   city: string;
   areas: string[];

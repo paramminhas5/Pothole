@@ -1,161 +1,242 @@
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { Locale } from '@/types';
+import PrintButton from '@/components/PrintButton';
 
 export default async function SafetyPage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  const isHindi = locale === 'hi';
+  const hi = locale === 'hi';
 
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-6 py-12">
-      <div className="mb-10">
-        <div className="brutal-badge brutal-badge-purple mb-4">
-          {isHindi ? 'सुरक्षा' : 'SAFETY'}
+      <div className="mb-6 flex justify-between items-start gap-4">
+        <div>
+          <h1 className="heading-display mb-2">{hi ? 'अपने अधिकार जानें' : 'Know Your Rights'}</h1>
+          <p className="text-[var(--color-text-muted)]">{hi ? 'प्रिंट करें। फोन में सेव करें। याद करें।' : 'Print it. Save it. Memorize it.'}</p>
         </div>
-        <h1 className="heading-1 mb-3">{isHindi ? 'अपने अधिकार जानें' : 'Know Your Rights'}</h1>
-        <p className="text-[var(--color-text-muted)] text-lg">
-          {isHindi
-            ? 'यह जानकारी ऑफ़लाइन भी उपलब्ध है। इसे स्क्रीनशॉट या सेव करें।'
-            : 'This information is available offline. Screenshot or save it.'}
-        </p>
+        <PrintButton locale={locale} />
       </div>
 
-      {/* Section: If Detained */}
-      <section className="brutal-card mb-6">
-        <div className="brutal-badge brutal-badge-red mb-4">{isHindi ? 'गिरफ्तारी / हिरासत' : 'IF DETAINED'}</div>
-        <h2 className="heading-2 mb-4">{isHindi ? 'अगर आपको हिरासत में लिया जाए' : 'If You Are Detained'}</h2>
-        <div className="space-y-4 text-sm leading-relaxed">
-          {isHindi ? (
-            <>
-              <p><strong>1. शांत रहें।</strong> घबराएं नहीं। आपके पास अधिकार हैं।</p>
-              <p><strong>2. गिरफ्तारी का कारण पूछें।</strong> पुलिस को आपको बताना होगा कि आपको क्यों गिरफ्तार किया जा रहा है (CrPC Section 50)।</p>
-              <p><strong>3. आपको वकील का अधिकार है।</strong> अनुच्छेद 22(1) के तहत आपको गिरफ्तारी के तुरंत बाद वकील से मिलने का अधिकार है।</p>
-              <p><strong>4. परिवार को सूचित करने का अधिकार।</strong> पुलिस को आपके परिवार या मित्र को सूचित करना होगा।</p>
-              <p><strong>5. 24 घंटे के भीतर मजिस्ट्रेट के सामने पेश किया जाना चाहिए।</strong> यह संवैधानिक अधिकार है (अनुच्छेद 22(2))।</p>
-              <p><strong>6. कोई बयान देने के लिए बाध्य नहीं हैं।</strong> आपको चुप रहने का अधिकार है। कोई भी बयान देने से पहले वकील से बात करें।</p>
-              <p><strong>7. शारीरिक या मानसिक प्रताड़ना अवैध है।</strong> यदि कोई हिंसा हो, तो तुरंत नोट करें — समय, स्थान, अधिकारियों के नाम/बैज नंबर।</p>
-              <p><strong>8. महिलाओं की गिरफ्तारी सूर्यास्त के बाद और सूर्योदय से पहले नहीं हो सकती</strong> (विशेष परिस्थितियों को छोड़कर, और तब भी महिला अधिकारी होनी चाहिए)।</p>
-            </>
-          ) : (
-            <>
-              <p><strong>1. Stay calm.</strong> Do not panic. You have rights.</p>
-              <p><strong>2. Ask for the reason for arrest.</strong> Police must inform you why you are being arrested (CrPC Section 50).</p>
-              <p><strong>3. You have the right to a lawyer.</strong> Under Article 22(1), you can consult a lawyer immediately after arrest.</p>
-              <p><strong>4. Right to inform family.</strong> Police must inform your family member or friend of your arrest.</p>
-              <p><strong>5. Must be produced before a magistrate within 24 hours.</strong> This is a constitutional right (Article 22(2)).</p>
-              <p><strong>6. You are not obliged to give any statement.</strong> You have the right to remain silent. Speak to a lawyer before making any statement.</p>
-              <p><strong>7. Physical or mental torture is illegal.</strong> If any violence occurs, note immediately — time, place, officers&apos; names/badge numbers.</p>
-              <p><strong>8. Women cannot be arrested after sunset and before sunrise</strong> (except in exceptional circumstances, and even then a female officer must be present).</p>
-            </>
-          )}
-        </div>
-      </section>
 
-      {/* Section: Digital Safety */}
-      <section className="brutal-card mb-6">
-        <div className="brutal-badge brutal-badge-sky mb-4">{isHindi ? 'डिजिटल सुरक्षा' : 'DIGITAL SAFETY'}</div>
-        <h2 className="heading-2 mb-4">{isHindi ? 'डिजिटल सुरक्षा सुझाव' : 'Digital Safety Tips'}</h2>
-        <div className="space-y-4 text-sm leading-relaxed">
-          {isHindi ? (
-            <>
-              <p><strong>→ फ़ोटो से मेटाडेटा हटाएं।</strong> फ़ोटो शेयर करने से पहले EXIF डेटा (GPS स्थान, समय) हटाएं। Signal ऐप इसे स्वचालित रूप से करता है।</p>
-              <p><strong>→ एंड-टू-एंड एन्क्रिप्टेड मैसेजिंग का उपयोग करें।</strong> Signal सबसे सुरक्षित है। WhatsApp E2E एन्क्रिप्टेड है लेकिन मेटाडेटा Meta के पास है।</p>
-              <p><strong>→ अपने डिवाइस को लॉक करें।</strong> मजबूत पासकोड (बायोमेट्रिक नहीं — कानूनी रूप से आपको अंगूठा नहीं देना है, पासवर्ड नहीं)।</p>
-              <p><strong>→ दूसरों को टैग या डॉक्स न करें।</strong> बिना सहमति के किसी की पहचान साझा न करें।</p>
-              <p><strong>→ VPN का उपयोग करें।</strong> मुफ़्त VPN से बचें। ProtonVPN का मुफ़्त टियर विश्वसनीय है।</p>
-              <p><strong>→ 2-Factor Authentication चालू करें</strong> सभी महत्वपूर्ण खातों पर।</p>
-              <p><strong>→ संवेदनशील संचार के बाद ब्राउज़र इतिहास साफ़ करें।</strong></p>
-            </>
-          ) : (
-            <>
-              <p><strong>→ Strip metadata from photos.</strong> Remove EXIF data (GPS location, timestamps) before sharing photos. Signal does this automatically.</p>
-              <p><strong>→ Use end-to-end encrypted messaging.</strong> Signal is safest. WhatsApp is E2E encrypted but Meta holds metadata.</p>
-              <p><strong>→ Lock your device.</strong> Strong passcode (not biometric — legally you don&apos;t have to provide a fingerprint, but you can be compelled to provide... nothing).</p>
-              <p><strong>→ Don&apos;t tag or doxx others.</strong> Never share someone&apos;s identity without their explicit consent.</p>
-              <p><strong>→ Use a VPN.</strong> Avoid free VPNs. ProtonVPN free tier is trustworthy.</p>
-              <p><strong>→ Enable 2-Factor Authentication</strong> on all important accounts.</p>
-              <p><strong>→ Clear browser history after sensitive communications.</strong></p>
-            </>
-          )}
+      {/* POCKET CARD — fits one screen, printable */}
+      <section className="brutal-card mb-8 !border-[var(--color-primary)] print:border-2" id="pocket-card">
+        <div className="text-center mb-4">
+          <h2 className="heading-2">{hi ? '📋 पॉकेट अधिकार कार्ड' : '📋 Pocket Rights Card'}</h2>
+          <p className="text-xs text-[var(--color-text-muted)]">{hi ? 'इसे प्रिंट करें या स्क्रीनशॉट लें' : 'Print this or take a screenshot'}</p>
         </div>
-      </section>
 
-      {/* Section: Protest Safety */}
-      <section className="brutal-card mb-6">
-        <div className="brutal-badge brutal-badge-accent mb-4">{isHindi ? 'विरोध प्रदर्शन' : 'AT A PROTEST'}</div>
-        <h2 className="heading-2 mb-4">{isHindi ? 'विरोध प्रदर्शन में सुरक्षा' : 'Protest Safety'}</h2>
-        <div className="space-y-4 text-sm leading-relaxed">
-          {isHindi ? (
-            <>
-              <p><strong>जाने से पहले:</strong></p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>किसी विश्वसनीय व्यक्ति को बताएं कि आप कहाँ जा रहे हैं और कब तक वापस आएंगे</li>
-                <li>आपातकालीन संपर्क नंबर अपनी बांह पर स्थायी मार्कर से लिखें</li>
-                <li>पूरी चार्ज फ़ोन ले जाएं। पोर्टेबल चार्जर भी।</li>
-                <li>पानी, स्नैक्स, ID (की फ़ोटो — मूल घर पर रखें)</li>
-                <li>आँसू गैस के लिए: गीला कपड़ा, सादा पानी की बोतल (आँखें धोने के लिए)</li>
-              </ul>
-              <p><strong>वहाँ पहुँचकर:</strong></p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>बाहर निकलने के रास्ते पहचानें</li>
-                <li>एक दोस्त के साथ "buddy system" रखें</li>
-                <li>शांत रहें। भड़काने वालों से दूर रहें।</li>
-                <li>यदि लाठी चार्ज हो: सिर और पेट ढकें, बैठ जाएं, भीड़ के किनारे जाएं</li>
-              </ul>
-            </>
-          ) : (
-            <>
-              <p><strong>Before you go:</strong></p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Tell a trusted person where you&apos;re going and when you expect to be back</li>
-                <li>Write emergency contact numbers on your arm in permanent marker</li>
-                <li>Fully charged phone. Portable charger too.</li>
-                <li>Water, snacks, ID (photo copy — leave originals at home)</li>
-                <li>For tear gas: wet cloth, plain water bottle (to rinse eyes)</li>
-              </ul>
-              <p><strong>Once there:</strong></p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Identify exits immediately</li>
-                <li>Use a buddy system — stay with at least one friend</li>
-                <li>Stay calm. Stay away from provocateurs.</li>
-                <li>If lathi charge: cover head and stomach, sit down if trapped, move to the edges of the crowd</li>
-              </ul>
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* Section: Emergency Contacts */}
-      <section className="brutal-card mb-6">
-        <div className="brutal-badge brutal-badge-yellow mb-4">{isHindi ? 'आपातकालीन' : 'EMERGENCY'}</div>
-        <h2 className="heading-2 mb-4">{isHindi ? 'आपातकालीन हेल्पलाइन' : 'Emergency Helplines'}</h2>
-        <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div className="brutal-card-flat !p-4">
-            <h3 className="font-bold mb-2">{isHindi ? 'राष्ट्रीय' : 'National'}</h3>
-            <ul className="space-y-2">
-              <li><strong>Police:</strong> 100</li>
-              <li><strong>Ambulance:</strong> 102 / 108</li>
-              <li><strong>Women Helpline:</strong> 181</li>
-              <li><strong>National Human Rights Commission:</strong> 011-23385368</li>
-              <li><strong>Legal Aid (NALSA):</strong> 15100</li>
+        <div className="space-y-4">
+          <div className="p-4 bg-[var(--color-surface-alt)] rounded">
+            <h3 className="font-bold text-sm mb-2">{hi ? '🗣️ ये वाक्य बोलें:' : '🗣️ SAY THESE WORDS:'}</h3>
+            <ul className="space-y-2 text-sm">
+              <li className="font-bold">"{hi ? 'मुझे रोकने / गिरफ्तार करने का कारण बताएँ।' : 'Tell me the reason for stopping / arresting me.'}"</li>
+              <li className="font-bold">"{hi ? 'मुझे वकील से बात करनी है।' : 'I want to speak to a lawyer.'}"</li>
+              <li className="font-bold">"{hi ? 'मेरे परिवार को सूचित करें।' : 'Inform my family.'}"</li>
+              <li className="font-bold">"{hi ? 'मैं अपना फोन अनलॉक नहीं करूँगा/करूँगी।' : 'I will not unlock my phone.'}"</li>
+              <li className="font-bold">"{hi ? 'मैं बिना वकील कोई बयान नहीं दूँगा/दूँगी।' : 'I will not give any statement without my lawyer.'}"</li>
             </ul>
           </div>
-          <div className="brutal-card-flat !p-4">
-            <h3 className="font-bold mb-2">{isHindi ? 'डिजिटल अधिकार' : 'Digital Rights'}</h3>
-            <ul className="space-y-2">
-              <li><strong>Internet Freedom Foundation:</strong> iff.org.in</li>
-              <li><strong>SFLC.in:</strong> sflc.in (digital rights legal aid)</li>
-              <li><strong>Digital Patrakar:</strong> For journalist safety</li>
+
+          <div className="p-4 bg-[var(--color-surface-alt)] rounded">
+            <h3 className="font-bold text-sm mb-2">{hi ? '⚡ याद रखें:' : '⚡ REMEMBER:'}</h3>
+            <ul className="space-y-1 text-sm">
+              <li>• {hi ? '24 घंटे में मजिस्ट्रेट के सामने पेश होना ज़रूरी' : 'Must be produced before magistrate within 24 hours'}</li>
+              <li>• {hi ? 'चुप रहने का अधिकार है — बोलने के लिए मजबूर नहीं कर सकते' : 'Right to remain silent — cannot be forced to speak'}</li>
+              <li>• {hi ? 'महिलाएँ: रात में गिरफ्तार नहीं किया जा सकता' : 'Women: cannot be arrested at night'}</li>
+              <li>• {hi ? 'नाम और बैज नंबर माँगें — लिख लें' : 'Ask for name + badge number — write it down'}</li>
+              <li>• {hi ? 'मुफ्त वकील का अधिकार — DSLSA: 1516' : 'Right to free lawyer — DSLSA: 1516'}</li>
+              <li>• {hi ? 'FIR की कॉपी माँगने का अधिकार' : 'Right to demand copy of FIR'}</li>
             </ul>
+          </div>
+
+          <div className="p-4 bg-[var(--color-surface-alt)] rounded">
+            <h3 className="font-bold text-sm mb-2">{hi ? '📞 तुरंत कॉल करें:' : '📞 CALL IMMEDIATELY:'}</h3>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div><strong>1516</strong> — {hi ? 'मुफ्त वकील (दिल्ली)' : 'Free lawyer (Delhi)'}</div>
+              <div><strong>112</strong> — {hi ? 'आपातकालीन' : 'Emergency'}</div>
+              <div><strong>NHRC</strong> — 011-24663333</div>
+              <div><strong>181</strong> — {hi ? 'महिला' : 'Women'}</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Disclaimer */}
-      <div className="brutal-banner text-center text-xs">
-        {isHindi
-          ? 'यह सामान्य जानकारी है, कानूनी सलाह नहीं। विशिष्ट स्थितियों के लिए हमेशा एक योग्य वकील से परामर्श करें।'
-          : 'THIS IS GENERAL INFORMATION, NOT LEGAL ADVICE. ALWAYS CONSULT A QUALIFIED LAWYER FOR SPECIFIC SITUATIONS.'}
+
+      {/* FULL GUIDE — expandable sections */}
+      <h2 className="heading-2 mb-6 mt-12">{hi ? 'विस्तृत अधिकार गाइड' : 'Detailed Rights Guide'}</h2>
+
+      {/* CONSTITUTIONAL BASIS */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '📜 संवैधानिक आधार' : '📜 Constitutional Basis'}</summary>
+        <div className="mt-4 space-y-3 text-sm">
+          <div className="p-3 border-l-4 border-[var(--color-primary)]"><strong>Article 19(1)(a)</strong> — {hi ? 'बोलने और अभिव्यक्ति की स्वतंत्रता' : 'Freedom of speech and expression'}</div>
+          <div className="p-3 border-l-4 border-[var(--color-primary)]"><strong>Article 19(1)(b)</strong> — {hi ? 'शांतिपूर्ण और निःशस्त्र सभा का अधिकार' : 'Right to assemble peaceably and without arms'}</div>
+          <div className="p-3 border-l-4 border-[var(--color-primary)]"><strong>Article 21</strong> — {hi ? 'जीवन और व्यक्तिगत स्वतंत्रता का अधिकार' : 'Right to life and personal liberty'}</div>
+          <div className="p-3 border-l-4 border-[var(--color-primary)]"><strong>Article 22(1)</strong> — {hi ? 'गिरफ्तारी का कारण जानने + वकील से मिलने का अधिकार' : 'Right to know grounds of arrest + consult lawyer'}</div>
+          <div className="p-3 border-l-4 border-[var(--color-primary)]"><strong>Article 22(2)</strong> — {hi ? '24 घंटे में मजिस्ट्रेट के सामने पेश' : 'Produced before magistrate within 24 hours'}</div>
+          <div className="p-3 border-l-4 border-[var(--color-primary)]"><strong>Article 20(3)</strong> — {hi ? 'अपने खिलाफ गवाही देने को बाध्य नहीं' : 'Cannot be compelled to be witness against yourself'}</div>
+          <p className="text-xs text-[var(--color-text-muted)] mt-2">{hi ? 'सुप्रीम कोर्ट: रामलीला मैदान (2012), मजदूर किसान शक्ति संगठन (2018) — शांतिपूर्ण विरोध मौलिक अधिकार है।' : 'Supreme Court: Ramlila Maidan (2012), Mazdoor Kisan Shakti Sangathan (2018) — peaceful protest is a fundamental right.'}</p>
+        </div>
+      </details>
+
+      {/* IF STOPPED */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '🚨 अगर पुलिस रोके' : '🚨 If Police Stop You'}</summary>
+        <div className="mt-4 space-y-2 text-sm">
+          <p>→ {hi ? 'शांत रहें। शारीरिक प्रतिरोध न करें।' : 'Stay calm. Do not physically resist.'}</p>
+          <p>→ {hi ? '"मुझे क्यों रोका जा रहा है?" पूछें।' : 'Ask "Why am I being stopped?"'}</p>
+          <p>→ {hi ? 'नाम + बैज नंबर पूछें और लिखें।' : 'Ask name + badge number and write it down.'}</p>
+          <p>→ {hi ? 'आप रिकॉर्ड कर सकते हैं (सार्वजनिक स्थान पर)।' : 'You can record (in public place).'}</p>
+          <p>→ {hi ? 'फोन अनलॉक करने से मना करें। "मैं मना करता/करती हूँ।"' : 'Refuse to unlock phone. "I decline."'}</p>
+          <p>→ {hi ? 'तलाशी: पुरुष → पुरुष अधिकारी। महिला → महिला अधिकारी।' : 'Search: men → male officer. Women → female officer only.'}</p>
+          <p>→ {hi ? 'सब कुछ नोट करें: समय, जगह, अधिकारी, वाहन नंबर, गवाह।' : 'Note everything: time, place, officers, vehicle numbers, witnesses.'}</p>
+        </div>
+      </details>
+
+      {/* IF DETAINED */}
+      <details className="brutal-card mb-4" open>
+        <summary className="heading-3 cursor-pointer">{hi ? '⛓️ अगर हिरासत / गिरफ्तार' : '⛓️ If Detained / Arrested'}</summary>
+        <div className="mt-4 space-y-3 text-sm">
+          <div className="p-3 bg-red-50 dark:bg-red-950 rounded border border-red-200 dark:border-red-800">
+            <strong>{hi ? 'तुरंत (पहले 5 मिनट):' : 'Immediately (first 5 minutes):'}</strong>
+            <ol className="mt-2 list-decimal list-inside space-y-1">
+              <li>{hi ? 'गिरफ्तारी का कारण पूछें' : 'Ask grounds of arrest'}</li>
+              <li>{hi ? '"मुझे वकील चाहिए" बोलें' : 'Say "I want a lawyer"'}</li>
+              <li>{hi ? '"मेरे परिवार को बताएँ" बोलें (BNSS धारा 37)' : 'Say "Inform my family" (BNSS Section 37)'}</li>
+              <li>{hi ? 'कोई बयान न दें — "वकील के बिना कुछ नहीं बोलूँगा"' : 'Give no statement — "Nothing without my lawyer"'}</li>
+              <li>{hi ? 'कुछ भी साइन न करें' : 'Sign nothing'}</li>
+            </ol>
+          </div>
+          <div className="p-3 bg-[var(--color-surface-alt)] rounded">
+            <strong>{hi ? 'आपके अधिकार:' : 'Your rights:'}</strong>
+            <ul className="mt-2 space-y-1">
+              <li>✓ {hi ? '24 घंटे में मजिस्ट्रेट (अनुच्छेद 22(2))' : '24hr magistrate (Article 22(2))'}</li>
+              <li>✓ {hi ? 'मुफ्त कानूनी सहायता (अनुच्छेद 39A) — DSLSA: 1516' : 'Free legal aid (Article 39A) — DSLSA: 1516'}</li>
+              <li>✓ {hi ? 'चिकित्सा जाँच का अधिकार' : 'Right to medical examination'}</li>
+              <li>✓ {hi ? 'दबाव में दिया बयान अमान्य' : 'Statement under duress inadmissible'}</li>
+              <li>✓ {hi ? 'FIR की कॉपी का अधिकार' : 'Right to copy of FIR'}</li>
+              <li>✓ {hi ? 'महिला: रात में गिरफ्तार नहीं (विशेष परिस्थिति छोड़)' : 'Women: no night arrest (except exceptional)'}</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+
+      {/* SECTION 163 */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '🚫 धारा 163 BNSS (निषेधाज्ञा आदेश)' : '🚫 Section 163 BNSS (Prohibitory Orders)'}</summary>
+        <div className="mt-4 space-y-2 text-sm">
+          <p><strong>{hi ? 'सरल भाषा में:' : 'In simple words:'}</strong> {hi ? 'पुलिस एक आदेश जारी कर सकती है जो कहता है "इस इलाके में 5+ लोग इकट्ठा नहीं हो सकते।"' : 'Police can issue an order saying "5+ people cannot gather in this area."'}</p>
+          <p><strong>{hi ? 'कितने समय:' : 'Duration:'}</strong> {hi ? 'अधिकतम 2 महीने (बढ़ाया जा सकता है)।' : 'Maximum 2 months (can be extended).'}</p>
+          <p><strong>{hi ? 'क्या कर सकते हैं:' : 'What you can do:'}</strong></p>
+          <ul className="ml-4 space-y-1">
+            <li>→ {hi ? 'अकेले या 4 लोगों तक शांतिपूर्ण उपस्थिति संभवतः अनुमत (केस-बाय-केस)' : 'Alone or up to 4 people peaceful presence possibly allowed (case-by-case)'}</li>
+            <li>→ {hi ? 'हाई कोर्ट में चुनौती दे सकते हैं (रिट याचिका)' : 'Can challenge in High Court (writ petition)'}</li>
+          </ul>
+          <p><strong>{hi ? 'दंड:' : 'Penalty if violated:'}</strong> {hi ? '1 माह कारावास या ₹200 जुर्माना (IPC 188)' : '1 month imprisonment or ₹200 fine (IPC 188)'}</p>
+          <p className="text-xs text-[var(--color-text-muted)]">{hi ? 'स्रोत: Indian Express, 22 जुलाई 2026, Nyaaya.org' : 'Source: Indian Express, July 22 2026, Nyaaya.org'}</p>
+        </div>
+      </details>
+
+      {/* DIGITAL SAFETY */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '📱 डिजिटल सुरक्षा' : '📱 Digital Safety'}</summary>
+        <div className="mt-4 space-y-4 text-sm">
+          <div>
+            <strong>{hi ? 'विरोध से पहले:' : 'Before protest:'}</strong>
+            <ul className="mt-1 space-y-1">
+              <li>→ {hi ? 'मजबूत PIN (6+ अंक)। बायोमेट्रिक (चेहरा/अँगुली) बंद करें।' : 'Strong PIN (6+ digits). Disable biometrics (face/fingerprint).'}</li>
+              <li>→ {hi ? 'लोकेशन, AirDrop, Bluetooth बंद।' : 'Location, AirDrop, Bluetooth OFF.'}</li>
+              <li>→ {hi ? 'जरूरी डेटा क्लाउड पर बैकअप।' : 'Backup important data to cloud.'}</li>
+              <li>→ {hi ? 'Signal में ऑटो-डिलीट चालू (1 घंटा या 1 दिन)।' : 'Signal auto-delete ON (1 hour or 1 day).'}</li>
+              <li>→ {hi ? 'बैंकिंग, सोशल मीडिया ऐप्स लॉगआउट।' : 'Log out of banking, social media apps.'}</li>
+            </ul>
+          </div>
+          <div>
+            <strong>{hi ? 'दौरान:' : 'During:'}</strong>
+            <ul className="mt-1 space-y-1">
+              <li>→ {hi ? 'फोटो/वीडियो लें → तुरंत क्लाउड अपलोड।' : 'Take photos/videos → immediately upload to cloud.'}</li>
+              <li>→ {hi ? 'VPN चालू रखें (ProtonVPN मुफ्त)।' : 'Keep VPN on (ProtonVPN free).'}</li>
+            </ul>
+          </div>
+          <div>
+            <strong>{hi ? 'फोन ज़ब्त हो:' : 'Phone seized:'}</strong>
+            <ul className="mt-1 space-y-1">
+              <li>→ {hi ? '"मैं अनलॉक नहीं करूँगा/करूँगी।" बार-बार कहें।' : '"I will not unlock." Repeat.'}</li>
+              <li>→ {hi ? 'ज़ब्ती रसीद माँगें (उपकरणों की सूची के साथ)।' : 'Ask for seizure receipt (with list of devices).'}</li>
+              <li>→ {hi ? 'वकील को तुरंत बताएँ।' : 'Inform lawyer immediately.'}</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      {/* TEAR GAS / LATHI */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '💨 आँसू गैस / लाठी / वॉटर कैनन' : '💨 Tear Gas / Lathi / Water Cannon'}</summary>
+        <div className="mt-4 space-y-4 text-sm">
+          <div>
+            <strong>{hi ? 'आँसू गैस:' : 'Tear gas:'}</strong>
+            <ul className="mt-1 space-y-1">
+              <li>→ {hi ? 'हवा से 90° पर चलें (हवा की दिशा से दूर)।' : 'Move 90° to wind (perpendicular, away from wind).'}</li>
+              <li>→ {hi ? 'गीला कपड़ा नाक-मुँह पर।' : 'Wet cloth over nose-mouth.'}</li>
+              <li>→ {hi ? 'आँखें मत रगड़ें! साफ पानी से धोएँ।' : 'Do NOT rub eyes! Rinse with clean water.'}</li>
+              <li>→ {hi ? 'ऊँचाई पर जाएँ (गैस भारी — नीचे बैठती है)।' : 'Move higher (gas is heavy — settles low).'}</li>
+              <li>→ {hi ? 'कॉन्टैक्ट लेंस तुरंत निकालें।' : 'Remove contact lenses immediately.'}</li>
+            </ul>
+          </div>
+          <div>
+            <strong>{hi ? 'लाठी:' : 'Lathi charge:'}</strong>
+            <ul className="mt-1 space-y-1">
+              <li>→ {hi ? 'सिर और पेट बचाएँ — हाथ ऊपर, झुक जाएँ।' : 'Protect head and abdomen — arms up, crouch.'}</li>
+              <li>→ {hi ? 'भगदड़ से बचें — किनारे की ओर।' : 'Avoid stampede — move toward edges.'}</li>
+              <li>→ {hi ? 'चोट → टाइमस्टैम्प फोटो → अस्पताल → MLC बनवाएँ।' : 'Injury → timestamped photo → hospital → get MLC.'}</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+
+      {/* EVIDENCE */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '📸 सबूत सुरक्षित करें' : '📸 Secure Evidence'}</summary>
+        <div className="mt-4 space-y-2 text-sm">
+          <p>→ {hi ? 'वीडियो/फोटो में समय दिखाएँ (घड़ी, लैंडमार्क)।' : 'Show time in video/photo (clock, landmarks).'}</p>
+          <p>→ {hi ? 'तुरंत क्लाउड बैकअप (Google Drive, iCloud, ProtonDrive)।' : 'Immediately cloud backup (Google Drive, iCloud, ProtonDrive).'}</p>
+          <p>→ {hi ? 'ओरिजिनल कभी एडिट/क्रॉप न करें।' : 'Never edit/crop originals.'}</p>
+          <p>→ {hi ? 'बैज नंबर, वाहन नंबर लिखें।' : 'Write down badge numbers, vehicle numbers.'}</p>
+          <p>→ {hi ? 'गवाह संपर्क लें (सहमति से)।' : 'Get witness contacts (with consent).'}</p>
+          <p>→ {hi ? 'जल्द से जल्द टाइमलाइन लिखें — याददाश्त जल्दी धुंधली होती है।' : 'Write timeline ASAP — memory fades quickly.'}</p>
+        </div>
+      </details>
+
+      {/* AFTER INCIDENT */}
+      <details className="brutal-card mb-4">
+        <summary className="heading-3 cursor-pointer">{hi ? '🏥 घटना के बाद' : '🏥 After an Incident'}</summary>
+        <div className="mt-4 text-sm">
+          <ol className="list-decimal list-inside space-y-2">
+            <li>{hi ? 'सुरक्षित जगह जाएँ।' : 'Get to a safe location.'}</li>
+            <li>{hi ? 'चोट → अस्पताल → MLC (मेडिको-लीगल सर्टिफिकेट) बनवाएँ।' : 'Injury → hospital → get MLC (medico-legal certificate).'}</li>
+            <li>{hi ? 'घटना की टाइमलाइन लिखें (जल्द)।' : 'Write event timeline (soon).'}</li>
+            <li>{hi ? 'सबूत क्लाउड पर बैकअप करें।' : 'Backup evidence to cloud.'}</li>
+            <li>{hi ? 'वकील से बात करें (DSLSA: 1516 — मुफ्त)।' : 'Talk to lawyer (DSLSA: 1516 — free).'}</li>
+            <li>{hi ? 'NHRC शिकायत दर्ज करें (nhrc.nic.in)।' : 'File NHRC complaint (nhrc.nic.in).'}</li>
+            <li>{hi ? 'FIR दर्ज करें (Sahayata FIR असिस्टेंट उपयोग करें)।' : 'File FIR (use Sahayata FIR Assistant).'}</li>
+            <li>{hi ? 'मानसिक स्वास्थ्य: iCall 9152987821 या Vandrevala 9999666555।' : 'Mental health: iCall 9152987821 or Vandrevala 9999666555.'}</li>
+          </ol>
+        </div>
+      </details>
+
+      {/* DISCLAIMER */}
+      <div className="brutal-banner text-xs mt-8">
+        {hi ? '⚠️ यह सामान्य कानूनी जानकारी है, कानूनी सलाह नहीं। अपनी विशिष्ट स्थिति के लिए योग्य वकील से संपर्क करें। स्रोत: भारतीय संविधान, BNSS 2023, Nyaaya.org, Indian Express।' : '⚠️ This is general legal information, not legal advice. Contact a qualified lawyer for your specific situation. Sources: Indian Constitution, BNSS 2023, Nyaaya.org, Indian Express.'}
+      </div>
+
+      {/* CTAs */}
+      <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <Link href="/resources" className="brutal-btn brutal-btn-primary brutal-btn-lg text-center">{hi ? 'सभी संसाधन →' : 'ALL RESOURCES →'}</Link>
+        <Link href="/fir" className="brutal-btn brutal-btn-lg text-center">{hi ? 'FIR असिस्टेंट →' : 'FIR ASSISTANT →'}</Link>
+        <Link href="/rti" className="brutal-btn brutal-btn-lg text-center">{hi ? 'RTI जनरेटर →' : 'RTI GENERATOR →'}</Link>
       </div>
     </div>
   );

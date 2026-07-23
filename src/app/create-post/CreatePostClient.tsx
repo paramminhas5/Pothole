@@ -1,177 +1,40 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Locale, Category, PostType, Urgency } from '@/types';
 import { CITIES_AREAS, CATEGORIES, MAX_DESCRIPTION_LENGTH } from '@/lib/constants';
-import { t } from '@/i18n';
-import EmailVerification from '@/components/EmailVerification';
+import ProofOfWork from '@/components/ProofOfWork';
 
-interface CreatePostClientProps {
-  locale: Locale;
-}
+interface Props { locale: Locale }
+type Status = 'idle' | 'loading' | 'success' | 'error' | 'rate-limited' | 'pii-blocked';
 
-export default function CreatePostClient({ locale }: CreatePostClientProps) {
-  const [verified, setVerified] = useState(false);
-  const [postType, setPostType] = useState<PostType>('need');
-  const [category, setCategory] = useState<Category | ''>('');
-  const [city, setCity] = useState('');
-  const [area, setArea] = useState('');
-  const [urgency, setUrgency] = useState<Urgency>('routine');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'rate-limited' | 'pii-blocked'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+export default function CreatePostClient({ locale }: Props) {
+  const [powSolved, setPowSolved] = useState(false); const [challenge, setChallenge] = useState(''); const [nonce, setNonce] = useState(0); const [powAttempt, setPowAttempt] = useState(0);
+  const [type, setType] = useState<PostType>('need'); const [category, setCategory] = useState<Category | ''>(''); const [city, setCity] = useState(''); const [area, setArea] = useState(''); const [urgency, setUrgency] = useState<Urgency>('routine'); const [description, setDescription] = useState(''); const [confirmed, setConfirmed] = useState(false); const [status, setStatus] = useState<Status>('idle'); const [error, setError] = useState('');
+  const hi = locale === 'hi'; const areas = CITIES_AREAS.find((item) => item.city === city)?.areas || [];
+  const onSolved = useCallback((value: string, number: number) => { setChallenge(value); setNonce(number); setPowSolved(true); }, []);
+  function resetProofOfWork() { setPowSolved(false); setChallenge(''); setNonce(0); setPowAttempt((value) => value + 1); }
 
-  const isHindi = locale === 'hi';
-  const availableAreas = CITIES_AREAS.find((c) => c.city === city)?.areas || [];
-
-  const handleVerified = useCallback(() => {
-    setVerified(true);
-  }, []);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!category || !city || !area || !description.trim()) return;
-
-    setStatus('loading');
-    setErrorMessage('');
+  async function submit(event: React.FormEvent) {
+    event.preventDefault(); if (!category || !city || !area || !description.trim() || !confirmed || status === 'loading') return; setStatus('loading'); setError('');
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: postType, category, city, area, urgency, description: description.trim() }),
-      });
-      if (res.status === 429) { setStatus('rate-limited'); return; }
-      if (res.status === 422) {
-        const data = await res.json();
-        setErrorMessage(data.error || '');
-        setStatus('pii-blocked');
-        return;
-      }
-      if (res.ok) { setStatus('success'); } else { setStatus('error'); }
-    } catch { setStatus('error'); }
+      const response = await fetch('/api/posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, category, city, area, urgency, description: description.trim(), pow_challenge: challenge, pow_nonce: nonce }) });
+      if (response.status === 429) { resetProofOfWork(); return setStatus('rate-limited'); }
+      if (response.status === 422) { const data = await response.json(); setError(data.error || ''); return setStatus('pii-blocked'); }
+      if (!response.ok) throw new Error('failed'); setStatus('success');
+    } catch { resetProofOfWork(); setStatus('error'); }
   }
 
-  if (status === 'success') {
-    return (
-      <div className="brutal-card !border-[var(--color-lime)] !shadow-[5px_5px_0px_var(--color-lime)] text-center animate-slide-in">
-        <div className="text-4xl mb-4">✓</div>
-        <p className="heading-3 mb-2">{t(locale, 'createPost.success') as string}</p>
-        <a href="/board" className="brutal-btn brutal-btn-primary brutal-btn-sm mt-4">
-          {isHindi ? 'बोर्ड देखें' : 'VIEW BOARD'} →
-        </a>
-      </div>
-    );
-  }
+  if (status === 'success') return <section className="success-state" role="status"><p className="success-mark" aria-hidden="true">✓</p><h2>{hi ? 'पोस्ट समीक्षा के लिए भेजी गई' : 'Post sent for review'}</h2><p>{hi ? 'यह अभी सार्वजनिक नहीं है। मॉडरेटर के स्वीकृत करने के बाद यह बोर्ड पर दिखेगी।' : 'It is not public yet. It will appear on the board if a moderator approves it.'}</p><a href="/my-posts" className="brutal-btn brutal-btn-primary">{hi ? 'मेरी पोस्ट देखें' : 'View my posts'}</a></section>;
 
-  return (
-    <EmailVerification locale={locale} onVerified={handleVerified}>
-      {verified && (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Post Type — big toggle */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-3">{t(locale, 'createPost.typeLabel') as string}</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setPostType('need')}
-                className={`brutal-btn brutal-btn-lg text-left ${postType === 'need' ? 'brutal-btn-danger' : ''}`}
-              >
-                <span className="text-xl mr-2">🆘</span>
-                {t(locale, 'createPost.typeNeed') as string}
-              </button>
-              <button
-                type="button"
-                onClick={() => setPostType('offer')}
-                className={`brutal-btn brutal-btn-lg text-left ${postType === 'offer' ? 'brutal-btn-success' : ''}`}
-              >
-                <span className="text-xl mr-2">🤝</span>
-                {t(locale, 'createPost.typeOffer') as string}
-              </button>
-            </div>
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'createPost.categoryLabel') as string}</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value as Category)} required className="brutal-select">
-              <option value="">{t(locale, 'common.allCategories') as string}</option>
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{locale === 'hi' ? c.labelHi : c.labelEn}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* City + Area */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'createPost.cityLabel') as string}</label>
-              <select value={city} onChange={(e) => { setCity(e.target.value); setArea(''); }} required className="brutal-select">
-                <option value="">{t(locale, 'common.allCities') as string}</option>
-                {CITIES_AREAS.map((c) => (
-                  <option key={c.city} value={c.city}>{c.city}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'createPost.areaLabel') as string}</label>
-              <select value={area} onChange={(e) => setArea(e.target.value)} required disabled={!city} className="brutal-select">
-                <option value="">{t(locale, 'common.allAreas') as string}</option>
-                {availableAreas.map((a) => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Urgency */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-3">{t(locale, 'createPost.urgencyLabel') as string}</label>
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setUrgency('routine')} className={`brutal-btn brutal-btn-sm flex-1 ${urgency === 'routine' ? 'brutal-btn-dark' : ''}`}>
-                {t(locale, 'createPost.urgencyRoutine') as string}
-              </button>
-              <button type="button" onClick={() => setUrgency('urgent')} className={`brutal-btn brutal-btn-sm flex-1 ${urgency === 'urgent' ? 'brutal-btn-danger' : ''}`}>
-                ⚡ {t(locale, 'createPost.urgencyUrgent') as string}
-              </button>
-            </div>
-            <p className="text-xs text-[var(--color-text-muted)] mt-2 font-medium">{t(locale, 'createPost.urgencyHelp') as string}</p>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2">{t(locale, 'createPost.descriptionLabel') as string}</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value.slice(0, MAX_DESCRIPTION_LENGTH))}
-              placeholder={t(locale, 'createPost.descriptionPlaceholder') as string}
-              maxLength={MAX_DESCRIPTION_LENGTH}
-              required
-              rows={4}
-              className="brutal-textarea"
-            />
-            <p className="text-xs text-[var(--color-text-muted)] text-right mt-1 font-mono">
-              {description.length}/{MAX_DESCRIPTION_LENGTH}
-            </p>
-          </div>
-
-          {/* Submit */}
-          <button type="submit" disabled={status === 'loading'} className="brutal-btn brutal-btn-primary brutal-btn-lg w-full">
-            {status === 'loading' ? (t(locale, 'common.loading') as string) : (t(locale, 'common.submit') as string)}
-          </button>
-
-          {status === 'error' && <div className="brutal-badge brutal-badge-red">{t(locale, 'createPost.error') as string}</div>}
-          {status === 'rate-limited' && <div className="brutal-badge brutal-badge-yellow">{t(locale, 'createPost.rateLimited') as string}</div>}
-          {status === 'pii-blocked' && (
-            <div className="brutal-card-flat !border-[var(--color-red)] !p-4">
-              <p className="text-sm text-[var(--color-red)] font-bold">
-                {errorMessage || (isHindi
-                  ? 'आपकी पोस्ट में व्यक्तिगत जानकारी है। कृपया फ़ोन नंबर, आधार या ID नंबर हटाएं।'
-                  : 'Your post contains personal information. Please remove phone numbers, Aadhaar, or ID numbers.')}
-              </p>
-            </div>
-          )}
-        </form>
-      )}
-    </EmailVerification>
-  );
+  return <ProofOfWork key={powAttempt} locale={locale} onSolved={onSolved}>{powSolved && <form onSubmit={submit} className="civic-form">
+    <fieldset><legend>{hi ? '1. आप क्या करना चाहते हैं?' : '1. What do you want to do?'}</legend><div className="radio-card-grid"><label className={`radio-card ${type === 'need' ? 'selected' : ''}`}><input type="radio" name="type" checked={type === 'need'} onChange={() => setType('need')} /><span><strong>{hi ? 'मदद पाएँ' : 'Get help'}</strong><small>{hi ? 'मुझे किसी चीज़ की जरूरत है' : 'I need something'}</small></span></label><label className={`radio-card ${type === 'offer' ? 'selected' : ''}`}><input type="radio" name="type" checked={type === 'offer'} onChange={() => setType('offer')} /><span><strong>{hi ? 'मदद दें' : 'Offer help'}</strong><small>{hi ? 'मैं कुछ दे या कर सकता/सकती हूँ' : 'I can give or do something'}</small></span></label></div></fieldset>
+    <fieldset><legend>{hi ? '2. किस तरह की मदद?' : '2. What kind of help?'}</legend><label htmlFor="post-category" className="field-label">{hi ? 'श्रेणी' : 'Category'}</label><select id="post-category" value={category} onChange={(event) => setCategory(event.target.value as Category)} required className="brutal-select"><option value="">{hi ? 'एक चुनें' : 'Choose one'}</option>{CATEGORIES.map((item) => <option key={item.value} value={item.value}>{hi ? item.labelHi : item.labelEn}</option>)}</select></fieldset>
+    <fieldset><legend>{hi ? '3. कौन सा सामान्य स्थान?' : '3. What general location?'}</legend><p className="field-help">{hi ? 'सटीक पता न दें।' : 'Do not give an exact address.'}</p><div className="filter-grid"><label><span>{hi ? 'शहर' : 'City'}</span><select value={city} onChange={(event) => { setCity(event.target.value); setArea(''); }} required className="brutal-select"><option value="">{hi ? 'शहर चुनें' : 'Choose city'}</option>{CITIES_AREAS.map((item) => <option key={item.city}>{item.city}</option>)}</select></label><label><span>{hi ? 'क्षेत्र' : 'Area'}</span><select value={area} onChange={(event) => setArea(event.target.value)} required disabled={!city} className="brutal-select"><option value="">{hi ? 'क्षेत्र चुनें' : 'Choose area'}</option>{areas.map((item) => <option key={item}>{item}</option>)}</select></label></div></fieldset>
+    <fieldset><legend>{hi ? '4. इसमें कितनी जल्दी है?' : '4. How soon is it needed?'}</legend><div className="radio-card-grid"><label className={`radio-card ${urgency === 'routine' ? 'selected' : ''}`}><input type="radio" name="urgency" checked={urgency === 'routine'} onChange={() => setUrgency('routine')} /><span><strong>{hi ? 'सामान्य' : 'Not immediate'}</strong><small>{hi ? 'कुछ समय इंतज़ार हो सकता है' : 'It can wait a while'}</small></span></label><label className={`radio-card ${urgency === 'urgent' ? 'selected' : ''}`}><input type="radio" name="urgency" checked={urgency === 'urgent'} onChange={() => setUrgency('urgent')} /><span><strong>{hi ? 'समय-संवेदनशील' : 'Time-sensitive'}</strong><small>{hi ? 'जल्द मदद चाहिए, पर यह आपातकाल नहीं है' : 'Help is needed soon, but this is not an emergency'}</small></span></label></div>{urgency === 'urgent' && <div className="warning-panel"><strong>{hi ? 'तुरंत खतरा है?' : 'In immediate danger?'}</strong><p>{hi ? 'यह साइट आपातकालीन सेवा नहीं है। स्थानीय आपातकालीन सेवा या भरोसेमंद वयस्क से अभी संपर्क करें।' : 'This site is not an emergency service. Contact local emergency services or a trusted adult now.'}</p></div>}</fieldset>
+    <fieldset><legend>{hi ? '5. छोटी जानकारी दें' : '5. Add a short description'}</legend><label htmlFor="post-description" className="field-label">{hi ? 'क्या चाहिए या क्या दे सकते हैं?' : 'What do you need or offer?'}</label><textarea id="post-description" value={description} onChange={(event) => setDescription(event.target.value.slice(0, MAX_DESCRIPTION_LENGTH))} maxLength={MAX_DESCRIPTION_LENGTH} required rows={5} className="brutal-textarea" placeholder={hi ? 'उदाहरण: इस क्षेत्र में आज रात दो लोगों के लिए भोजन चाहिए।' : 'Example: Need dinner for two people in this area tonight.'} /><div className="field-footer"><span>{hi ? 'नाम, फोन, पहचान संख्या या सटीक पता न लिखें।' : 'No names, phone numbers, ID numbers, or exact addresses.'}</span><span>{description.length}/{MAX_DESCRIPTION_LENGTH}</span></div></fieldset>
+    <section className="review-panel" aria-labelledby="review-title"><h2 id="review-title">{hi ? 'भेजने से पहले जाँचें' : 'Check before sending'}</h2><ul className="plain-list"><li>{hi ? 'स्वीकृति के बाद विवरण, शहर और क्षेत्र सार्वजनिक होंगे।' : 'After approval, the description, city, and area will be public.'}</li><li>{hi ? 'जवाब देने वाले की पहचान सत्यापित नहीं है।' : 'Responders are not identity-verified.'}</li><li>{hi ? 'पोस्ट 72 घंटे बाद बोर्ड पर दिखना बंद कर देगी।' : 'The post stops showing on the board after 72 hours.'}</li></ul><label className="check-row"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} required /><span>{hi ? 'मैंने निजी जानकारी हटा दी है। मैं 18+ हूँ या भरोसेमंद वयस्क के साथ यह पोस्ट बना रहा/रही हूँ।' : 'I removed private details. I am 18+ or I am making this post with a trusted adult.'}</span></label></section>
+    {status === 'error' && <p className="error-message" role="alert">{hi ? 'पोस्ट नहीं भेजी गई। अपना कनेक्शन देखें और फिर कोशिश करें।' : 'The post was not sent. Check your connection and try again.'}</p>}{status === 'rate-limited' && <p className="error-message" role="alert">{hi ? 'अभी और पोस्ट नहीं भेज सकते। कुछ समय बाद फिर कोशिश करें।' : 'You cannot send another post yet. Wait and try again later.'}</p>}{status === 'pii-blocked' && <div className="error-message" role="alert"><strong>{hi ? 'निजी जानकारी हटाएँ।' : 'Remove private information.'}</strong><p>{error || (hi ? 'फोन, पहचान संख्या, पूरा नाम या सटीक पता हटाएँ।' : 'Remove phone numbers, ID numbers, full names, or exact addresses.')}</p></div>}
+    <button type="submit" disabled={status === 'loading' || !confirmed} className="brutal-btn brutal-btn-primary brutal-btn-lg form-primary-action">{status === 'loading' ? (hi ? 'समीक्षा के लिए भेज रहे हैं…' : 'Sending for review…') : (hi ? 'समीक्षा के लिए भेजें' : 'Send for review')}</button>
+  </form>}</ProofOfWork>;
 }

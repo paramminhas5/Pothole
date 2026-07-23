@@ -1,47 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { enforceRateLimits } from '@/lib/rate-limit';
+import { getOrCreateRequestSession, setSessionCookie } from '@/lib/session';
+import { getServiceSupabaseClient } from '@/lib/supabase-server';
+import { cleanString, isUuid, parseJsonObject } from '@/lib/validation';
 
-// POST /api/reports — report a chapter or post
 export async function POST(request: NextRequest) {
+  const body = await parseJsonObject(request, 3_000);
+  const targetType = body?.target_type;
+  const targetId = body?.target_id;
+  const reason = body ? cleanString(body.reason, 500) : null;
+  if ((targetType !== 'chapter' && targetType !== 'post') || !isUuid(targetId) || !reason) {
+    return NextResponse.json({ error: 'Invalid report data' }, { status: 400 });
+  }
+
   try {
-    const body = await request.json();
-    const { target_type, target_id, reason } = body;
-
-    if (!target_type || !target_id || !reason?.trim()) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const session = getOrCreateRequestSession(request);
+    if (!await enforceRateLimits(request, session.id, 'report', 10, 86_400)) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
     }
 
-    if (!['chapter', 'post'].includes(target_type)) {
-      return NextResponse.json({ error: 'Invalid target type' }, { status: 400 });
-    }
+    const service = getServiceSupabaseClient();
+    const table = targetType === 'post' ? 'posts' : 'chapters';
+    const { data: target, error: targetError } = await service
+      .from(table)
+      .select('id')
+      .eq('id', targetId)
+      .eq('status', 'approved')
+      .maybeSingle();
+    if (targetError) return NextResponse.json({ error: 'Failed to submit report' }, { status: 500 });
+    if (!target) return NextResponse.json({ error: 'Target not found' }, { status: 404 });
 
-    const sessionId = request.cookies.get('session_id')?.value || 'anonymous';
-
-    const { error } = await supabase.from('reports').insert({
-      target_type,
-      target_id,
-      reason: reason.trim().slice(0, 500),
-      session_id: sessionId,
+    const { error } = await service.from('reports').insert({
+      target_type: targetType,
+      target_id: targetId,
+      reason,
+      session_id: session.id,
     });
-
-    if (error) {
-      return NextResponse.json({ error: 'Failed to submit report' }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Failed to submit report' }, { status: 500 });
+    if (targetType === 'post') {
+      await service.rpc('increment_post_report_count', { p_post_id: targetId });
     }
 
-    // Increment reported_count on posts (best-effort)
-    if (target_type === 'post') {
-      try {
-        await supabase
-          .from('posts')
-          .update({ reported_count: 1 })
-          .eq('id', target_id);
-      } catch {
-        // Best-effort operation
-      }
-    }
-
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true }, { status: 201 });
+    if (session.isNew) setSessionCookie(response, session.token);
+    return response;
   } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    return NextResponse.json({ error: 'Report service unavailable' }, { status: 503 });
   }
 }

@@ -3,7 +3,8 @@
 
 const PHONE_PATTERNS = [
   /\b\d{10}\b/g,                    // 10-digit phone numbers
-  /\b\+91[\s-]?\d{10}\b/g,         // +91 prefix
+  /\+91[\s-]?\d{10}/g,             // +91 prefix (no \b before +)
+  /\b91[\s-]?\d{10}\b/g,           // 91 prefix without +
   /\b\d{3}[\s-]\d{3}[\s-]\d{4}\b/g, // XXX-XXX-XXXX
   /\b\d{4}[\s-]\d{3}[\s-]\d{3}\b/g, // XXXX-XXX-XXX
   /\b\d{5}[\s-]\d{5}\b/g,          // XXXXX-XXXXX
@@ -63,13 +64,20 @@ export function detectPII(text: string): PIIDetectionResult {
 // Quick check used in API validation before DB insert
 export function hasBlockingPII(text: string): boolean {
   // Block phone numbers and Aadhaar only — these are dangerous
-  for (const pattern of PHONE_PATTERNS) {
+  // Note: we create fresh regex instances to avoid lastIndex state issues with /g flag
+  const phonePatterns = [
+    /\b\d{10}\b/,
+    /\+91[\s-]?\d{10}/,
+    /\b91[\s-]?\d{10}\b/,
+    /\b\d{3}[\s-]\d{3}[\s-]\d{4}\b/,
+    /\b\d{4}[\s-]\d{3}[\s-]\d{3}\b/,
+    /\b\d{5}[\s-]\d{5}\b/,
+  ];
+
+  for (const pattern of phonePatterns) {
     if (pattern.test(text)) return true;
-    pattern.lastIndex = 0; // Reset regex state
   }
-  if (AADHAAR_PATTERN.test(text)) return true;
-  AADHAAR_PATTERN.lastIndex = 0;
-  if (PAN_PATTERN.test(text)) return true;
-  PAN_PATTERN.lastIndex = 0;
+  if (/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/.test(text)) return true; // Aadhaar
+  if (/\b[A-Z]{5}\d{4}[A-Z]\b/.test(text)) return true; // PAN
   return false;
 }

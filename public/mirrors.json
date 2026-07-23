@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "primary": "https://sahayata.vercel.app",
+  "urls": [
+    "https://sahayata.vercel.app",
+    "https://sahayata.netlify.app",
+    "https://sahayata.pages.dev"
+  ],
+  "ipfs": {
+    "note": "Pin the static export to IPFS for permanent, censorship-resistant access",
+    "gateway": "https://dweb.link/ipfs/",
+    "cid": null
+  },
+  "lastUpdated": "2026-07-22T00:00:00Z"
+}

@@ -1,71 +1,56 @@
+import Link from 'next/link';
 import { Locale } from '@/types';
 
-interface FooterProps {
-  locale: Locale;
-}
+interface FooterProps { locale: Locale }
 
 export default function Footer({ locale }: FooterProps) {
-  const isHindi = locale === 'hi';
-
+  const hi = locale === 'hi';
   return (
-    <footer className="border-t-[3px] border-[var(--color-border)] bg-[var(--color-card)] mt-auto">
-      {/* Marquee-style banner */}
-      <div className="brutal-banner text-center">
-        {isHindi
-          ? 'कोई ट्रैकिंग नहीं · कोई विज्ञापन नहीं · न्यूनतम डेटा · पोस्ट 72 घंटों में समाप्त · ओपन सोर्स'
-          : 'NO TRACKING · NO ADS · MINIMUM DATA · POSTS EXPIRE IN 72H · OPEN SOURCE'}
+    <footer className="site-footer">
+      <div className="page-shell footer-grid">
+        <div>
+          <p className="footer-title">{hi ? 'सहायता' : 'Sahayata'}</p>
+          <p className="footer-copy">{hi ? 'नागरिक समन्वय बुनियादी ढाँचा। गोपनीय। ऑफलाइन-सक्षम। सेंसरशिप-प्रतिरोधी।' : 'Civic coordination infrastructure. Private. Offline-capable. Censorship-resistant.'}</p>
+        </div>
+        <nav aria-label={hi ? 'कार्रवाई' : 'Act'} className="footer-links">
+          <strong>{hi ? 'कार्रवाई' : 'Act'}</strong>
+          <Link href="/create-post">{hi ? 'मदद पाएँ/दें' : 'Get/Give Help'}</Link>
+          <Link href="/board">{hi ? 'लाइव बोर्ड' : 'Live Board'}</Link>
+          <Link href="/rti">{hi ? 'RTI जनरेटर' : 'RTI Generator'}</Link>
+          <Link href="/fir">{hi ? 'FIR असिस्टेंट' : 'FIR Assistant'}</Link>
+          <Link href="/demands">{hi ? 'डिमांड ट्रैकर' : 'Demand Tracker'}</Link>
+          <Link href="/vault">{hi ? 'एविडेंस वॉल्ट' : 'Evidence Vault'}</Link>
+        </nav>
+        <nav aria-label={hi ? 'संगठन' : 'Organize'} className="footer-links">
+          <strong>{hi ? 'संगठन' : 'Organize'}</strong>
+          <Link href="/groups">{hi ? 'एन्क्रिप्टेड ग्रुप' : 'Encrypted Groups'}</Link>
+          <Link href="/organize">{hi ? 'संगठन गाइड' : 'How to Organize'}</Link>
+          <Link href="/communication">{hi ? 'सुरक्षित संचार' : 'Secure Comms'}</Link>
+          <Link href="/directory">{hi ? 'डायरेक्टरी' : 'Directory'}</Link>
+        </nav>
+        <nav aria-label={hi ? 'सीखें' : 'Learn'} className="footer-links">
+          <strong>{hi ? 'सीखें' : 'Learn'}</strong>
+          <Link href="/safety">{hi ? 'अधिकार गाइड' : 'Know Your Rights'}</Link>
+          <Link href="/resources">{hi ? 'हेल्पलाइन' : 'Helplines'}</Link>
+          <Link href="/playbook">{hi ? 'प्लेबुक' : 'Playbook'}</Link>
+          <Link href="/toolkit">{hi ? 'टेम्पलेट' : 'Templates'}</Link>
+          <Link href="/manifesto">{hi ? 'घोषणापत्र' : 'Manifesto'}</Link>
+        </nav>
+        <div className="footer-emergency">
+          <strong>{hi ? 'आपातकालीन' : 'Emergency'}</strong>
+          <p>112 — {hi ? 'एकीकृत' : 'Unified'}</p>
+          <p>181 — {hi ? 'महिला' : 'Women'}</p>
+          <p>1098 — {hi ? 'बच्चे' : 'Children'}</p>
+          <p>1930 — {hi ? 'साइबर' : 'Cyber'}</p>
+        </div>
       </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-[var(--color-accent)] border-[2.5px] border-[var(--color-border)] flex items-center justify-center">
-                <span className="text-white font-black text-xs">S</span>
-              </div>
-              <span className="font-black text-lg">{isHindi ? 'सहायता' : 'SAHAYATA'}</span>
-            </div>
-            <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-              {isHindi
-                ? 'नागरिक परस्पर-सहायता बुनियादी ढांचा। कोई राजनीतिक दल नहीं। किसी से संबद्ध नहीं। किसी का प्रमोशन नहीं।'
-                : 'Civic mutual-aid infrastructure. Not a political party. Not affiliated with anyone. Not promoting anyone.'}
-            </p>
-          </div>
-
-          {/* Links */}
-          <div>
-            <h4 className="font-bold text-xs uppercase tracking-wider mb-3">
-              {isHindi ? 'लिंक' : 'LINKS'}
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="/directory" className="hover:text-[var(--color-accent)] transition-colors">{isHindi ? 'निर्देशिका' : 'Directory'}</a></li>
-              <li><a href="/board" className="hover:text-[var(--color-accent)] transition-colors">{isHindi ? 'ज़रूरतें और प्रस्ताव' : 'Needs & Offers'}</a></li>
-              <li><a href="/safety" className="hover:text-[var(--color-accent)] transition-colors">{isHindi ? 'अपने अधिकार जानें' : 'Know Your Rights'}</a></li>
-              <li><a href="/submit-chapter" className="hover:text-[var(--color-accent)] transition-colors">{isHindi ? 'समूह पंजीकृत करें' : 'Register a Group'}</a></li>
-            </ul>
-          </div>
-
-          {/* Principles */}
-          <div>
-            <h4 className="font-bold text-xs uppercase tracking-wider mb-3">
-              {isHindi ? 'सिद्धांत' : 'PRINCIPLES'}
-            </h4>
-            <ul className="space-y-2 text-sm text-[var(--color-text-muted)]">
-              <li>→ {isHindi ? 'गोपनीयता डिज़ाइन द्वारा' : 'Privacy by design'}</li>
-              <li>→ {isHindi ? 'अतिरेक से लचीलापन' : 'Resilience through redundancy'}</li>
-              <li>→ {isHindi ? 'खराब फ़ोन पर काम करे' : 'Works on a bad phone'}</li>
-              <li>→ {isHindi ? 'विश्वास ही उत्पाद है' : 'Trust is the product'}</li>
-            </ul>
-          </div>
+      <div className="page-shell footer-bottom">
+        <div className="footer-bottom-links">
+          <Link href="/guide">{hi ? 'उपयोग गाइड' : 'How to Use'}</Link>
+          <Link href="/alerts">{hi ? 'सूचना सत्यापन' : 'Info Verification'}</Link>
+          <Link href="/my-posts">{hi ? 'मेरी पोस्ट' : 'My Posts'}</Link>
         </div>
-
-        <hr className="brutal-divider" />
-
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-[var(--color-text-muted)]">
-          <span>{isHindi ? 'जनता द्वारा, जनता के लिए बनाया गया' : 'Built by the people, for the people.'}</span>
-          <span>{isHindi ? 'यह प्लेटफ़ॉर्म बचाव बुनियादी ढांचा है' : 'This platform is rescue infrastructure.'}</span>
-        </div>
+        <p className="footer-note">{hi ? 'सटीक पता, पहचान संख्या या निजी जानकारी पोस्ट न करें। 18 वर्ष से कम हैं तो भरोसेमंद वयस्क के साथ इस्तेमाल करें। यह आपातकालीन सेवा नहीं है।' : 'Do not post exact addresses, ID numbers, or private details. If under 18, use with a trusted adult. This is not an emergency service.'}</p>
       </div>
     </footer>
   );

@@ -4,123 +4,76 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Locale } from '@/types';
 
-interface NavbarProps {
-  locale: Locale;
-}
+interface NavbarProps { locale: Locale }
 
 export default function Navbar({ locale }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const hi = locale === 'hi';
 
-  const isHindi = locale === 'hi';
-  const labels = isHindi
-    ? { home: 'होम', directory: 'निर्देशिका', board: 'ज़रूरतें और प्रस्ताव', register: 'समूह जोड़ें', post: 'पोस्ट करें', myPosts: 'मेरी पोस्ट', safety: 'अपने अधिकार जानें', lang: 'EN' }
-    : { home: 'Home', directory: 'Directory', board: 'Needs & Offers', register: 'Add Group', post: 'Post', myPosts: 'My Posts', safety: 'Know Your Rights', lang: 'हि' };
-
-  const toggleLocale = () => {
-    const newLocale = isHindi ? 'en' : 'hi';
-    document.cookie = `locale=${newLocale};path=/;max-age=31536000`;
+  function toggleLocale() {
+    document.cookie = `locale=${hi ? 'en' : 'hi'};path=/;max-age=31536000;samesite=lax`;
     window.location.reload();
-  };
+  }
 
   return (
-    <nav className="border-b-[3px] border-[var(--color-border)] bg-[var(--color-card)] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo — bold, distinctive */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 bg-[var(--color-accent)] border-[2.5px] border-[var(--color-border)] flex items-center justify-center shadow-[3px_3px_0px_#0F0F0F] dark:shadow-[3px_3px_0px_#FAFAFA] group-hover:translate-x-[-1px] group-hover:translate-y-[-1px] transition-transform">
-              <span className="text-white font-black text-sm">S</span>
-            </div>
-            <span className="font-black text-xl tracking-tight hidden sm:block">
-              {isHindi ? 'सहायता' : 'SAHAYATA'}
-            </span>
-          </Link>
+    <header className="site-header">
+      <nav className="page-shell nav-shell" aria-label={hi ? 'मुख्य' : 'Main'}>
+        <Link href="/" className="brand-link">
+          <span className="brand-mark" aria-hidden="true">S</span>
+          <span className="brand-name">{hi ? 'सहायता' : 'SAHAYATA'}</span>
+        </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden lg:flex items-center gap-1">
-            <Link href="/directory" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
-              {labels.directory}
-            </Link>
-            <Link href="/board" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
-              {labels.board}
-            </Link>
-            <Link href="/safety" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
-              {labels.safety}
-            </Link>
-            <Link href="/my-posts" className="px-3 py-2 text-[13px] font-bold uppercase tracking-wide hover:bg-[var(--color-accent)] hover:text-white transition-colors">
-              {labels.myPosts}
-            </Link>
-            <div className="w-[2.5px] h-6 bg-[var(--color-border)] mx-2" />
-            <Link
-              href="/create-post"
-              className="brutal-btn brutal-btn-primary brutal-btn-sm"
-            >
-              + {labels.post}
-            </Link>
-            <button
-              onClick={toggleLocale}
-              className="ml-2 w-9 h-9 border-[2.5px] border-[var(--color-border)] font-black text-xs flex items-center justify-center hover:bg-[var(--color-border)] hover:text-[var(--color-bg)] transition-colors"
-              aria-label="Switch language"
-            >
-              {labels.lang}
-            </button>
-          </div>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden w-10 h-10 border-[2.5px] border-[var(--color-border)] flex items-center justify-center hover:bg-[var(--color-border)] hover:text-[var(--color-bg)] transition-colors"
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-              {menuOpen ? (
-                <path strokeLinecap="square" d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="square" d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+        {/* Desktop: 4 links + language + more */}
+        <div className="desktop-nav">
+          <Link href="/create-post" className="nav-link nav-link-primary">{hi ? 'मदद' : 'Help'}</Link>
+          <Link href="/board" className="nav-link">{hi ? 'बोर्ड' : 'Board'}</Link>
+          <Link href="/groups" className="nav-link">{hi ? 'ग्रुप' : 'Groups'}</Link>
+          <Link href="/act" className="nav-link">{hi ? 'कार्रवाई' : 'Act'}</Link>
+          <button type="button" onClick={toggleLocale} className="language-button">{hi ? 'EN' : 'हि'}</button>
+          <button type="button" onClick={() => setMenuOpen((o) => !o)} className="menu-button" aria-expanded={menuOpen}>☰</button>
         </div>
 
-        {/* Mobile nav — full width, stacked */}
+        {/* Mobile trigger */}
+        <button type="button" onClick={() => setMenuOpen((o) => !o)} className="mobile-menu-button" aria-label="Menu" aria-expanded={menuOpen}>
+          <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
+        </button>
+
+        {/* Full menu */}
         {menuOpen && (
-          <div className="lg:hidden border-t-[2.5px] border-[var(--color-border)] pb-4 animate-slide-in">
-            <div className="flex flex-col gap-0 mt-2">
-              <Link href="/directory" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
-                {labels.directory}
-              </Link>
-              <Link href="/board" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
-                {labels.board}
-              </Link>
-              <Link href="/safety" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
-                {labels.safety}
-              </Link>
-              <Link href="/my-posts" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
-                {labels.myPosts}
-              </Link>
-              <Link href="/submit-chapter" className="py-3 px-2 text-sm font-bold uppercase tracking-wide border-b border-[var(--color-border-light)] hover:bg-[var(--color-accent)] hover:text-white transition-colors" onClick={() => setMenuOpen(false)}>
-                {labels.register}
-              </Link>
-              <div className="flex gap-2 mt-3">
-                <Link
-                  href="/create-post"
-                  className="brutal-btn brutal-btn-primary brutal-btn-sm flex-1"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  + {labels.post}
-                </Link>
-                <button
-                  onClick={toggleLocale}
-                  className="brutal-btn brutal-btn-sm w-12"
-                >
-                  {labels.lang}
-                </button>
-              </div>
+          <div className="nav-menu" role="dialog" aria-label="Navigation">
+            <div className="nav-menu-section">
+              <p className="nav-menu-heading">{hi ? 'कार्रवाई' : 'ACT'}</p>
+              <Link href="/create-post" onClick={() => setMenuOpen(false)}>{hi ? '🆘 मदद पाएँ/दें' : '🆘 Get/Give Help'}</Link>
+              <Link href="/board" onClick={() => setMenuOpen(false)}>{hi ? '📋 लाइव बोर्ड' : '📋 Live Board'}</Link>
+              <Link href="/groups" onClick={() => setMenuOpen(false)}>{hi ? '👥 ग्रुप' : '👥 Groups'}</Link>
+              <Link href="/rti" onClick={() => setMenuOpen(false)}>{hi ? '📄 RTI जनरेटर' : '📄 RTI Generator'}</Link>
+              <Link href="/fir" onClick={() => setMenuOpen(false)}>{hi ? '🚨 FIR असिस्टेंट' : '🚨 FIR Assistant'}</Link>
+              <Link href="/representatives" onClick={() => setMenuOpen(false)}>{hi ? '✉️ प्रतिनिधि को लिखें' : '✉️ Write to Rep'}</Link>
+            </div>
+            <div className="nav-menu-section">
+              <p className="nav-menu-heading">{hi ? 'सीखें' : 'LEARN'}</p>
+              <Link href="/safety" onClick={() => setMenuOpen(false)}>{hi ? '⚖️ अधिकार' : '⚖️ Rights'}</Link>
+              <Link href="/resources" onClick={() => setMenuOpen(false)}>{hi ? '📞 संसाधन' : '📞 Resources'}</Link>
+              <Link href="/playbook" onClick={() => setMenuOpen(false)}>{hi ? '📖 प्लेबुक' : '📖 Playbook'}</Link>
+              <Link href="/toolkit" onClick={() => setMenuOpen(false)}>{hi ? '📝 टेम्पलेट' : '📝 Templates'}</Link>
+              <Link href="/organize" onClick={() => setMenuOpen(false)}>{hi ? '🏗️ संगठन गाइड' : '🏗️ Organize Guide'}</Link>
+              <Link href="/communication" onClick={() => setMenuOpen(false)}>{hi ? '📱 संचार' : '📱 Comms'}</Link>
+            </div>
+            <div className="nav-menu-section">
+              <p className="nav-menu-heading">{hi ? 'और' : 'MORE'}</p>
+              <Link href="/my-posts" onClick={() => setMenuOpen(false)}>{hi ? 'मेरी पोस्ट' : 'My Posts'}</Link>
+              <Link href="/directory" onClick={() => setMenuOpen(false)}>{hi ? 'डायरेक्टरी' : 'Directory'}</Link>
+              <Link href="/guide" onClick={() => setMenuOpen(false)}>{hi ? 'उपयोग गाइड' : 'How to Use'}</Link>
+              <Link href="/manifesto" onClick={() => setMenuOpen(false)}>{hi ? 'घोषणापत्र' : 'Manifesto'}</Link>
+              <Link href="/alerts" onClick={() => setMenuOpen(false)}>{hi ? 'सूचना जाँच' : 'Info Verify'}</Link>
+              <button type="button" onClick={toggleLocale}>{hi ? 'English' : 'हिन्दी'}</button>
+            </div>
+            <div className="nav-menu-emergency">
+              <strong>{hi ? '🆘 आपातकालीन: 112 | वकील: 1516 | महिला: 181' : '🆘 Emergency: 112 | Lawyer: 1516 | Women: 181'}</strong>
             </div>
           </div>
         )}
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }
