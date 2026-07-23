@@ -60,6 +60,13 @@ export default function Navbar({ locale }: NavbarProps) {
               <Link href="/communication" onClick={() => setMenuOpen(false)}>{hi ? '📱 संचार' : '📱 Comms'}</Link>
             </div>
             <div className="nav-menu-section">
+              <p className="nav-menu-heading">{hi ? 'ट्रैक करें' : 'TRACK'}</p>
+              <Link href="/map" onClick={() => setMenuOpen(false)}>{hi ? '🗺️ लाइव मैप' : '🗺️ Live Map'}</Link>
+              <Link href="/governance" onClick={() => setMenuOpen(false)}>{hi ? '📊 शासन ट्रैकर' : '📊 Governance'}</Link>
+              <Link href="/demands" onClick={() => setMenuOpen(false)}>{hi ? '📋 माँग ट्रैकर' : '📋 Demands'}</Link>
+              <Link href="/contribute" onClick={() => setMenuOpen(false)}>{hi ? '🤝 योगदान' : '🤝 Contribute'}</Link>
+            </div>
+            <div className="nav-menu-section">
               <p className="nav-menu-heading">{hi ? 'और' : 'MORE'}</p>
               <Link href="/my-posts" onClick={() => setMenuOpen(false)}>{hi ? 'मेरी पोस्ट' : 'My Posts'}</Link>
               <Link href="/directory" onClick={() => setMenuOpen(false)}>{hi ? 'डायरेक्टरी' : 'Directory'}</Link>

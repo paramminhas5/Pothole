@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { Locale } from '@/types';
-import DemandsClient from './DemandsClient';
+import MapClient from './MapClient';
 
-export default async function DemandsPage() {
+export default async function MapPage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  return <DemandsClient locale={locale} />;
+  return <MapClient locale={locale} />;
 }

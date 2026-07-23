@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { Locale } from '@/types';
-import DemandsClient from './DemandsClient';
+import ContributeClient from './ContributeClient';
 
-export default async function DemandsPage() {
+export default async function ContributePage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  return <DemandsClient locale={locale} />;
+  return <ContributeClient locale={locale} />;
 }

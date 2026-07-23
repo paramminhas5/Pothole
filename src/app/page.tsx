@@ -58,9 +58,17 @@ export default async function HomePage() {
 
         {/* FEATURE GRID */}
         <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <Link href="/map" className="home-feature-card">
+            <strong>{hi ? '🗺️ लाइव मैप' : '🗺️ Live Map'}</strong>
+            <span>{hi ? 'सक्रिय अभियान' : 'Active campaigns'}</span>
+          </Link>
           <Link href="/groups" className="home-feature-card">
             <strong>{hi ? '👥 ग्रुप' : '👥 Groups'}</strong>
             <span>{hi ? 'बनाएँ, खोजें, जुड़ें' : 'Create, find, join'}</span>
+          </Link>
+          <Link href="/governance" className="home-feature-card">
+            <strong>{hi ? '📊 शासन ट्रैकर' : '📊 Governance'}</strong>
+            <span>{hi ? 'जवाबदेही स्कोरकार्ड' : 'Accountability scorecard'}</span>
           </Link>
           <Link href="/rti" className="home-feature-card">
             <strong>{hi ? '📄 RTI जनरेटर' : '📄 RTI Generator'}</strong>
@@ -70,13 +78,17 @@ export default async function HomePage() {
             <strong>{hi ? '🚨 FIR असिस्टेंट' : '🚨 FIR Assistant'}</strong>
             <span>{hi ? 'शिकायत बनाएँ' : 'Generate complaint'}</span>
           </Link>
+          <Link href="/demands" className="home-feature-card">
+            <strong>{hi ? '📋 माँग ट्रैकर' : '📋 Demand Tracker'}</strong>
+            <span>{hi ? 'माँगें ट्रैक करें' : 'Track demands'}</span>
+          </Link>
+          <Link href="/contribute" className="home-feature-card">
+            <strong>{hi ? '🤝 योगदान' : '🤝 Contribute'}</strong>
+            <span>{hi ? 'कौशल से मदद' : 'Help with skills'}</span>
+          </Link>
           <Link href="/safety" className="home-feature-card">
             <strong>{hi ? '⚖️ अधिकार' : '⚖️ Rights'}</strong>
             <span>{hi ? 'पॉकेट कार्ड' : 'Pocket card'}</span>
-          </Link>
-          <Link href="/resources" className="home-feature-card">
-            <strong>{hi ? '📞 संसाधन' : '📞 Resources'}</strong>
-            <span>{hi ? 'हेल्पलाइन, वकील, आश्रय' : 'Helplines, lawyers, shelters'}</span>
           </Link>
           <Link href="/playbook" className="home-feature-card">
             <strong>{hi ? '📖 प्लेबुक' : '📖 Playbook'}</strong>
