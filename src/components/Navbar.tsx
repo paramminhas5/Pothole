@@ -17,66 +17,59 @@ export default function Navbar({ locale }: NavbarProps) {
 
   return (
     <header className="site-header">
-      <nav className="page-shell nav-shell" aria-label={hi ? 'मुख्य नेविगेशन' : 'Main navigation'}>
-        <Link href="/" className="brand-link" aria-label="Sahayata — Home">
+      <nav className="page-shell nav-shell" aria-label={hi ? 'मुख्य' : 'Main'}>
+        <Link href="/" className="brand-link">
           <span className="brand-mark" aria-hidden="true">S</span>
           <span className="brand-name">{hi ? 'सहायता' : 'SAHAYATA'}</span>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop: 4 links + language + more */}
         <div className="desktop-nav">
           <Link href="/create-post" className="nav-link nav-link-primary">{hi ? 'मदद' : 'Help'}</Link>
           <Link href="/board" className="nav-link">{hi ? 'बोर्ड' : 'Board'}</Link>
           <Link href="/groups" className="nav-link">{hi ? 'ग्रुप' : 'Groups'}</Link>
-          <Link href="/playbook" className="nav-link">{hi ? 'प्लेबुक' : 'Playbook'}</Link>
-          <Link href="/safety" className="nav-link">{hi ? 'अधिकार' : 'Rights'}</Link>
-          <button type="button" onClick={toggleLocale} className="language-button" aria-label={hi ? 'Switch to English' : 'हिन्दी में बदलें'}>{hi ? 'EN' : 'हि'}</button>
-          <button type="button" onClick={() => setMenuOpen((o) => !o)} className="menu-button" aria-expanded={menuOpen} aria-controls="full-navigation">{menuOpen ? '✕' : '☰'}</button>
+          <Link href="/act" className="nav-link">{hi ? 'कार्रवाई' : 'Act'}</Link>
+          <button type="button" onClick={toggleLocale} className="language-button">{hi ? 'EN' : 'हि'}</button>
+          <button type="button" onClick={() => setMenuOpen((o) => !o)} className="menu-button" aria-expanded={menuOpen}>☰</button>
         </div>
 
-        {/* Mobile menu button */}
-        <button type="button" onClick={() => setMenuOpen((o) => !o)} className="mobile-menu-button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="full-navigation">
+        {/* Mobile trigger */}
+        <button type="button" onClick={() => setMenuOpen((o) => !o)} className="mobile-menu-button" aria-label="Menu" aria-expanded={menuOpen}>
           <span aria-hidden="true">{menuOpen ? '×' : '☰'}</span>
         </button>
 
-        {/* Full navigation menu */}
+        {/* Full menu */}
         {menuOpen && (
-          <div id="full-navigation" className="nav-menu">
+          <div className="nav-menu" role="dialog" aria-label="Navigation">
             <div className="nav-menu-section">
-              <p className="nav-menu-heading">{hi ? 'कार्रवाई' : 'ACT NOW'}</p>
-              <Link href="/create-post" onClick={() => setMenuOpen(false)}>{hi ? 'मदद पाएँ / दें' : 'Get / Give Help'}</Link>
-              <Link href="/board" onClick={() => setMenuOpen(false)}>{hi ? 'लाइव बोर्ड' : 'Live Board'}</Link>
-              <Link href="/rti" onClick={() => setMenuOpen(false)}>{hi ? 'RTI जनरेटर' : 'RTI Generator'}</Link>
-              <Link href="/fir" onClick={() => setMenuOpen(false)}>{hi ? 'FIR असिस्टेंट' : 'FIR Assistant'}</Link>
-              <Link href="/demands" onClick={() => setMenuOpen(false)}>{hi ? 'डिमांड ट्रैकर' : 'Demand Tracker'}</Link>
-              <Link href="/vault" onClick={() => setMenuOpen(false)}>{hi ? 'एविडेंस वॉल्ट' : 'Evidence Vault'}</Link>
-              <Link href="/representatives" onClick={() => setMenuOpen(false)}>{hi ? 'जनप्रतिनिधि + पत्र' : 'Representatives + Letters'}</Link>
-            </div>
-            <div className="nav-menu-section">
-              <p className="nav-menu-heading">{hi ? 'संगठित करें' : 'ORGANIZE'}</p>
-              <Link href="/groups" onClick={() => setMenuOpen(false)}>{hi ? 'एन्क्रिप्टेड ग्रुप' : 'Encrypted Groups'}</Link>
-              <Link href="/organize" onClick={() => setMenuOpen(false)}>{hi ? 'संगठन गाइड' : 'How to Organize'}</Link>
-              <Link href="/communication" onClick={() => setMenuOpen(false)}>{hi ? 'सुरक्षित संचार' : 'Secure Comms'}</Link>
-              <Link href="/directory" onClick={() => setMenuOpen(false)}>{hi ? 'सपोर्ट ग्रुप डायरेक्टरी' : 'Support Directory'}</Link>
-              <Link href="/submit-chapter" onClick={() => setMenuOpen(false)}>{hi ? 'ग्रुप रजिस्टर करें' : 'Register Group'}</Link>
+              <p className="nav-menu-heading">{hi ? 'कार्रवाई' : 'ACT'}</p>
+              <Link href="/create-post" onClick={() => setMenuOpen(false)}>{hi ? '🆘 मदद पाएँ/दें' : '🆘 Get/Give Help'}</Link>
+              <Link href="/board" onClick={() => setMenuOpen(false)}>{hi ? '📋 लाइव बोर्ड' : '📋 Live Board'}</Link>
+              <Link href="/groups" onClick={() => setMenuOpen(false)}>{hi ? '👥 ग्रुप' : '👥 Groups'}</Link>
+              <Link href="/rti" onClick={() => setMenuOpen(false)}>{hi ? '📄 RTI जनरेटर' : '📄 RTI Generator'}</Link>
+              <Link href="/fir" onClick={() => setMenuOpen(false)}>{hi ? '🚨 FIR असिस्टेंट' : '🚨 FIR Assistant'}</Link>
+              <Link href="/representatives" onClick={() => setMenuOpen(false)}>{hi ? '✉️ प्रतिनिधि को लिखें' : '✉️ Write to Rep'}</Link>
             </div>
             <div className="nav-menu-section">
               <p className="nav-menu-heading">{hi ? 'सीखें' : 'LEARN'}</p>
-              <Link href="/safety" onClick={() => setMenuOpen(false)}>{hi ? 'अधिकार गाइड' : 'Know Your Rights'}</Link>
-              <Link href="/resources" onClick={() => setMenuOpen(false)}>{hi ? 'हेल्पलाइन और संसाधन' : 'Helplines & Resources'}</Link>
-              <Link href="/playbook" onClick={() => setMenuOpen(false)}>{hi ? 'विरोध → शक्ति प्लेबुक' : 'Protest → Power Playbook'}</Link>
-              <Link href="/toolkit" onClick={() => setMenuOpen(false)}>{hi ? 'टेम्पलेट और उपकरण' : 'Templates & Tools'}</Link>
-              <Link href="/alerts" onClick={() => setMenuOpen(false)}>{hi ? 'सूचना सत्यापन' : 'Info Verification'}</Link>
-              <Link href="/manifesto" onClick={() => setMenuOpen(false)}>{hi ? 'घोषणापत्र' : 'Manifesto'}</Link>
-              <Link href="/guide" onClick={() => setMenuOpen(false)}>{hi ? 'उपयोग गाइड' : 'How to Use'}</Link>
+              <Link href="/safety" onClick={() => setMenuOpen(false)}>{hi ? '⚖️ अधिकार' : '⚖️ Rights'}</Link>
+              <Link href="/resources" onClick={() => setMenuOpen(false)}>{hi ? '📞 संसाधन' : '📞 Resources'}</Link>
+              <Link href="/playbook" onClick={() => setMenuOpen(false)}>{hi ? '📖 प्लेबुक' : '📖 Playbook'}</Link>
+              <Link href="/toolkit" onClick={() => setMenuOpen(false)}>{hi ? '📝 टेम्पलेट' : '📝 Templates'}</Link>
+              <Link href="/organize" onClick={() => setMenuOpen(false)}>{hi ? '🏗️ संगठन गाइड' : '🏗️ Organize Guide'}</Link>
+              <Link href="/communication" onClick={() => setMenuOpen(false)}>{hi ? '📱 संचार' : '📱 Comms'}</Link>
             </div>
             <div className="nav-menu-section">
-              <p className="nav-menu-heading">{hi ? 'खाता' : 'ACCOUNT'}</p>
+              <p className="nav-menu-heading">{hi ? 'और' : 'MORE'}</p>
               <Link href="/my-posts" onClick={() => setMenuOpen(false)}>{hi ? 'मेरी पोस्ट' : 'My Posts'}</Link>
+              <Link href="/directory" onClick={() => setMenuOpen(false)}>{hi ? 'डायरेक्टरी' : 'Directory'}</Link>
+              <Link href="/guide" onClick={() => setMenuOpen(false)}>{hi ? 'उपयोग गाइड' : 'How to Use'}</Link>
+              <Link href="/manifesto" onClick={() => setMenuOpen(false)}>{hi ? 'घोषणापत्र' : 'Manifesto'}</Link>
+              <Link href="/alerts" onClick={() => setMenuOpen(false)}>{hi ? 'सूचना जाँच' : 'Info Verify'}</Link>
               <button type="button" onClick={toggleLocale}>{hi ? 'English' : 'हिन्दी'}</button>
             </div>
             <div className="nav-menu-emergency">
-              <strong>{hi ? 'आपातकालीन: 112' : 'EMERGENCY: 112'}</strong>
+              <strong>{hi ? '🆘 आपातकालीन: 112 | वकील: 1516 | महिला: 181' : '🆘 Emergency: 112 | Lawyer: 1516 | Women: 181'}</strong>
             </div>
           </div>
         )}
