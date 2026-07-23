@@ -6,28 +6,97 @@ export default async function HomePage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
   const hi = locale === 'hi';
+
   return (
     <div>
-      <section className="home-hero" aria-labelledby="home-title">
-        <div className="page-shell home-hero-inner">
-          <p className="eyebrow">{hi ? 'स्थानीय मदद, सरल तरीके से' : 'Local help, made simple'}</p>
-          <h1 id="home-title" className="home-title">{hi ? 'आपको आज क्या चाहिए?' : 'What do you need today?'}</h1>
-          <p className="home-intro">{hi ? 'मदद माँगें, मदद दें, या अपने पास का भरोसेमंद सहायता समूह खोजें।' : 'Ask for help, offer help, or find a support group near you.'}</p>
-          <Link href="/create-post" className="brutal-btn brutal-btn-primary brutal-btn-lg home-primary-action">{hi ? 'मदद पाएँ' : 'Get help'}</Link>
-          <p className="action-note">{hi ? 'पोस्ट करने में कुछ मिनट लगते हैं। सार्वजनिक होने से पहले इसकी समीक्षा होगी।' : 'It takes a few minutes. Your post is reviewed before it becomes public.'}</p>
+      {/* 3 BIG BUTTONS */}
+      <section className="page-shell py-16" aria-labelledby="home-title">
+        <h1 id="home-title" className="sr-only">Sahayata</h1>
+        <div className="max-w-lg mx-auto space-y-4">
+          <Link href="/create-post" className="home-action-card home-action-help">
+            <span className="home-action-icon">🆘</span>
+            <span className="home-action-text">
+              <strong>{hi ? 'मुझे मदद चाहिए' : 'I need help'}</strong>
+              <span>{hi ? 'कानूनी, चिकित्सा, भोजन, परिवहन, आश्रय' : 'Legal, medical, food, transport, shelter'}</span>
+            </span>
+          </Link>
+          <Link href="/board" className="home-action-card home-action-offer">
+            <span className="home-action-icon">🤝</span>
+            <span className="home-action-text">
+              <strong>{hi ? 'मैं मदद कर सकता/सकती हूँ' : 'I can help'}</strong>
+              <span>{hi ? 'देखें किसे क्या चाहिए और जवाब दें' : 'See who needs what and respond'}</span>
+            </span>
+          </Link>
+          <Link href="/act" className="home-action-card home-action-change">
+            <span className="home-action-icon">⚡</span>
+            <span className="home-action-text">
+              <strong>{hi ? 'मुझे बदलाव चाहिए' : 'I want change'}</strong>
+              <span>{hi ? 'RTI, FIR, पत्र, माँग ट्रैक, संगठन' : 'RTI, FIR, letters, track demands, organize'}</span>
+            </span>
+          </Link>
         </div>
       </section>
-      <section className="page-shell home-choices" aria-labelledby="choose-title">
-        <h2 id="choose-title" className="section-title">{hi ? 'एक रास्ता चुनें' : 'Choose one path'}</h2>
-        <div className="choice-grid">
-          <article className="choice-card choice-card-primary"><p className="choice-number" aria-hidden="true">1</p><h3>{hi ? 'मदद पाएँ' : 'Get help'}</h3><p>{hi ? 'भोजन, यात्रा, चिकित्सा या दूसरी जरूरत के लिए छोटी पोस्ट बनाएँ।' : 'Make a short post for food, transport, medical, or other help.'}</p><Link href="/create-post" className="choice-link">{hi ? 'मदद माँगें' : 'Ask for help'} <span aria-hidden="true">→</span></Link></article>
-          <article className="choice-card"><p className="choice-number" aria-hidden="true">2</p><h3>{hi ? 'मदद करें' : 'Offer help'}</h3><p>{hi ? 'देखें कि लोगों को क्या चाहिए और सुरक्षित रूप से जवाब दें।' : 'See what people need and respond safely.'}</p><Link href="/board" className="choice-link">{hi ? 'जरूरतें देखें' : 'View needs'} <span aria-hidden="true">→</span></Link></article>
-          <article className="choice-card"><p className="choice-number" aria-hidden="true">3</p><h3>{hi ? 'सहायता खोजें' : 'Find support'}</h3><p>{hi ? 'अपने शहर में जमा की गई सहायता लिस्टिंग खोजें।' : 'Find submitted support listings in your city.'}</p><Link href="/directory" className="choice-link">{hi ? 'समूह खोजें' : 'Find a group'} <span aria-hidden="true">→</span></Link></article>
+
+      {/* EMERGENCY STRIP */}
+      <section className="emergency-strip" aria-label={hi ? 'आपातकालीन' : 'Emergency'}>
+        <div className="page-shell">
+          <div className="emergency-strip-inner">
+            <span><strong>112</strong> {hi ? 'आपातकालीन' : 'Emergency'}</span>
+            <span><strong>1516</strong> {hi ? 'मुफ्त वकील' : 'Free Lawyer'}</span>
+            <span><strong>181</strong> {hi ? 'महिला' : 'Women'}</span>
+            <span><strong>108</strong> {hi ? 'एम्बुलेंस' : 'Ambulance'}</span>
+          </div>
         </div>
       </section>
-      <section className="safety-strip" aria-labelledby="before-title"><div className="page-shell safety-strip-inner"><div><p className="eyebrow">{hi ? 'शुरू करने से पहले' : 'Before you start'}</p><h2 id="before-title" className="section-title">{hi ? 'अपनी निजी जानकारी सुरक्षित रखें' : 'Keep your private details safe'}</h2></div><ul className="plain-list"><li>{hi ? 'सटीक पता, पूरा नाम या पहचान संख्या पोस्ट न करें।' : 'Do not post your exact address, full name, or ID number.'}</li><li>{hi ? 'किसी अजनबी से अकेले न मिलें।' : 'Do not meet a stranger alone.'}</li><li>{hi ? '18 वर्ष से कम हैं तो भरोसेमंद वयस्क से मदद लें।' : 'If you are under 18, ask a trusted adult to help.'}</li></ul><Link href="/safety" className="text-link">{hi ? 'पूरी सुरक्षा गाइड पढ़ें' : 'Read the full safety guide'} <span aria-hidden="true">→</span></Link></div></section>
-      <section className="page-shell how-it-works" aria-labelledby="next-title"><h2 id="next-title" className="section-title">{hi ? 'आगे क्या होगा' : 'What happens next'}</h2><ol className="steps-list"><li><strong>{hi ? 'आप कम जानकारी साझा करते हैं।' : 'You share only what is needed.'}</strong><span>{hi ? 'शहर और क्षेत्र चुनें; सटीक स्थान नहीं।' : 'Choose a city and area, not a precise location.'}</span></li><li><strong>{hi ? 'एक मॉडरेटर जाँचता है।' : 'A moderator checks it.'}</strong><span>{hi ? 'मॉडरेटर हानिकारक सामग्री और साफ़ दिखने वाली निजी जानकारी खोजता है, लेकिन कुछ छूट सकता है।' : 'A moderator checks submissions for harmful content and obvious private details, but some content may be missed.'}</span></li><li><strong>{hi ? 'आप तय करते हैं कि जवाब देना है या नहीं।' : 'You choose whether to reply.'}</strong><span>{hi ? 'पहले सुरक्षा जाँचें। किसी पर भरोसा करना जरूरी नहीं है।' : 'Check safety first. You never have to trust or meet anyone.'}</span></li></ol></section>
-      <aside className="emergency-note" aria-label={hi ? 'आपातकालीन सूचना' : 'Emergency notice'}><div className="page-shell"><strong>{hi ? 'तुरंत खतरा है?' : 'In immediate danger?'}</strong>{' '}{hi ? 'इस साइट का इंतज़ार न करें। अपने स्थानीय आपातकालीन सेवा या भरोसेमंद वयस्क से अभी संपर्क करें।' : 'Do not wait for this site. Contact local emergency services or a trusted adult now.'}</div></aside>
+
+      {/* WHAT IS THIS */}
+      <section className="page-shell py-12" aria-labelledby="about-title">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 id="about-title" className="heading-2 mb-4">{hi ? 'यह क्या है?' : 'What is this?'}</h2>
+          <p className="text-[var(--color-text-muted)] mb-6">{hi ? 'Sahayata नागरिक समन्वय का बुनियादी ढाँचा है। मदद माँगें, मदद दें, संगठित हों, संस्थाओं को जवाबदेह बनाएँ — गोपनीय, ऑफलाइन-सक्षम, सेंसरशिप-प्रतिरोधी।' : 'Sahayata is civic coordination infrastructure. Ask for help, give help, organize, hold institutions accountable — private, offline-capable, censorship-resistant.'}</p>
+        </div>
+
+        {/* FEATURE GRID */}
+        <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          <Link href="/groups" className="home-feature-card">
+            <strong>{hi ? '👥 ग्रुप' : '👥 Groups'}</strong>
+            <span>{hi ? 'बनाएँ, खोजें, जुड़ें' : 'Create, find, join'}</span>
+          </Link>
+          <Link href="/rti" className="home-feature-card">
+            <strong>{hi ? '📄 RTI जनरेटर' : '📄 RTI Generator'}</strong>
+            <span>{hi ? 'सरकार को जवाब दिलाएँ' : 'Make govt answer'}</span>
+          </Link>
+          <Link href="/fir" className="home-feature-card">
+            <strong>{hi ? '🚨 FIR असिस्टेंट' : '🚨 FIR Assistant'}</strong>
+            <span>{hi ? 'शिकायत बनाएँ' : 'Generate complaint'}</span>
+          </Link>
+          <Link href="/safety" className="home-feature-card">
+            <strong>{hi ? '⚖️ अधिकार' : '⚖️ Rights'}</strong>
+            <span>{hi ? 'पॉकेट कार्ड' : 'Pocket card'}</span>
+          </Link>
+          <Link href="/resources" className="home-feature-card">
+            <strong>{hi ? '📞 संसाधन' : '📞 Resources'}</strong>
+            <span>{hi ? 'हेल्पलाइन, वकील, आश्रय' : 'Helplines, lawyers, shelters'}</span>
+          </Link>
+          <Link href="/playbook" className="home-feature-card">
+            <strong>{hi ? '📖 प्लेबुक' : '📖 Playbook'}</strong>
+            <span>{hi ? 'विरोध → शक्ति' : 'Protest → Power'}</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* ABOUT LINK */}
+      <section className="page-shell pb-12 text-center">
+        <Link href="/manifesto" className="text-link">{hi ? 'यह मंच क्यों मायने रखता है →' : 'Why this platform matters →'}</Link>
+      </section>
+
+      {/* EMERGENCY FOOTER */}
+      <aside className="emergency-note" aria-label={hi ? 'आपातकालीन' : 'Emergency'}>
+        <div className="page-shell">
+          <strong>{hi ? 'तुरंत खतरा?' : 'Immediate danger?'}</strong>{' '}
+          {hi ? '112 डायल करें। इस साइट का इंतज़ार न करें।' : 'Dial 112. Do not wait for this site.'}
+        </div>
+      </aside>
     </div>
   );
 }

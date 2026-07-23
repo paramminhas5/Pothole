@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { Locale } from '@/types';
-import GroupsClient from './GroupsClient';
+import FIRAssistantClient from './FIRAssistantClient';
 
-export default async function GroupsPage() {
+export default async function FIRPage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
-  return <GroupsClient locale={locale} />;
+  return <FIRAssistantClient locale={locale} />;
 }

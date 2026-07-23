@@ -1,8 +1,15 @@
 {
-  "version": 2,
-  "status": "disabled",
-  "updated": "2026-07-22",
-  "message": "Mirror discovery and automatic failover are disabled until signed, monitored public snapshots are implemented.",
-  "mirrors": [],
-  "static_exports": []
+  "version": 1,
+  "primary": "https://sahayata.vercel.app",
+  "urls": [
+    "https://sahayata.vercel.app",
+    "https://sahayata.netlify.app",
+    "https://sahayata.pages.dev"
+  ],
+  "ipfs": {
+    "note": "Pin the static export to IPFS for permanent, censorship-resistant access",
+    "gateway": "https://dweb.link/ipfs/",
+    "cid": null
+  },
+  "lastUpdated": "2026-07-22T00:00:00Z"
 }
