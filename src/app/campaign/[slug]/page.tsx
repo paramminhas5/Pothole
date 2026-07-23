@@ -1,8 +1,12 @@
-import { CampaignDetailClient } from './CampaignDetailClient';
+import { cookies } from 'next/headers';
+import { Locale } from '@/types';
+import CampaignHubClient from './CampaignHubClient';
 
 export const metadata = { title: 'Campaign — Sahayata' };
 
-export default async function CampaignDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CampaignPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <CampaignDetailClient slug={slug} />;
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
+  return <CampaignHubClient slug={slug} locale={locale} />;
 }

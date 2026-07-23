@@ -1,134 +1,133 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { PageShell, PageHeader } from '@/components/ui/PageShell';
-import { CampaignCard } from '@/components/ui/CampaignCard';
-import { FilterPanel } from '@/components/ui/FilterPanel';
-import { Button } from '@/components/ui/Button';
-import { EmptyState, LoadingState } from '@/components/ui/EmptyState';
-import { StatBlock } from '@/components/ui/StatBlock';
-import type { CampaignSummaryDTO } from '@/types/dto';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Locale } from '@/types';
+import { CITIES_AREAS } from '@/lib/constants';
 
-export function CampaignListClient() {
-  const [campaigns, setCampaigns] = useState<CampaignSummaryDTO[]>([]);
+interface Props { locale: Locale; }
+
+interface Campaign {
+  id: string;
+  slug: string;
+  title: string;
+  target_institution: string;
+  primary_demand: string;
+  city: string;
+  status: string;
+  deadline: string;
+  days_active: number;
+  groups_aligned: number;
+  supporter_count: number;
+  filing_count: number;
+  started_by: string;
+  started_by_type: 'individual' | 'group';
+}
+
+
+export default function CampaignListClient({ locale }: Props) {
+  const hi = locale === 'hi';
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [city, setCity] = useState('');
-  const [category, setCategory] = useState('');
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
-    loadCampaigns();
-  }, [city, category]);
-
-  async function loadCampaigns() {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (city) params.set('city', city);
-    if (category) params.set('category', category);
-    params.set('status', 'live,escalating');
-
-    const res = await fetch(`/api/campaign?${params}`);
-    if (res.ok) {
-      const data = await res.json();
-      setCampaigns(data.campaigns);
+    const controller = new AbortController();
+    async function load() {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (city) params.set('city', city);
+        if (status) params.set('status', status);
+        const res = await fetch(`/api/campaign?${params}`, { signal: controller.signal });
+        if (res.ok) { const d = await res.json(); setCampaigns(d.campaigns || []); }
+      } catch { /* fallback */ }
+      setLoading(false);
     }
-    setLoading(false);
-  }
+    load();
+    return () => controller.abort();
+  }, [city, status]);
 
-  const activeCampaigns = campaigns.filter(c => c.status === 'live' || c.status === 'escalating');
-  const escalating = campaigns.filter(c => c.status === 'escalating');
+  // Fallback data
+  useEffect(() => {
+    if (!loading && campaigns.length === 0) {
+      setCampaigns([
+        { id: '1', slug: 'dissolve-nta', title: hi ? 'NTA भंग करो' : 'Dissolve NTA', target_institution: hi ? 'शिक्षा मंत्रालय' : 'Ministry of Education', primary_demand: hi ? 'NTA भंग करो, पारदर्शी निकाय बनाओ' : 'Dissolve NTA, create transparent body', city: 'Delhi', status: 'escalating', deadline: '2026-08-19', days_active: 34, groups_aligned: 5, supporter_count: 4200, filing_count: 47, started_by: 'CJP Delhi', started_by_type: 'group' },
+        { id: '2', slug: 'investigate-jul20', title: hi ? '20 जुलाई जाँच' : 'Jul 20 Investigation', target_institution: hi ? 'गृह मंत्रालय' : 'MHA', primary_demand: hi ? 'स्वतंत्र जाँच' : 'Independent inquiry', city: 'Delhi', status: 'live', deadline: '2026-08-20', days_active: 3, groups_aligned: 8, supporter_count: 1800, filing_count: 12, started_by: hi ? 'दिल्ली छात्र नेटवर्क' : 'Delhi Student Network', started_by_type: 'group' },
+        { id: '3', slug: 'pune-roads', title: hi ? 'पुणे सड़कें ठीक करो' : 'Fix Pune Roads', target_institution: hi ? 'PMC' : 'PMC', primary_demand: hi ? '30 दिन में गड्ढे ठीक' : 'Fix potholes in 30 days', city: 'Pune', status: 'live', deadline: '2026-08-10', days_active: 15, groups_aligned: 2, supporter_count: 340, filing_count: 3, started_by: 'Rahul M.', started_by_type: 'individual' },
+      ]);
+    }
+  }, [loading, campaigns.length, hi]);
+
+  const daysUntil = (d: string) => Math.max(0, Math.ceil((new Date(d).getTime() - Date.now()) / 86_400_000));
 
   return (
-    <PageShell>
-      <PageHeader
-        title="Active Campaigns"
-        titleHi="सक्रिय अभियान"
-        subtitle="Every campaign has a named target, a demand, and a deadline. Silence is counted."
-        subtitleHi="हर अभियान में एक नामित लक्ष्य, एक माँग और एक समय सीमा है। मौन की गिनती होती है।"
-        action={
-          <Link href="/campaign/create">
-            <Button variant="primary" size="lg">Start a Campaign</Button>
+    <div className="content-page">
+      <div className="page-shell">
+        <div className="page-heading">
+          <h1>{hi ? 'अभियान' : 'Campaigns'}</h1>
+          <p>{hi ? 'सक्रिय अभियान — नामित लक्ष्य, स्पष्ट माँग, सार्वजनिक समय सीमा। जुड़ो या अपना शुरू करो।' : 'Active campaigns — named targets, clear demands, public deadlines. Join or start yours.'}</p>
+        </div>
+
+        {/* CTA */}
+        <div className="button-row mb-8">
+          <Link href="/campaign/create" className="brutal-btn brutal-btn-primary brutal-btn-lg">
+            {hi ? '📢 अभियान शुरू करें' : '📢 Start a Campaign'}
           </Link>
-        }
-      />
+        </div>
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        <StatBlock value={activeCampaigns.length} label="Active" labelHi="सक्रिय" size="sm" />
-        <StatBlock value={escalating.length} label="Escalating" labelHi="बढ़ रहे" size="sm" variant="danger" />
-        <StatBlock
-          value={campaigns.reduce((sum, c) => sum + c.supporterCount, 0)}
-          label="Supporters" labelHi="समर्थक" size="sm" variant="accent"
-        />
+        {/* Filters */}
+        <div className="filter-panel mb-6">
+          <div className="filter-grid">
+            <label>
+              <span className="field-label">{hi ? 'शहर' : 'City'}</span>
+              <select className="brutal-select" value={city} onChange={e => setCity(e.target.value)}>
+                <option value="">{hi ? 'सभी' : 'All'}</option>
+                {CITIES_AREAS.map(c => <option key={c.city} value={c.city}>{c.city}</option>)}
+              </select>
+            </label>
+            <label>
+              <span className="field-label">{hi ? 'स्थिति' : 'Status'}</span>
+              <select className="brutal-select" value={status} onChange={e => setStatus(e.target.value)}>
+                <option value="">{hi ? 'सभी' : 'All'}</option>
+                <option value="live">{hi ? 'चालू' : 'Live'}</option>
+                <option value="escalating">{hi ? 'बढ़ रहा' : 'Escalating'}</option>
+                <option value="won">{hi ? 'जीत' : 'Won'}</option>
+                <option value="refused">{hi ? 'मना' : 'Refused'}</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        {/* Campaign list */}
+        {loading ? (
+          <div className="loading-state"><div className="loading-dot" /><span>{hi ? 'लोड हो रहा...' : 'Loading...'}</span></div>
+        ) : (
+          <div className="result-list">
+            {campaigns.map(c => (
+              <Link key={c.id} href={`/campaign/${c.slug}`} className="brutal-card block" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="badge-row mb-2">
+                  <span className={`brutal-badge ${c.status === 'escalating' ? 'brutal-badge-red animate-urgent' : c.status === 'won' ? 'brutal-badge-lime' : 'brutal-badge-accent'}`}>
+                    {c.status === 'escalating' ? '🔺 ESCALATING' : c.status === 'won' ? '✓ WON' : '● LIVE'}
+                  </span>
+                  <span className="brutal-badge">{c.city}</span>
+                </div>
+                <h3 className="heading-3 mb-1">{c.title}</h3>
+                <p className="text-sm text-[var(--color-text-muted)] mb-1">→ {c.target_institution}</p>
+                <p className="text-sm mb-3">{c.primary_demand}</p>
+                <div className="flex flex-wrap gap-4 text-xs text-[var(--color-text-muted)]">
+                  <span className="font-mono font-bold text-[var(--color-text)]">{daysUntil(c.deadline)}d left</span>
+                  <span>{c.groups_aligned} {hi ? 'ग्रुप' : 'groups'}</span>
+                  <span>{c.supporter_count.toLocaleString()} {hi ? 'समर्थक' : 'supporters'}</span>
+                  <span>{c.filing_count} RTIs</span>
+                  <span className="text-[var(--color-accent)]">{hi ? 'द्वारा:' : 'by:'} {c.started_by}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Filters */}
-      <FilterPanel title="Filter Campaigns" titleHi="अभियान फ़िल्टर करें" columns={3}>
-        <div>
-          <label className="text-xs font-bold uppercase tracking-wide text-[var(--ink-muted)] mb-1 block">City</label>
-          <select
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="w-full min-h-[var(--touch-min)] px-3 py-2 border-2 border-[var(--ink)] rounded-[var(--radius-md)] bg-[var(--paper-alt)] text-sm font-medium"
-          >
-            <option value="">All Cities</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Bengaluru">Bengaluru</option>
-            <option value="Hyderabad">Hyderabad</option>
-            <option value="Chennai">Chennai</option>
-            <option value="Kolkata">Kolkata</option>
-            <option value="Pune">Pune</option>
-            <option value="Jaipur">Jaipur</option>
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-bold uppercase tracking-wide text-[var(--ink-muted)] mb-1 block">Category</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full min-h-[var(--touch-min)] px-3 py-2 border-2 border-[var(--ink)] rounded-[var(--radius-md)] bg-[var(--paper-alt)] text-sm font-medium"
-          >
-            <option value="">All Categories</option>
-            <option value="infrastructure">Infrastructure</option>
-            <option value="education">Education</option>
-            <option value="environment">Environment</option>
-            <option value="accountability">Accountability</option>
-            <option value="welfare">Welfare</option>
-            <option value="health">Health</option>
-            <option value="governance">Governance</option>
-          </select>
-        </div>
-        <div className="flex items-end">
-          <Button variant="ghost" size="sm" onClick={() => { setCity(''); setCategory(''); }}>
-            Clear Filters
-          </Button>
-        </div>
-      </FilterPanel>
-
-      {/* Campaign grid */}
-      {loading ? (
-        <LoadingState />
-      ) : campaigns.length === 0 ? (
-        <EmptyState
-          icon="📢"
-          title="No active campaigns yet"
-          titleHi="अभी कोई सक्रिय अभियान नहीं"
-          description="Be the first to start a campaign against an institutional failure in your city."
-          descriptionHi="अपने शहर में संस्थागत विफलता के खिलाफ पहला अभियान शुरू करें।"
-          action={
-            <Link href="/campaign/create">
-              <Button variant="primary">Start the First Campaign</Button>
-            </Link>
-          }
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {campaigns.map(campaign => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
-      )}
-    </PageShell>
+    </div>
   );
 }

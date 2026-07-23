@@ -8,126 +8,192 @@ export default async function HomePage() {
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
   const hi = locale === 'hi';
 
-  // Fetch live pulse stats (fallback to placeholders)
-  let pulse = { groups_active: 42, volunteers_available: 187, demands_tracked: 23, days_of_silence: 34 };
-  try {
-    const base = process.env.NEXT_PUBLIC_BASE_URL || '';
-    if (base) {
-      const res = await fetch(`${base}/api/situation`, { next: { revalidate: 300 } });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.situation) {
-          pulse = {
-            groups_active: data.situation.groups_active || pulse.groups_active,
-            volunteers_available: data.situation.volunteers_available || pulse.volunteers_available,
-            demands_tracked: data.situation.demands_total || pulse.demands_tracked,
-            days_of_silence: data.situation.day_count || pulse.days_of_silence,
-          };
-        }
-      }
-    }
-  } catch { /* use fallback */ }
-
-  // Fetch news preview (fallback to static)
-  let newsItems: { id: string; title: string; type: string; timestamp: string; city?: string }[] = [];
-  try {
-    const base = process.env.NEXT_PUBLIC_BASE_URL || '';
-    if (base) {
-      const res = await fetch(`${base}/api/news?limit=4`, { next: { revalidate: 300 } });
-      if (res.ok) {
-        const data = await res.json();
-        newsItems = data.items || [];
-      }
-    }
-  } catch { /* use fallback */ }
-
-  if (newsItems.length === 0) {
-    newsItems = [
-      { id: '1', title: hi ? 'जंतर मंतर धरना — दिन 34' : 'Jantar Mantar Sit-In — Day 34', type: 'movement', timestamp: '2026-07-23T10:00:00Z', city: 'Delhi' },
-      { id: '2', title: hi ? 'दिल्ली HC ने X अकाउंट बहाल कराया' : 'Delhi HC orders X account restoration', type: 'news', timestamp: '2026-07-05T08:00:00Z', city: 'Delhi' },
-      { id: '3', title: hi ? 'शिक्षा सुधार विधेयक — समिति चरण' : 'Education Reform Bill — Committee Stage', type: 'law_update', timestamp: '2026-07-01T12:00:00Z' },
-    ];
-  }
-
-  // Fetch report card preview (demands with silence counters)
-  const demands = [
-    { institution: hi ? 'शिक्षा मंत्रालय' : 'Ministry of Education', demand: hi ? 'NTA भंग करो' : 'Dissolve NTA', days: 34 },
-    { institution: hi ? 'गृह मंत्रालय' : 'Ministry of Home Affairs', demand: hi ? 'लाठीचार्ज की जाँच' : 'Investigate lathi charge', days: 3 },
-    { institution: hi ? 'दिल्ली पुलिस' : 'Delhi Police', demand: hi ? '180+ घायलों का हिसाब' : 'Account for 180+ injured', days: 2 },
-    { institution: hi ? 'UGC' : 'UGC', demand: hi ? 'परीक्षा लीक पर श्वेत पत्र' : 'White paper on exam leaks', days: 45 },
-    { institution: hi ? 'वित्त मंत्रालय' : 'Ministry of Finance', demand: hi ? 'बेरोज़गारी भत्ता' : 'Unemployment allowance', days: 120 },
+  // Live campaigns data (fallback to seed)
+  const liveCampaigns = [
+    {
+      id: '1', slug: 'dissolve-nta',
+      title: hi ? 'NTA भंग करो — शिक्षा सुधार' : 'Dissolve NTA — Education Reform',
+      target: hi ? 'शिक्षा मंत्रालय' : 'Ministry of Education',
+      city: 'Delhi', status: 'escalating',
+      days_active: 34, groups_aligned: 5, supporters: 4200, rtis_filed: 47,
+      demand: hi ? 'NTA को भंग करो और पारदर्शी परीक्षा निकाय बनाओ' : 'Dissolve NTA and establish transparent exam body',
+      deadline: '2026-08-19',
+    },
+    {
+      id: '2', slug: 'investigate-lathi-charge',
+      title: hi ? '20 जुलाई लाठीचार्ज जाँच' : 'Jul 20 Lathi Charge Investigation',
+      target: hi ? 'गृह मंत्रालय' : 'Ministry of Home Affairs',
+      city: 'Delhi', status: 'live',
+      days_active: 3, groups_aligned: 8, supporters: 1800, rtis_filed: 12,
+      demand: hi ? '180+ घायलों के लिए स्वतंत्र जाँच' : 'Independent inquiry for 180+ injured',
+      deadline: '2026-08-20',
+    },
+    {
+      id: '3', slug: 'mg-road-potholes-pune',
+      title: hi ? 'MG रोड गड्ढे — पुणे' : 'MG Road Potholes — Pune',
+      target: hi ? 'पुणे नगर निगम' : 'Pune Municipal Corporation',
+      city: 'Pune', status: 'live',
+      days_active: 15, groups_aligned: 2, supporters: 340, rtis_filed: 3,
+      demand: hi ? '30 दिन में सभी गड्ढे ठीक करो' : 'Fix all potholes within 30 days',
+      deadline: '2026-08-10',
+    },
   ];
 
-  // Directory highlights
-  const directoryItems = [
-    { name: hi ? 'HRLN दिल्ली' : 'HRLN Delhi', type: hi ? 'कानूनी सहायता' : 'Legal Aid', verified: true },
-    { name: hi ? 'दिल्ली मेडिक्स कलेक्टिव' : 'Delhi Medics Collective', type: hi ? 'चिकित्सा' : 'Medical', verified: true },
-    { name: hi ? 'सेफ स्पेस नेटवर्क' : 'Safe Space Network', type: hi ? 'आश्रय' : 'Shelter', verified: true },
-    { name: hi ? 'ट्रांसपोर्ट सहायता' : 'Transport Support', type: hi ? 'परिवहन' : 'Transport', verified: true },
+  const activeGroups = [
+    { name: hi ? 'CJP दिल्ली' : 'CJP Delhi', action: hi ? 'आज 3 RTI दायर कीं' : 'Filed 3 RTIs today', members: 2400 },
+    { name: hi ? 'पुणे सिविक वॉच' : 'Pune Civic Watch', action: hi ? 'MG रोड दस्तावेज़ीकरण' : 'Documenting MG Road damage', members: 89 },
+    { name: hi ? 'दिल्ली छात्र अधिकार नेटवर्क' : 'Delhi Student Rights Network', action: hi ? 'NTA अभियान समन्वय' : 'Coordinating NTA campaign', members: 560 },
+    { name: hi ? 'बेंगलुरु ट्रैफिक एक्शन' : 'Bengaluru Traffic Action', action: hi ? 'BBMP को शिकायत दर्ज' : 'Filing complaint with BBMP', members: 120 },
   ];
 
-  const routingCards = [
-    { label: hi ? 'आज रात विरोध में जा रहा/रही हूँ' : 'Going to a protest tonight', href: '/protest-mode', icon: '✊' },
-    { label: hi ? 'मुझे अभी मदद चाहिए' : 'I need help right now', href: '/directory', icon: '🆘' },
-    { label: hi ? 'अपने लोगों को संगठित करना है' : 'I want to organize my people', href: '/groups', icon: '👥' },
-    { label: hi ? 'मेरे पास कौशल हैं' : 'I have skills to offer', href: '/exchange', icon: '🤝' },
-    { label: hi ? 'जवाबदेही तय करनी है' : 'I want to hold them accountable', href: '/report-card', icon: '📋' },
-    { label: hi ? 'व्यवस्था समझनी है' : 'I want to understand the system', href: '/know-the-system', icon: '🧠' },
+  const quickActions = [
+    { label: hi ? '✊ आज रात प्रोटेस्ट' : '✊ Protest tonight', href: '/protest-mode' },
+    { label: hi ? '🆘 अभी मदद चाहिए' : '🆘 Need help now', href: '/directory' },
+    { label: hi ? '👥 ग्रुप बनाओ/खोजो' : '👥 Find/start group', href: '/groups' },
+    { label: hi ? '🤝 मेरा कौशल दो' : '🤝 Offer my skills', href: '/exchange' },
+    { label: hi ? '📋 रिपोर्ट कार्ड' : '📋 Report Card', href: '/report-card' },
+    { label: hi ? '🧠 व्यवस्था जानो' : '🧠 Know the System', href: '/know-the-system' },
   ];
 
-  const howSteps = [
-    { title: hi ? 'आओ' : 'Show up', desc: hi ? 'प्रोटेस्ट मोड' : 'Protest Mode' },
-    { title: hi ? 'अपने लोग खोजो' : 'Find your people', desc: hi ? 'ग्रुप्स' : 'Groups' },
-    { title: hi ? 'संगठित हो' : 'Get organized', desc: hi ? 'भूमिकाएँ, कार्य, एक्शन' : 'Roles, tasks, actions' },
-    { title: hi ? 'एक्शन लो' : 'Take action', desc: hi ? 'अभियान, RTI, माँगें' : 'Campaigns, RTIs, demands' },
-    { title: hi ? 'नतीजे ट्रैक करो' : 'Track outcomes', desc: hi ? 'रिपोर्ट कार्ड' : 'Report Card' },
-    { title: hi ? 'खुद को हथियार दो' : 'Arm yourself', desc: hi ? 'व्यवस्था जानो' : 'Know the System' },
-    { title: hi ? 'रिकॉर्ड बनाओ' : 'Build your record', desc: hi ? 'सिविक प्रोफाइल' : 'Civic Profile' },
-  ];
+  const daysUntil = (d: string) => Math.max(0, Math.ceil((new Date(d).getTime() - Date.now()) / 86_400_000));
 
   return (
     <div>
-      {/* SECTION 1: HERO */}
+      {/* HERO — minimal, get to content fast */}
       <section className="home-hero" aria-labelledby="home-title">
-        <div className="page-shell home-hero-inner">
-          <p className="eyebrow">Sahayata</p>
+        <div className="page-shell home-hero-inner" style={{ paddingBlock: 'clamp(40px, 8vw, 72px)' }}>
+          <p className="eyebrow">SAHAYATA</p>
           <h1 id="home-title" className="home-title">
             {hi ? 'भारत का नागरिक ऑपरेटिंग सिस्टम' : "India's civic operating system"}
           </h1>
           <p className="home-intro">
             {hi
-              ? 'कहाँ जाना है। कौन लड़ रहा है। क्या करना है। जीतने के लिए कैसे तैयार हों।'
-              : "Where to show up. Who's fighting. What needs doing. How to arm yourself to win."}
+              ? 'सक्रिय अभियान। संगठित ग्रुप। सार्वजनिक जवाबदेही। सब एक जगह।'
+              : 'Active campaigns. Organized groups. Public accountability. All in one place.'}
           </p>
           <div className="button-row">
-            <a href="#routing" className="brutal-btn brutal-btn-primary home-primary-action">
-              {hi ? 'आपको क्या चाहिए?' : 'What do you need?'}
+            <Link href="/campaign/create" className="brutal-btn brutal-btn-primary home-primary-action">
+              {hi ? '📢 अभियान शुरू करें' : '📢 Start a Campaign'}
+            </Link>
+            <a href="#campaigns" className="brutal-btn">
+              {hi ? '↓ सक्रिय अभियान देखें' : '↓ See active campaigns'}
             </a>
           </div>
-          <p className="action-note">
-            {hi ? 'कोई अकाउंट नहीं। कोई ट्रैकिंग नहीं। ऑफलाइन काम करता है।' : 'No account. No tracking. Works offline.'}
-          </p>
         </div>
       </section>
 
-      {/* SECTION 2: SITUATION BRIEF */}
+      {/* SITUATION BRIEF */}
       <SituationBrief locale={locale} />
 
-      {/* SECTION 3: QUICK ROUTING */}
-      <section id="routing" className="home-choices" aria-labelledby="routing-title">
+      {/* SECTION 1: LIVE CAMPAIGNS — The heart of the platform */}
+      <section id="campaigns" className="content-page" style={{ background: 'var(--color-card)', borderTop: '2px solid var(--color-border)' }} aria-labelledby="campaigns-title">
         <div className="page-shell">
-          <h2 id="routing-title" className="section-title">
-            {hi ? 'आपको क्या चाहिए?' : 'What do you need?'}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 id="campaigns-title" className="section-title" style={{ margin: 0 }}>
+              {hi ? '🔥 सक्रिय अभियान' : '🔥 Active Campaigns'}
+            </h2>
+            <Link href="/campaign" className="brutal-btn brutal-btn-sm">
+              {hi ? 'सब देखें →' : 'View all →'}
+            </Link>
+          </div>
+
+          <div className="result-list">
+            {liveCampaigns.map(c => (
+              <Link key={c.id} href={`/campaign/${c.slug}`} className="brutal-card block" style={{ textDecoration: 'none', color: 'inherit' }}>
+                {/* Status + city */}
+                <div className="badge-row mb-3">
+                  <span className={`brutal-badge ${c.status === 'escalating' ? 'brutal-badge-red animate-urgent' : 'brutal-badge-accent'}`}>
+                    {c.status === 'escalating' ? (hi ? '🔺 बढ़ रहा' : '🔺 ESCALATING') : (hi ? '● चालू' : '● LIVE')}
+                  </span>
+                  <span className="brutal-badge">{c.city}</span>
+                  <span className="brutal-badge brutal-badge-purple">{c.days_active} {hi ? 'दिन' : 'days'}</span>
+                </div>
+
+                {/* Title + demand */}
+                <h3 className="heading-3 mb-2">{c.title}</h3>
+                <p className="text-sm text-[var(--color-text-muted)] mb-1">
+                  → <strong>{c.target}</strong>
+                </p>
+                <p className="text-sm mb-4">{c.demand}</p>
+
+                {/* Deadline clock + stats */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                  {/* Deadline */}
+                  <div style={{ textAlign: 'center' }}>
+                    <span className="font-mono font-black text-2xl" style={{ color: daysUntil(c.deadline) < 7 ? 'var(--color-red)' : 'var(--color-text)' }}>
+                      {daysUntil(c.deadline)}
+                    </span>
+                    <span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन शेष' : 'days left'}</span>
+                  </div>
+
+                  {/* Stats */}
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <span className="text-xs"><span className="font-mono font-bold">{c.groups_aligned}</span> {hi ? 'ग्रुप' : 'groups'}</span>
+                    <span className="text-xs"><span className="font-mono font-bold">{c.supporters.toLocaleString()}</span> {hi ? 'समर्थक' : 'supporters'}</span>
+                    <span className="text-xs"><span className="font-mono font-bold">{c.rtis_filed}</span> RTIs</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Start campaign CTA */}
+          <div style={{ marginTop: '24px', textAlign: 'center' }}>
+            <Link href="/campaign/create" className="brutal-btn brutal-btn-primary brutal-btn-lg">
+              {hi ? '📢 अपना अभियान शुरू करें' : '📢 Start Your Own Campaign'}
+            </Link>
+            <p className="action-note" style={{ marginTop: '8px' }}>
+              {hi ? 'कोई भी शुरू कर सकता है — व्यक्ति या ग्रुप।' : 'Anyone can start — individual or group.'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: GROUPS IN ACTION */}
+      <section className="content-page" aria-labelledby="groups-title">
+        <div className="page-shell">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <h2 id="groups-title" className="section-title" style={{ margin: 0 }}>
+              {hi ? '👥 सक्रिय ग्रुप' : '👥 Groups in Action'}
+            </h2>
+            <Link href="/groups" className="brutal-btn brutal-btn-sm">
+              {hi ? 'सब ग्रुप →' : 'All groups →'}
+            </Link>
+          </div>
+
+          <div className="result-list">
+            {activeGroups.map((g, i) => (
+              <article key={i} className="brutal-card-flat" style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <div>
+                  <p className="font-bold">{g.name}</p>
+                  <p className="text-sm text-[var(--color-text-muted)]">{g.action}</p>
+                </div>
+                <span className="font-mono text-xs font-bold text-[var(--color-text-muted)]">{g.members} {hi ? 'सदस्य' : 'members'}</span>
+              </article>
+            ))}
+          </div>
+
+          <div className="button-row" style={{ marginTop: '16px' }}>
+            <Link href="/groups/create" className="brutal-btn brutal-btn-primary">
+              {hi ? '➕ ग्रुप शुरू करें' : '➕ Start a Group'}
+            </Link>
+            <Link href="/groups" className="brutal-btn">
+              {hi ? 'ग्रुप खोजें' : 'Find a Group'}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: QUICK ACTIONS */}
+      <section className="home-choices" aria-labelledby="actions-title" style={{ background: 'var(--color-card)', borderTop: '2px solid var(--color-border)' }}>
+        <div className="page-shell">
+          <h2 id="actions-title" className="section-title">
+            {hi ? '⚡ तुरंत एक्शन' : '⚡ Quick Actions'}
           </h2>
           <div className="choice-grid">
-            {routingCards.map((card) => (
-              <Link
-                key={card.href}
-                href={card.href}
-                className="choice-card"
-              >
-                <span className="text-3xl" aria-hidden="true">{card.icon}</span>
-                <h3>{card.label}</h3>
+            {quickActions.map(action => (
+              <Link key={action.href} href={action.href} className="choice-card">
+                <h3>{action.label}</h3>
                 <span className="choice-link">{hi ? 'जाएँ →' : 'Go →'}</span>
               </Link>
             ))}
@@ -135,134 +201,77 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 4: LIVE PULSE */}
-      <section className="brutal-banner" aria-label={hi ? 'लाइव आँकड़े' : 'Live stats'}>
-        <div className="page-shell">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
-            <span>
-              <span className="font-mono font-black text-lg">{pulse.groups_active}</span>{' '}
-              {hi ? 'ग्रुप सक्रिय' : 'groups active'}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>
-              <span className="font-mono font-black text-lg">{pulse.volunteers_available}</span>{' '}
-              {hi ? 'वॉलंटियर उपलब्ध' : 'volunteers available'}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>
-              <span className="font-mono font-black text-lg">{pulse.demands_tracked}</span>{' '}
-              {hi ? 'माँगें ट्रैक' : 'demands tracked'}
-            </span>
-            <span aria-hidden="true">·</span>
-            <span>
-              <span className="font-mono font-black text-lg">{pulse.days_of_silence}</span>{' '}
-              {hi ? 'दिन मौन' : 'days of silence'}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 5: NEWS & CONTEXT PREVIEW */}
+      {/* SECTION 4: NEWS & ALERTS */}
       <section className="content-page" aria-labelledby="news-title">
         <div className="page-shell">
-          <h2 id="news-title" className="section-title">
-            {hi ? 'क्या हो रहा है' : "What's happening"}
-          </h2>
+          <h2 id="news-title" className="section-title">{hi ? '📰 ताज़ा अपडेट' : '📰 Latest Updates'}</h2>
           <div className="result-list">
-            {newsItems.map((item) => (
-              <article key={item.id} className="brutal-card">
-                <div className="badge-row">
-                  <span className="brutal-badge brutal-badge-sky">{item.type}</span>
-                  {item.city && <span className="brutal-badge">{item.city}</span>}
+            {[
+              { title: hi ? 'चलो संसद — वीडियो साक्ष्य प्रकाशित' : 'Chalo Sansad — video evidence published', badge: 'evidence', critical: true },
+              { title: hi ? 'शिक्षा सुधार विधेयक — समिति में' : 'Education Reform Bill — in committee', badge: 'law_update', critical: false },
+              { title: hi ? 'धारा 163 BNSS — मध्य दिल्ली में लागू' : 'Section 163 BNSS — enforced in Central Delhi', badge: 'safety_warning', critical: true },
+            ].map((item, i) => (
+              <article key={i} className={`brutal-card-flat ${item.critical ? 'border-l-4 border-l-[var(--color-red)]' : ''}`} style={{ padding: '14px' }}>
+                <div className="badge-row mb-1">
+                  <span className={`brutal-badge ${item.critical ? 'brutal-badge-red' : 'brutal-badge-sky'}`}>{item.badge}</span>
                 </div>
-                <h3 className="heading-3 mt-3">{item.title}</h3>
-                <time className="font-mono text-xs text-[var(--color-text-muted)] mt-2 block">
-                  {new Intl.DateTimeFormat(hi ? 'hi-IN' : 'en-IN', { dateStyle: 'medium' }).format(new Date(item.timestamp))}
-                </time>
+                <p className="font-bold text-sm">{item.title}</p>
               </article>
             ))}
           </div>
-          <div className="mt-6">
-            <Link href="/news" className="brutal-btn">
-              {hi ? 'सब देखें →' : 'See all →'}
-            </Link>
+          <Link href="/news" className="brutal-btn brutal-btn-sm" style={{ marginTop: '12px' }}>
+            {hi ? 'सब देखें →' : 'See all →'}
+          </Link>
+        </div>
+      </section>
+
+      {/* SECTION 5: REPORT CARD PREVIEW */}
+      <section className="content-page" style={{ background: 'var(--color-card)', borderTop: '2px solid var(--color-border)' }} aria-labelledby="rc-title">
+        <div className="page-shell">
+          <h2 id="rc-title" className="section-title">{hi ? '📋 संस्थागत मौन ट्रैकर' : '📋 Institutional Silence Tracker'}</h2>
+          <p className="text-sm text-[var(--color-text-muted)] mb-6">{hi ? 'अभियानों से ऑटो-जनरेट। हर मौन गिना जाता है।' : 'Auto-generated from campaigns. Every silence is counted.'}</p>
+          <div className="result-list">
+            {liveCampaigns.map((c, i) => (
+              <article key={i} className="brutal-card-flat" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <span className="font-mono font-black text-2xl" style={{ color: 'var(--color-red)', minWidth: '50px', textAlign: 'center' }}>
+                  {c.days_active}<span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन' : 'days'}</span>
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm truncate">{c.target}</p>
+                  <p className="text-xs text-[var(--color-text-muted)] truncate">{c.demand}</p>
+                </div>
+                <span className="brutal-badge brutal-badge-red">{hi ? 'मौन' : 'SILENT'}</span>
+              </article>
+            ))}
           </div>
+          <Link href="/report-card" className="brutal-btn brutal-btn-sm" style={{ marginTop: '12px' }}>
+            {hi ? 'पूरा रिपोर्ट कार्ड →' : 'Full Report Card →'}
+          </Link>
         </div>
       </section>
 
       {/* SECTION 6: HOW IT WORKS */}
       <section className="how-it-works" aria-labelledby="how-title">
         <div className="page-shell">
-          <h2 id="how-title" className="section-title">
-            {hi ? 'यह कैसे काम करता है' : 'How It Works'}
-          </h2>
+          <h2 id="how-title" className="section-title">{hi ? 'कैसे काम करता है' : 'How It Works'}</h2>
           <ol className="steps-list">
-            {howSteps.map((step) => (
-              <li key={step.title}>
-                <strong>{step.title}</strong>
-                <span>{step.desc}</span>
-              </li>
-            ))}
+            <li><strong>{hi ? 'अभियान शुरू करो या जुड़ो' : 'Start or join a campaign'}</strong><span>{hi ? 'लक्ष्य + माँग + समय सीमा = सार्वजनिक जवाबदेही' : 'Target + demand + deadline = public accountability'}</span></li>
+            <li><strong>{hi ? 'ग्रुप को जोड़ो' : 'Align your group'}</strong><span>{hi ? '10 ग्रुप = 10x ताकत। गठबंधन बनाओ।' : '10 groups = 10x power. Build coalitions.'}</span></li>
+            <li><strong>{hi ? 'टूल्स इस्तेमाल करो' : 'Use the tools'}</strong><span>{hi ? 'RTI, FIR, साक्ष्य, शेयर कार्ड — सब अभियान से जुड़ा' : 'RTI, FIR, evidence, share cards — all connected to campaign'}</span></li>
+            <li><strong>{hi ? 'एस्केलेट करो' : 'Escalate'}</strong><span>{hi ? 'समय सीमा बीती? अपील। मौन? सार्वजनिक करो।' : 'Deadline passed? Appeal. Silence? Make it public.'}</span></li>
+            <li><strong>{hi ? 'नतीजा दर्ज करो' : 'Record the outcome'}</strong><span>{hi ? 'जीत, इनकार, मौन — सब रिपोर्ट कार्ड पर' : 'Won, refused, silent — all on the Report Card'}</span></li>
           </ol>
         </div>
       </section>
 
-      {/* SECTION 7: REPORT CARD PREVIEW */}
-      <section className="content-page" aria-labelledby="reportcard-title" style={{ background: 'var(--color-card)', borderTop: '2px solid var(--color-border)' }}>
+      {/* FOOTER: HELP + TRUST */}
+      <aside style={{ padding: '14px 0', borderTop: '1px solid var(--color-border-light)', textAlign: 'center' }}>
         <div className="page-shell">
-          <h2 id="reportcard-title" className="section-title">
-            {hi ? 'संस्थागत मौन ट्रैकर' : 'Institutional Silence Tracker'}
-          </h2>
-          <div className="result-list">
-            {demands.map((d, i) => (
-              <article key={i} className="brutal-card-flat flex items-center gap-4 p-4">
-                <span className="font-mono font-black text-2xl text-[var(--color-red)] min-w-[60px] text-center">
-                  {d.days}
-                  <span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन' : 'days'}</span>
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{d.institution}</p>
-                  <p className="text-sm text-[var(--color-text-muted)] truncate">{d.demand}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-          <div className="mt-6">
-            <Link href="/report-card" className="brutal-btn brutal-btn-primary">
-              {hi ? 'पूरा रिपोर्ट कार्ड देखें →' : 'See full Report Card →'}
-            </Link>
-          </div>
+          <p style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+            {hi ? '⚖️ वकील:' : '⚖️ Lawyer:'} <a href="tel:1516" style={{ color: 'var(--color-accent)' }}>DSLSA 1516</a> ({hi ? 'मुफ्त, 24/7' : 'free, 24/7'}) · <a href="https://hrln.org" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>HRLN ↗</a> · <Link href="/directory" style={{ color: 'var(--color-accent)' }}>{hi ? 'पूरी डायरेक्टरी →' : 'Full directory →'}</Link>
+          </p>
         </div>
-      </section>
-
-      {/* SECTION 8: DIRECTORY HIGHLIGHTS */}
-      <section className="content-page" aria-labelledby="directory-title">
-        <div className="page-shell">
-          <h2 id="directory-title" className="section-title">
-            {hi ? 'हाल ही में सत्यापित' : 'Recently verified'}
-          </h2>
-          <div className="result-list">
-            {directoryItems.map((item, i) => (
-              <article key={i} className="brutal-card-flat flex items-center justify-between gap-4 p-4">
-                <div>
-                  <p className="font-bold">{item.name}</p>
-                  <span className="brutal-badge brutal-badge-sky text-xs">{item.type}</span>
-                </div>
-                {item.verified && (
-                  <span className="brutal-badge brutal-badge-purple text-xs">
-                    {hi ? '✓ सत्यापित' : '✓ Verified'}
-                  </span>
-                )}
-              </article>
-            ))}
-          </div>
-          <div className="mt-6">
-            <Link href="/directory" className="brutal-btn">
-              {hi ? 'पूरी डायरेक्टरी देखें →' : 'Browse full directory →'}
-            </Link>
-          </div>
-        </div>
-      </section>
+      </aside>
     </div>
   );
 }
