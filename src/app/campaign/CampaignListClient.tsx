@@ -11,17 +11,19 @@ interface Campaign {
   id: string;
   slug: string;
   title: string;
+  title_hi?: string;
   target_institution: string;
   primary_demand: string;
+  primary_demand_hi?: string;
   city: string;
   status: string;
   deadline: string;
-  days_active: number;
-  groups_aligned: number;
-  supporter_count: number;
-  filing_count: number;
-  started_by: string;
-  started_by_type: 'individual' | 'group';
+  days_active?: number;
+  groups_aligned?: number;
+  supporter_count?: number;
+  filing_count?: number;
+  created_at?: string;
+  creator_id?: string;
 }
 
 
@@ -41,24 +43,22 @@ export default function CampaignListClient({ locale }: Props) {
         if (city) params.set('city', city);
         if (status) params.set('status', status);
         const res = await fetch(`/api/campaign?${params}`, { signal: controller.signal });
-        if (res.ok) { const d = await res.json(); setCampaigns(d.campaigns || []); }
-      } catch { /* fallback */ }
+        if (res.ok) {
+          const d = await res.json();
+          setCampaigns(d.campaigns || []);
+        } else {
+          setCampaigns([]);
+        }
+      } catch (e) {
+        if (!(e instanceof DOMException && (e as DOMException).name === 'AbortError')) {
+          setCampaigns([]);
+        }
+      }
       setLoading(false);
     }
     load();
     return () => controller.abort();
   }, [city, status]);
-
-  // Fallback data
-  useEffect(() => {
-    if (!loading && campaigns.length === 0) {
-      setCampaigns([
-        { id: '1', slug: 'dissolve-nta', title: hi ? 'NTA भंग करो' : 'Dissolve NTA', target_institution: hi ? 'शिक्षा मंत्रालय' : 'Ministry of Education', primary_demand: hi ? 'NTA भंग करो, पारदर्शी निकाय बनाओ' : 'Dissolve NTA, create transparent body', city: 'Delhi', status: 'escalating', deadline: '2026-08-19', days_active: 34, groups_aligned: 5, supporter_count: 4200, filing_count: 47, started_by: 'CJP Delhi', started_by_type: 'group' },
-        { id: '2', slug: 'investigate-jul20', title: hi ? '20 जुलाई जाँच' : 'Jul 20 Investigation', target_institution: hi ? 'गृह मंत्रालय' : 'MHA', primary_demand: hi ? 'स्वतंत्र जाँच' : 'Independent inquiry', city: 'Delhi', status: 'live', deadline: '2026-08-20', days_active: 3, groups_aligned: 8, supporter_count: 1800, filing_count: 12, started_by: hi ? 'दिल्ली छात्र नेटवर्क' : 'Delhi Student Network', started_by_type: 'group' },
-        { id: '3', slug: 'pune-roads', title: hi ? 'पुणे सड़कें ठीक करो' : 'Fix Pune Roads', target_institution: hi ? 'PMC' : 'PMC', primary_demand: hi ? '30 दिन में गड्ढे ठीक' : 'Fix potholes in 30 days', city: 'Pune', status: 'live', deadline: '2026-08-10', days_active: 15, groups_aligned: 2, supporter_count: 340, filing_count: 3, started_by: 'Rahul M.', started_by_type: 'individual' },
-      ]);
-    }
-  }, [loading, campaigns.length, hi]);
 
   const daysUntil = (d: string) => Math.max(0, Math.ceil((new Date(d).getTime() - Date.now()) / 86_400_000));
 
@@ -103,6 +103,15 @@ export default function CampaignListClient({ locale }: Props) {
         {/* Campaign list */}
         {loading ? (
           <div className="loading-state"><div className="loading-dot" /><span>{hi ? 'लोड हो रहा...' : 'Loading...'}</span></div>
+        ) : campaigns.length === 0 ? (
+          <div className="brutal-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+            <p style={{ fontSize: '2rem', marginBottom: '12px' }}>📢</p>
+            <h3 className="heading-3 mb-2">{hi ? 'कोई अभियान नहीं मिला' : 'No campaigns yet'}</h3>
+            <p className="text-sm text-[var(--color-text-muted)] mb-4">{hi ? 'पहला अभियान शुरू करें!' : 'Be the first to start one!'}</p>
+            <Link href="/campaign/create" className="brutal-btn brutal-btn-primary">
+              {hi ? 'अभियान शुरू करें →' : 'Start a Campaign →'}
+            </Link>
+          </div>
         ) : (
           <div className="result-list">
             {campaigns.map(c => (
@@ -113,15 +122,14 @@ export default function CampaignListClient({ locale }: Props) {
                   </span>
                   <span className="brutal-badge">{c.city}</span>
                 </div>
-                <h3 className="heading-3 mb-1">{c.title}</h3>
+                <h3 className="heading-3 mb-1">{hi && c.title_hi ? c.title_hi : c.title}</h3>
                 <p className="text-sm text-[var(--color-text-muted)] mb-1">→ {c.target_institution}</p>
-                <p className="text-sm mb-3">{c.primary_demand}</p>
+                <p className="text-sm mb-3">{hi && c.primary_demand_hi ? c.primary_demand_hi : c.primary_demand}</p>
                 <div className="flex flex-wrap gap-4 text-xs text-[var(--color-text-muted)]">
                   <span className="font-mono font-bold text-[var(--color-text)]">{daysUntil(c.deadline)}d left</span>
-                  <span>{c.groups_aligned} {hi ? 'ग्रुप' : 'groups'}</span>
-                  <span>{c.supporter_count.toLocaleString()} {hi ? 'समर्थक' : 'supporters'}</span>
-                  <span>{c.filing_count} RTIs</span>
-                  <span className="text-[var(--color-accent)]">{hi ? 'द्वारा:' : 'by:'} {c.started_by}</span>
+                  <span>{c.groups_aligned || 0} {hi ? 'ग्रुप' : 'groups'}</span>
+                  <span>{(c.supporter_count || 0).toLocaleString()} {hi ? 'समर्थक' : 'supporters'}</span>
+                  <span>{c.filing_count || 0} RTIs</span>
                 </div>
               </Link>
             ))}

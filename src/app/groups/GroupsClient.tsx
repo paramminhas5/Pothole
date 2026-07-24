@@ -9,16 +9,17 @@ interface Props {
   locale: Locale;
 }
 
-type GroupType = 'protest' | 'mutual_aid' | 'campaign' | 'study' | 'chapter';
+type GroupType = 'protest' | 'mutual_aid' | 'campaign' | 'study' | 'chapter' | 'general';
 
 interface Group {
   id: string;
   name: string;
   city: string;
-  type: GroupType;
+  group_type: GroupType;
   member_count: number;
   action_count: number;
   purpose: string;
+  description?: string;
   chat_link?: string;
 }
 
@@ -29,9 +30,10 @@ const GROUP_TYPES: { value: GroupType | ''; labelEn: string; labelHi: string }[]
   { value: 'campaign', labelEn: 'Campaign', labelHi: 'अभियान' },
   { value: 'study', labelEn: 'Study', labelHi: 'अध्ययन' },
   { value: 'chapter', labelEn: 'Chapter', labelHi: 'चैप्टर' },
+  { value: 'general', labelEn: 'General', labelHi: 'सामान्य' },
 ];
 
-function typeBadgeClass(type: GroupType): string {
+function typeBadgeClass(type: string): string {
   switch (type) {
     case 'protest': return 'brutal-badge-red';
     case 'mutual_aid': return 'brutal-badge-lime';
@@ -57,22 +59,10 @@ export default function GroupsClient({ locale }: Props) {
         const params = new URLSearchParams();
         if (cityFilter) params.set('city', cityFilter);
         if (typeFilter) params.set('type', typeFilter);
-        const res = await fetch(`/api/chapters?${params}`, { signal: controller.signal });
+        const res = await fetch(`/api/groups?${params}`, { signal: controller.signal });
         if (!res.ok) throw new Error('fail');
         const data = await res.json();
-        // Map API data to our interface (gracefully handle different response shapes)
-        const raw = data.chapters || data.groups || [];
-        const mapped: Group[] = raw.map((g: Record<string, unknown>) => ({
-          id: g.id || '',
-          name: g.name || '',
-          city: g.city || '',
-          type: g.type || 'chapter',
-          member_count: g.member_count || g.members || 0,
-          action_count: g.action_count || g.actions || 0,
-          purpose: g.purpose || g.description || '',
-          chat_link: g.chat_link || g.contact_method || '',
-        }));
-        setGroups(mapped);
+        setGroups(data.groups || []);
       } catch (e) {
         if (!(e instanceof DOMException && e.name === 'AbortError')) {
           setGroups([]);
@@ -156,9 +146,10 @@ export default function GroupsClient({ locale }: Props) {
             <span>{hi ? 'लोड हो रहा...' : 'Loading groups...'}</span>
           </div>
         ) : groups.length === 0 ? (
-          <div className="empty-state">
-            <h2>{hi ? 'कोई ग्रुप नहीं मिला' : 'No groups found'}</h2>
-            <p>{hi ? 'फ़िल्टर बदलें या पहला ग्रुप बनाएँ!' : 'Change filters or start the first group!'}</p>
+          <div className="brutal-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+            <p style={{ fontSize: '2rem', marginBottom: '12px' }}>👥</p>
+            <h3 className="heading-3 mb-2">{hi ? 'कोई ग्रुप नहीं मिला' : 'No groups found'}</h3>
+            <p className="text-sm text-[var(--color-text-muted)] mb-4">{hi ? 'फ़िल्टर बदलें या पहला ग्रुप बनाएँ!' : 'Change filters or start the first group!'}</p>
             <Link href="/groups/create" className="brutal-btn brutal-btn-primary">
               {hi ? 'ग्रुप शुरू करें' : 'Start a Group'}
             </Link>
@@ -179,22 +170,22 @@ export default function GroupsClient({ locale }: Props) {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="badge-row mb-2">
-                        <span className={`brutal-badge ${typeBadgeClass(g.type)}`}>
-                          {GROUP_TYPES.find((t) => t.value === g.type)?.[hi ? 'labelHi' : 'labelEn'] || g.type}
+                        <span className={`brutal-badge ${typeBadgeClass(g.group_type)}`}>
+                          {GROUP_TYPES.find((t) => t.value === g.group_type)?.[hi ? 'labelHi' : 'labelEn'] || g.group_type}
                         </span>
                         <span className="brutal-badge">{g.city}</span>
                       </div>
                       <h3 className="heading-3 mb-1">{g.name}</h3>
-                      {g.purpose && (
-                        <p className="text-sm text-[var(--color-text-muted)] line-clamp-2">{g.purpose}</p>
+                      {(g.purpose || g.description) && (
+                        <p className="text-sm text-[var(--color-text-muted)] line-clamp-2">{g.purpose || g.description}</p>
                       )}
                       <div className="flex flex-wrap gap-4 mt-3 text-xs text-[var(--color-text-muted)]">
                         <span>
-                          <span className="font-mono font-bold text-[var(--color-text)]">{g.member_count}</span>{' '}
+                          <span className="font-mono font-bold text-[var(--color-text)]">{g.member_count || 0}</span>{' '}
                           {hi ? 'सदस्य' : 'members'}
                         </span>
                         <span>
-                          <span className="font-mono font-bold text-[var(--color-text)]">{g.action_count}</span>{' '}
+                          <span className="font-mono font-bold text-[var(--color-text)]">{g.action_count || 0}</span>{' '}
                           {hi ? 'एक्शन' : 'actions'}
                         </span>
                         {g.chat_link && (

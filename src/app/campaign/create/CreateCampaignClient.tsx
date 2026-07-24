@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Locale } from '@/types';
 import { CITIES_AREAS } from '@/lib/constants';
@@ -11,7 +12,10 @@ type Step = 'who' | 'target' | 'demand' | 'review';
 
 export default function CreateCampaignClient({ locale }: Props) {
   const hi = locale === 'hi';
+  const router = useRouter();
   const [step, setStep] = useState<Step>('who');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState({
     starterType: '' as 'individual' | 'group' | '',
     groupName: '',
@@ -25,6 +29,54 @@ export default function CreateCampaignClient({ locale }: Props) {
   });
 
   const update = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+  async function handlePublish() {
+    setSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch('/api/campaign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: form.title,
+          targetInstitution: form.targetInstitution,
+          primaryDemand: form.primaryDemand,
+          city: form.city,
+          category: form.category || 'other',
+          deadline: form.deadline,
+          issueStatement: form.issueStatement,
+          groupName: form.starterType === 'group' ? form.groupName : undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to create campaign');
+        setSubmitting(false);
+        return;
+      }
+
+      const data = await res.json();
+      const campaign = data.campaign;
+
+      // Now publish (draft → live)
+      const patchRes = await fetch(`/api/campaign/${campaign.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'live' }),
+      });
+
+      if (!patchRes.ok) {
+        // Campaign created but not published — still redirect
+        console.warn('Campaign created but publish failed');
+      }
+
+      router.push(`/campaign/${campaign.slug}`);
+    } catch {
+      setError(hi ? 'नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।' : 'Network error. Please try again.');
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="form-page page-shell">
@@ -172,10 +224,28 @@ export default function CreateCampaignClient({ locale }: Props) {
             </p>
           </div>
 
+          {error && (
+            <div style={{ marginTop: '12px', padding: '12px', border: '2px solid var(--color-red)', borderRadius: '8px', color: 'var(--color-red)', fontSize: '0.9rem' }}>
+              {error}
+            </div>
+          )}
+
           <div className="button-row mt-6">
-            <button className="brutal-btn" onClick={() => setStep('demand')}>{hi ? '← पीछे' : '← Back'}</button>
-            <button className="brutal-btn brutal-btn-primary brutal-btn-lg" style={{ flex: 1 }}>
-              {hi ? '📢 अभियान प्रकाशित करें' : '📢 Publish Campaign'}
+            <button className="brutal-btn" onClick={() => setStep('demand')} disabled={submitting}>{hi ? '← पीछे' : '← Back'}</button>
+            <button
+              className="brutal-btn brutal-btn-primary brutal-btn-lg"
+              style={{ flex: 1, opacity: submitting ? 0.7 : 1 }}
+              disabled={submitting}
+              onClick={handlePublish}
+            >
+              {submitting ? (
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <span className="loading-dot" style={{ width: '8px', height: '8px' }} />
+                  {hi ? 'प्रकाशित हो रहा...' : 'Publishing...'}
+                </span>
+              ) : (
+                hi ? '📢 अभियान प्रकाशित करें' : '📢 Publish Campaign'
+              )}
             </button>
           </div>
         </div>

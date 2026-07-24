@@ -3,48 +3,36 @@ import Link from 'next/link';
 import { Locale } from '@/types';
 import SituationBrief from '@/components/SituationBrief';
 
+async function fetchCampaigns() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/campaign?limit=3`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      return data.campaigns || [];
+    }
+  } catch { /* empty */ }
+  return [];
+}
+
+async function fetchGroups() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/groups?limit=4`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      return data.groups || [];
+    }
+  } catch { /* empty */ }
+  return [];
+}
+
 export default async function HomePage() {
   const cookieStore = await cookies();
   const locale = (cookieStore.get('locale')?.value as Locale) || 'en';
   const hi = locale === 'hi';
 
-  // Live campaigns data (fallback to seed)
-  const liveCampaigns = [
-    {
-      id: '1', slug: 'dissolve-nta',
-      title: hi ? 'NTA भंग करो — शिक्षा सुधार' : 'Dissolve NTA — Education Reform',
-      target: hi ? 'शिक्षा मंत्रालय' : 'Ministry of Education',
-      city: 'Delhi', status: 'escalating',
-      days_active: 34, groups_aligned: 5, supporters: 4200, rtis_filed: 47,
-      demand: hi ? 'NTA को भंग करो और पारदर्शी परीक्षा निकाय बनाओ' : 'Dissolve NTA and establish transparent exam body',
-      deadline: '2026-08-19',
-    },
-    {
-      id: '2', slug: 'investigate-lathi-charge',
-      title: hi ? '20 जुलाई लाठीचार्ज जाँच' : 'Jul 20 Lathi Charge Investigation',
-      target: hi ? 'गृह मंत्रालय' : 'Ministry of Home Affairs',
-      city: 'Delhi', status: 'live',
-      days_active: 3, groups_aligned: 8, supporters: 1800, rtis_filed: 12,
-      demand: hi ? '180+ घायलों के लिए स्वतंत्र जाँच' : 'Independent inquiry for 180+ injured',
-      deadline: '2026-08-20',
-    },
-    {
-      id: '3', slug: 'mg-road-potholes-pune',
-      title: hi ? 'MG रोड गड्ढे — पुणे' : 'MG Road Potholes — Pune',
-      target: hi ? 'पुणे नगर निगम' : 'Pune Municipal Corporation',
-      city: 'Pune', status: 'live',
-      days_active: 15, groups_aligned: 2, supporters: 340, rtis_filed: 3,
-      demand: hi ? '30 दिन में सभी गड्ढे ठीक करो' : 'Fix all potholes within 30 days',
-      deadline: '2026-08-10',
-    },
-  ];
-
-  const activeGroups = [
-    { name: hi ? 'CJP दिल्ली' : 'CJP Delhi', action: hi ? 'आज 3 RTI दायर कीं' : 'Filed 3 RTIs today', members: 2400 },
-    { name: hi ? 'पुणे सिविक वॉच' : 'Pune Civic Watch', action: hi ? 'MG रोड दस्तावेज़ीकरण' : 'Documenting MG Road damage', members: 89 },
-    { name: hi ? 'दिल्ली छात्र अधिकार नेटवर्क' : 'Delhi Student Rights Network', action: hi ? 'NTA अभियान समन्वय' : 'Coordinating NTA campaign', members: 560 },
-    { name: hi ? 'बेंगलुरु ट्रैफिक एक्शन' : 'Bengaluru Traffic Action', action: hi ? 'BBMP को शिकायत दर्ज' : 'Filing complaint with BBMP', members: 120 },
-  ];
+  const [liveCampaigns, activeGroups] = await Promise.all([fetchCampaigns(), fetchGroups()]);
 
   const quickActions = [
     { label: hi ? '✊ आज रात प्रोटेस्ट' : '✊ Protest tonight', href: '/protest-mode' },
@@ -97,45 +85,55 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="result-list">
-            {liveCampaigns.map(c => (
-              <Link key={c.id} href={`/campaign/${c.slug}`} className="brutal-card block" style={{ textDecoration: 'none', color: 'inherit' }}>
-                {/* Status + city */}
-                <div className="badge-row mb-3">
-                  <span className={`brutal-badge ${c.status === 'escalating' ? 'brutal-badge-red animate-urgent' : 'brutal-badge-accent'}`}>
-                    {c.status === 'escalating' ? (hi ? '🔺 बढ़ रहा' : '🔺 ESCALATING') : (hi ? '● चालू' : '● LIVE')}
-                  </span>
-                  <span className="brutal-badge">{c.city}</span>
-                  <span className="brutal-badge brutal-badge-purple">{c.days_active} {hi ? 'दिन' : 'days'}</span>
-                </div>
-
-                {/* Title + demand */}
-                <h3 className="heading-3 mb-2">{c.title}</h3>
-                <p className="text-sm text-[var(--color-text-muted)] mb-1">
-                  → <strong>{c.target}</strong>
-                </p>
-                <p className="text-sm mb-4">{c.demand}</p>
-
-                {/* Deadline clock + stats */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-                  {/* Deadline */}
-                  <div style={{ textAlign: 'center' }}>
-                    <span className="font-mono font-black text-2xl" style={{ color: daysUntil(c.deadline) < 7 ? 'var(--color-red)' : 'var(--color-text)' }}>
-                      {daysUntil(c.deadline)}
-                    </span>
-                    <span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन शेष' : 'days left'}</span>
-                  </div>
-
-                  {/* Stats */}
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <span className="text-xs"><span className="font-mono font-bold">{c.groups_aligned}</span> {hi ? 'ग्रुप' : 'groups'}</span>
-                    <span className="text-xs"><span className="font-mono font-bold">{c.supporters.toLocaleString()}</span> {hi ? 'समर्थक' : 'supporters'}</span>
-                    <span className="text-xs"><span className="font-mono font-bold">{c.rtis_filed}</span> RTIs</span>
-                  </div>
-                </div>
+          {liveCampaigns.length === 0 ? (
+            <div className="brutal-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <p style={{ fontSize: '2rem', marginBottom: '12px' }}>📢</p>
+              <h3 className="heading-3 mb-2">{hi ? 'अभी कोई सक्रिय अभियान नहीं' : 'No active campaigns yet'}</h3>
+              <p className="text-sm text-[var(--color-text-muted)] mb-4">{hi ? 'पहला अभियान शुरू करें और बदलाव लाएँ।' : 'Start the first campaign and make a difference.'}</p>
+              <Link href="/campaign/create" className="brutal-btn brutal-btn-primary">
+                {hi ? 'अभियान शुरू करें →' : 'Start one →'}
               </Link>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="result-list">
+              {liveCampaigns.map((c: any) => (
+                <Link key={c.id} href={`/campaign/${c.slug}`} className="brutal-card block" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {/* Status + city */}
+                  <div className="badge-row mb-3">
+                    <span className={`brutal-badge ${c.status === 'escalating' ? 'brutal-badge-red animate-urgent' : 'brutal-badge-accent'}`}>
+                      {c.status === 'escalating' ? (hi ? '🔺 बढ़ रहा' : '🔺 ESCALATING') : (hi ? '● चालू' : '● LIVE')}
+                    </span>
+                    <span className="brutal-badge">{c.city}</span>
+                  </div>
+
+                  {/* Title + demand */}
+                  <h3 className="heading-3 mb-2">{hi && c.title_hi ? c.title_hi : c.title}</h3>
+                  <p className="text-sm text-[var(--color-text-muted)] mb-1">
+                    → <strong>{c.target_institution}</strong>
+                  </p>
+                  <p className="text-sm mb-4">{hi && c.primary_demand_hi ? c.primary_demand_hi : c.primary_demand}</p>
+
+                  {/* Deadline clock + stats */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                    {/* Deadline */}
+                    <div style={{ textAlign: 'center' }}>
+                      <span className="font-mono font-black text-2xl" style={{ color: daysUntil(c.deadline) < 7 ? 'var(--color-red)' : 'var(--color-text)' }}>
+                        {daysUntil(c.deadline)}
+                      </span>
+                      <span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन शेष' : 'days left'}</span>
+                    </div>
+
+                    {/* Stats */}
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <span className="text-xs"><span className="font-mono font-bold">{c.groups_aligned || 0}</span> {hi ? 'ग्रुप' : 'groups'}</span>
+                      <span className="text-xs"><span className="font-mono font-bold">{(c.supporter_count || 0).toLocaleString()}</span> {hi ? 'समर्थक' : 'supporters'}</span>
+                      <span className="text-xs"><span className="font-mono font-bold">{c.filing_count || 0}</span> RTIs</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Start campaign CTA */}
           <div style={{ marginTop: '24px', textAlign: 'center' }}>
@@ -161,17 +159,28 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="result-list">
-            {activeGroups.map((g, i) => (
-              <article key={i} className="brutal-card-flat" style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                <div>
-                  <p className="font-bold">{g.name}</p>
-                  <p className="text-sm text-[var(--color-text-muted)]">{g.action}</p>
-                </div>
-                <span className="font-mono text-xs font-bold text-[var(--color-text-muted)]">{g.members} {hi ? 'सदस्य' : 'members'}</span>
-              </article>
-            ))}
-          </div>
+          {activeGroups.length === 0 ? (
+            <div className="brutal-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <p style={{ fontSize: '2rem', marginBottom: '12px' }}>👥</p>
+              <h3 className="heading-3 mb-2">{hi ? 'अभी कोई ग्रुप नहीं' : 'No groups yet'}</h3>
+              <p className="text-sm text-[var(--color-text-muted)] mb-4">{hi ? 'पहला ग्रुप बनाएँ और संगठित हों।' : 'Start the first group and get organized.'}</p>
+              <Link href="/groups/create" className="brutal-btn brutal-btn-primary">
+                {hi ? 'ग्रुप शुरू करें →' : 'Start a Group →'}
+              </Link>
+            </div>
+          ) : (
+            <div className="result-list">
+              {activeGroups.map((g: any) => (
+                <article key={g.id} className="brutal-card-flat" style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                  <div>
+                    <p className="font-bold">{g.name}</p>
+                    <p className="text-sm text-[var(--color-text-muted)]">{g.city} · {g.group_type || 'general'}</p>
+                  </div>
+                  <span className="font-mono text-xs font-bold text-[var(--color-text-muted)]">{g.member_count || 0} {hi ? 'सदस्य' : 'members'}</span>
+                </article>
+              ))}
+            </div>
+          )}
 
           <div className="button-row" style={{ marginTop: '16px' }}>
             <Link href="/groups/create" className="brutal-btn brutal-btn-primary">
@@ -201,56 +210,37 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 4: NEWS & ALERTS */}
-      <section className="content-page" aria-labelledby="news-title">
-        <div className="page-shell">
-          <h2 id="news-title" className="section-title">{hi ? '📰 ताज़ा अपडेट' : '📰 Latest Updates'}</h2>
-          <div className="result-list">
-            {[
-              { title: hi ? 'चलो संसद — वीडियो साक्ष्य प्रकाशित' : 'Chalo Sansad — video evidence published', badge: 'evidence', critical: true },
-              { title: hi ? 'शिक्षा सुधार विधेयक — समिति में' : 'Education Reform Bill — in committee', badge: 'law_update', critical: false },
-              { title: hi ? 'धारा 163 BNSS — मध्य दिल्ली में लागू' : 'Section 163 BNSS — enforced in Central Delhi', badge: 'safety_warning', critical: true },
-            ].map((item, i) => (
-              <article key={i} className={`brutal-card-flat ${item.critical ? 'border-l-4 border-l-[var(--color-red)]' : ''}`} style={{ padding: '14px' }}>
-                <div className="badge-row mb-1">
-                  <span className={`brutal-badge ${item.critical ? 'brutal-badge-red' : 'brutal-badge-sky'}`}>{item.badge}</span>
-                </div>
-                <p className="font-bold text-sm">{item.title}</p>
-              </article>
-            ))}
+      {/* SECTION 4: INSTITUTIONAL SILENCE TRACKER */}
+      {liveCampaigns.length > 0 && (
+        <section className="content-page" style={{ background: 'var(--color-card)', borderTop: '2px solid var(--color-border)' }} aria-labelledby="rc-title">
+          <div className="page-shell">
+            <h2 id="rc-title" className="section-title">{hi ? '📋 संस्थागत मौन ट्रैकर' : '📋 Institutional Silence Tracker'}</h2>
+            <p className="text-sm text-[var(--color-text-muted)] mb-6">{hi ? 'अभियानों से ऑटो-जनरेट। हर मौन गिना जाता है।' : 'Auto-generated from campaigns. Every silence is counted.'}</p>
+            <div className="result-list">
+              {liveCampaigns.map((c: any) => {
+                const daysActive = c.days_active || Math.max(0, Math.ceil((Date.now() - new Date(c.created_at).getTime()) / 86_400_000));
+                return (
+                  <article key={c.id} className="brutal-card-flat" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <span className="font-mono font-black text-2xl" style={{ color: 'var(--color-red)', minWidth: '50px', textAlign: 'center' }}>
+                      {daysActive}<span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन' : 'days'}</span>
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{c.target_institution}</p>
+                      <p className="text-xs text-[var(--color-text-muted)] truncate">{hi && c.primary_demand_hi ? c.primary_demand_hi : c.primary_demand}</p>
+                    </div>
+                    <span className="brutal-badge brutal-badge-red">{hi ? 'मौन' : 'SILENT'}</span>
+                  </article>
+                );
+              })}
+            </div>
+            <Link href="/report-card" className="brutal-btn brutal-btn-sm" style={{ marginTop: '12px' }}>
+              {hi ? 'पूरा रिपोर्ट कार्ड →' : 'Full Report Card →'}
+            </Link>
           </div>
-          <Link href="/news" className="brutal-btn brutal-btn-sm" style={{ marginTop: '12px' }}>
-            {hi ? 'सब देखें →' : 'See all →'}
-          </Link>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* SECTION 5: REPORT CARD PREVIEW */}
-      <section className="content-page" style={{ background: 'var(--color-card)', borderTop: '2px solid var(--color-border)' }} aria-labelledby="rc-title">
-        <div className="page-shell">
-          <h2 id="rc-title" className="section-title">{hi ? '📋 संस्थागत मौन ट्रैकर' : '📋 Institutional Silence Tracker'}</h2>
-          <p className="text-sm text-[var(--color-text-muted)] mb-6">{hi ? 'अभियानों से ऑटो-जनरेट। हर मौन गिना जाता है।' : 'Auto-generated from campaigns. Every silence is counted.'}</p>
-          <div className="result-list">
-            {liveCampaigns.map((c, i) => (
-              <article key={i} className="brutal-card-flat" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <span className="font-mono font-black text-2xl" style={{ color: 'var(--color-red)', minWidth: '50px', textAlign: 'center' }}>
-                  {c.days_active}<span className="block text-xs font-bold text-[var(--color-text-muted)]">{hi ? 'दिन' : 'days'}</span>
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{c.target}</p>
-                  <p className="text-xs text-[var(--color-text-muted)] truncate">{c.demand}</p>
-                </div>
-                <span className="brutal-badge brutal-badge-red">{hi ? 'मौन' : 'SILENT'}</span>
-              </article>
-            ))}
-          </div>
-          <Link href="/report-card" className="brutal-btn brutal-btn-sm" style={{ marginTop: '12px' }}>
-            {hi ? 'पूरा रिपोर्ट कार्ड →' : 'Full Report Card →'}
-          </Link>
-        </div>
-      </section>
-
-      {/* SECTION 6: HOW IT WORKS */}
+      {/* SECTION 5: HOW IT WORKS */}
       <section className="how-it-works" aria-labelledby="how-title">
         <div className="page-shell">
           <h2 id="how-title" className="section-title">{hi ? 'कैसे काम करता है' : 'How It Works'}</h2>
