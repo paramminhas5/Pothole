@@ -44,14 +44,15 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     .eq('identity_id', profileRow.identity_id)
     .eq('assignment_verified', true);
 
-  const trackProgress = (enrollments || []).map((e: { track_id: string; status: string; progress_pct: number; school_tracks?: { title: string } }) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trackProgress = (enrollments || []).map((e: any) => ({
     track_id: e.track_id,
-    track_title: e.school_tracks?.title || '',
+    track_title: Array.isArray(e.school_tracks) ? e.school_tracks[0]?.title || '' : e.school_tracks?.title || '',
     status: e.status,
     progress_pct: e.progress_pct,
-    lessons_completed: 0, // would need a count query
+    lessons_completed: 0,
     total_lessons: 0,
-    assignments_verified: (completionCounts || []).filter(c => c.track_id === e.track_id).length,
+    assignments_verified: (completionCounts || []).filter((c: any) => c.track_id === e.track_id).length,
   }));
 
   const dto = toCivicProfile(profileRow, campaigns || [], trackProgress);
